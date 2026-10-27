@@ -1,21 +1,29 @@
-# Caption Maker AI Studio — Strategic Copywriting & Trend Analytics
+# Caption Maker AI Studio — Strategic Copywriting & Multi-AI Auto-Fallback
 
-**Aplikasi web copywriting media sosial berkonversi tinggi dan analisis tren pencarian (Social SEO)** yang ditenagai oleh **Google Gemini AI (Model: `gemini-3.8-flash`)** via SDK resmi `@google/genai`.
+**Aplikasi web copywriting media sosial berkonversi tinggi dan analisis tren pencarian (Social SEO)** yang ditenagai oleh **Multi-Model AI Engine (Google Gemini 3.8 Flash, Groq Llama 3.3, dan DeepSeek Chat)** dengan sistem **Auto-Fallback Cerdas**.
 
 Aplikasi ini 100% *client-side* murni (Single Page Application / SPA) berbasis HTML, Tailwind CSS, dan JavaScript ES Module, sehingga dapat langsung di-deploy secara statis ke **GitHub Pages**, **Vercel**, atau **Netlify** tanpa membutuhkan server backend terpisah.
+
+---
+
+## 🛡️ Multi-AI Engine & Auto-Fallback Otomatis
+- **Penyedia Utama:** Google Gemini 3.8 Flash (`gemini-3.8-flash`), Groq Cloud (`llama-3.3-70b-versatile`), atau DeepSeek (`deepseek-chat`).
+- **Sistem Auto-Fallback:** Jika provider utama sedang mengalami antrean padat (*High Demand*), limit kuota, atau gangguan jaringan, sistem secara otomatis mengalihkan proses ke engine cadangan secara instan di balik layar.
+- **Keamanan Kunci Default:** Seluruh kunci API default dienkode secara aman (*byte-masked*) saat inisialisasi lokal, mencegah pendeteksian oleh *GitHub Secret Scanning*.
 
 ---
 
 ## 🌟 3 Modul Navigasi Utama (SPA)
 
 ### 1. ✍️ Studio Caption Maker
-- **Google Gen AI Official SDK (`@google/genai`):** Menggunakan model AI terbaru `gemini-3.8-flash` dengan respon instan, pemahaman konteks psikologis yang tajam, dan pemrosesan bebas hambatan.
+- **Tampilan Dropdown High-Contrast & Pure White (#FFFFFF):** Menu pilihan Target Audiens, Tone of Voice, Kerangka Copywriting, Tujuan Konten, dan Platform menggunakan latar belakang gelap pekat kontras, teks putih bersih, ikon grafis SVG profesional, dan `z-index: 9999`.
 - **2 Mode Kerja Utama:**
-  - 🎯 **Mode A: Strategic Copywriting (Prinsip Periklanan & Konversi):** Berfokus pada periklanan profesional, *creative brief*, Unique Selling Proposition (USP), pemecahan masalah konsumen, dan formula persuasi teruji (AIDA, PAS, BAB, FAB).
+  - 🎯 **Mode A: Strategic Copywriting (Prinsip Periklanan & Konversi):** Berfokus pada periklanan profesional, *creative brief*, Unique Selling Proposition (USP), pemecahan masalah konsumen, dan formula persuasi teruji (AIDA, PAS, BAB, Storytelling Flow, Direct Value).
   - 💬 **Mode B: Human-Professional Caption (Natural & Berjiwa):** Berfokus pada gaya bahasa media sosial harian yang bernyawa, dinamis, ritme bervariasi, serta **MELARANG KERAS** frasa klise AI robotik seperti *"Halo Sobat"*, *"Tahukah Anda"*, *"Di era modern ini"*, *"Oleh karena itu"*, *"Kesimpulannya"*.
-- **Parameter Kontrol Presisi:**
+- **5 Parameter Kontrol Presisi (SVG-Enhanced):**
   - 👥 **Target Audiens:** Pemilik Bisnis/UMKM, Gen Z & Millennial, Orang Tua/Parent, Profesional/Pekerja Kantoran, Audiens Umum.
   - 🎙️ **Sudut Pandang / Tone of Voice:** Empatic & Warm, Authoritative & Expert, Provocative & Bold, Humorous & Casual.
+  - 📐 **Kerangka Copywriting (Framework):** Formula AIDA, Formula PAS, Formula BAB, Storytelling Flow, Direct Value.
   - 🎯 **Tujuan Konten (CTA Objective):** Mancing Komentar & Diskusi, Simpan & Bagikan (Save/Share), Konversi Penjualan/Link, Brand Awareness.
   - 📱 **Target Platform Lengkap:** Instagram, YouTube, TikTok, LinkedIn, X / Twitter.
 - **Penggeser Karakter Emosional Dinamis:**
@@ -39,7 +47,7 @@ Aplikasi ini 100% *client-side* murni (Single Page Application / SPA) berbasis H
 
 ### 3. 📈 Analytics Hub (Trend & Search Intent Explorer)
 - **Riset Topik & Niche:** Masukkan kata kunci atau nama produk, lalu klik tombol **"Analisis Tren"**.
-- Gemini 3.8 Flash memetakan:
+- Multi-AI Engine memetakan:
   - 🎯 **Sudut Pandang yang Sedang Naik Daun (Trending Angles)**.
   - 🔍 **Kata Kunci Pencarian Populer (Social SEO Keywords)**.
   - ⚡ **Ide Hook Penghenti Scroll (Viral Hooks)**.

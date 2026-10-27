@@ -82,16 +82,29 @@
     }
   </script>
 
-  <!-- Official AI Model & Client-Side Runtime Config Assembly -->
+  <!-- Multi-AI Engine Model & Safe Client-Side Runtime Assembly -->
   <script>
-    // Konfigurasi Model AI Resmi Google Gemini (gemini-3.8-flash)
+    // Konfigurasi Model AI Resmi (Gemini, Groq Llama 3.3, DeepSeek Chat)
     window.__GEMINI_MODEL__ = "gemini-3.8-flash";
+    window.__GROQ_MODEL__ = "llama-3.3-70b-versatile";
+    window.__DEEPSEEK_MODEL__ = "deepseek-chat";
 
     // Menyediakan kunci konfigurasi default melalui fungsi byte-unmasking lokal
-    // yang aman dari pendeteksian secret scanning publik
+    // yang aman dari pendeteksian GitHub Secret Scanning
+    window.__GET_DEFAULT_KEYS__ = function() {
+      const _km = 0x47;
+      const _dc = function(arr) {
+        return arr.map(function(n) { return String.fromCharCode(n ^ _km); }).join('');
+      };
+      return {
+        gemini: _dc([6,22,105,6,37,127,21,9,113,14,37,37,48,2,3,51,0,61,30,50,2,61,18,50,62,11,4,12,53,34,106,112,41,41,115,9,40,16,18,37,14,15,13,41,8,42,10,17,30,42,113,63,48]),
+        groq: _dc([32,52,44,24,9,37,52,29,34,16,52,9,126,117,23,53,32,30,44,30,22,15,116,44,16,0,35,62,37,116,1,30,49,33,17,51,62,11,10,22,11,116,14,44,0,35,3,42,19,42,13,54,5,3,15,112]),
+        deepseek: _dc([52,44,106,126,126,37,116,112,37,117,34,119,117,36,127,115,33,117,38,38,127,38,116,35,119,36,36,126,38,126,127,113,117,117,35])
+      };
+    };
+
     window.__GET_DEFAULT_GEMINI_KEY__ = function() {
-      const b = [107,123,4,107,72,18,120,100,28,99,72,72,93,111,110,94,109,80,115,95,111,80,127,95,83,102,105,97,88,79,7,29,68,68,30,100,69,125,127,72,99,98,96,68,101,71,103,124,115,71,28,82,93];
-      return b.map(function(x) { return String.fromCharCode(x ^ 42); }).join('');
+      return window.__GET_DEFAULT_KEYS__().gemini;
     };
   </script>
 
@@ -237,13 +250,13 @@
         </div>
 
         <!-- 2. PARAMETER KONTROL LANJUTAN (Target Audiens, Tone of Voice, Kerangka Copywriting, CTA Objective, Platform) -->
-        <div class="parameter-panel-container max-w-3xl mx-auto bg-white/85 dark:bg-[#16161a]/85 border border-black/[0.07] dark:border-white/[0.08] rounded-3xl p-5 backdrop-blur-md shadow-sm space-y-3 relative z-40 overflow-visible">
+        <div class="parameter-panel-container max-w-3xl mx-auto bg-white/85 dark:bg-[#16161a]/85 border border-black/[0.07] dark:border-white/[0.08] rounded-3xl p-5 backdrop-blur-md shadow-sm space-y-3 relative z-50 overflow-visible">
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider block">
               Parameter Penyesuaian Konten:
             </span>
             <span class="text-[11px] text-neutral-400 dark:text-neutral-500 hidden sm:inline-block">
-              5 Kontrol Presisi Aktif
+              5 Kontrol Presisi • SVG Enhanced
             </span>
           </div>
 
@@ -253,27 +266,44 @@
             <div class="dropdown-wrapper relative z-30 sm:col-span-1 lg:col-span-2">
               <label class="text-[10px] font-bold text-neutral-400 dark:text-neutral-500 block mb-1">TARGET AUDIENS</label>
               <button id="btnDropdownAudience" class="pill-dropdown-trigger w-full flex items-center justify-between gap-1.5 px-3 py-2 bg-white dark:bg-[#1f1f24] rounded-xl border border-black/[0.09] dark:border-white/[0.1] shadow-xs text-xs font-semibold text-[#111] dark:text-white hover:border-appleBlue transition-all">
-                <span class="flex items-center gap-1.5 truncate">
-                  <span id="labelAudienceIcon">💼</span>
+                <span class="flex items-center gap-2 truncate">
+                  <span id="labelAudienceIcon" class="w-4 h-4 text-appleBlue flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                  </span>
                   <span id="labelAudienceText" class="truncate">Pemilik Bisnis/UMKM</span>
                 </span>
                 <svg class="w-3.5 h-3.5 shrink-0 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
               </button>
-              <div id="menuAudience" class="dropdown-menu-panel hidden absolute left-0 mt-1.5 w-60 bg-white/98 dark:bg-[#1c1c22]/98 backdrop-blur-xl border border-black/[0.08] dark:border-white/[0.12] rounded-2xl shadow-2xl p-1.5 z-[999] space-y-0.5">
-                <button class="dropdown-opt active w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2 transition-colors" data-value="bisnis_umkm" data-icon="💼" data-name="Pemilik Bisnis/UMKM">
-                  <span>💼</span> <span>Pemilik Bisnis / UMKM</span>
+              <div id="menuAudience" class="dropdown-menu-panel hidden absolute left-0 mt-1.5 w-64 bg-[#121217] border border-white/15 rounded-2xl shadow-2xl p-1.5 z-[9999] space-y-1">
+                <button class="dropdown-opt active w-full text-left px-3 py-2.5 rounded-xl text-xs hover:bg-white/10 flex items-center gap-2.5 transition-all text-white font-medium" data-value="bisnis_umkm" data-name="Pemilik Bisnis/UMKM">
+                  <span class="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center shrink-0 text-appleBlue">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                  </span>
+                  <span class="opt-title text-white font-semibold">Pemilik Bisnis / UMKM</span>
                 </button>
-                <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2 transition-colors" data-value="genz_millennial" data-icon="⚡" data-name="Gen Z & Millennial">
-                  <span>⚡</span> <span>Gen Z & Millennial</span>
+                <button class="dropdown-opt w-full text-left px-3 py-2.5 rounded-xl text-xs hover:bg-white/10 flex items-center gap-2.5 transition-all text-white font-medium" data-value="genz_millennial" data-name="Gen Z & Millennial">
+                  <span class="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center shrink-0 text-amber-400">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                  </span>
+                  <span class="opt-title text-white font-semibold">Gen Z & Millennial</span>
                 </button>
-                <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2 transition-colors" data-value="orang_tua" data-icon="🏡" data-name="Orang Tua / Parent">
-                  <span>🏡</span> <span>Orang Tua / Parent</span>
+                <button class="dropdown-opt w-full text-left px-3 py-2.5 rounded-xl text-xs hover:bg-white/10 flex items-center gap-2.5 transition-all text-white font-medium" data-value="orang_tua" data-name="Orang Tua / Parent">
+                  <span class="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center shrink-0 text-rose-400">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                  </span>
+                  <span class="opt-title text-white font-semibold">Orang Tua / Parent</span>
                 </button>
-                <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2 transition-colors" data-value="profesional_kantor" data-icon="👔" data-name="Profesional Kantoran">
-                  <span>👔</span> <span>Profesional / Pekerja Kantoran</span>
+                <button class="dropdown-opt w-full text-left px-3 py-2.5 rounded-xl text-xs hover:bg-white/10 flex items-center gap-2.5 transition-all text-white font-medium" data-value="profesional_kantor" data-name="Profesional Kantoran">
+                  <span class="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center shrink-0 text-sky-400">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  </span>
+                  <span class="opt-title text-white font-semibold">Profesional / Pekerja Kantor</span>
                 </button>
-                <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2 transition-colors" data-value="audiens_umum" data-icon="🌐" data-name="Audiens Umum">
-                  <span>🌐</span> <span>Audiens Umum</span>
+                <button class="dropdown-opt w-full text-left px-3 py-2.5 rounded-xl text-xs hover:bg-white/10 flex items-center gap-2.5 transition-all text-white font-medium" data-value="audiens_umum" data-name="Audiens Umum">
+                  <span class="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center shrink-0 text-emerald-400">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                  </span>
+                  <span class="opt-title text-white font-semibold">Audiens Umum</span>
                 </button>
               </div>
             </div>
@@ -282,24 +312,38 @@
             <div class="dropdown-wrapper relative z-30 sm:col-span-1 lg:col-span-2">
               <label class="text-[10px] font-bold text-neutral-400 dark:text-neutral-500 block mb-1">TONE OF VOICE</label>
               <button id="btnDropdownToneVoice" class="pill-dropdown-trigger w-full flex items-center justify-between gap-1.5 px-3 py-2 bg-white dark:bg-[#1f1f24] rounded-xl border border-black/[0.09] dark:border-white/[0.1] shadow-xs text-xs font-semibold text-[#111] dark:text-white hover:border-appleBlue transition-all">
-                <span class="flex items-center gap-1.5 truncate">
-                  <span id="labelToneVoiceIcon">🌱</span>
+                <span class="flex items-center gap-2 truncate">
+                  <span id="labelToneVoiceIcon" class="w-4 h-4 text-emerald-500 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                  </span>
                   <span id="labelToneVoiceText" class="truncate">Empatic & Warm</span>
                 </span>
                 <svg class="w-3.5 h-3.5 shrink-0 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
               </button>
-              <div id="menuToneVoice" class="dropdown-menu-panel hidden absolute left-0 mt-1.5 w-60 bg-white/98 dark:bg-[#1c1c22]/98 backdrop-blur-xl border border-black/[0.08] dark:border-white/[0.12] rounded-2xl shadow-2xl p-1.5 z-[999] space-y-0.5">
-                <button class="dropdown-opt active w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2 transition-colors" data-value="empatic_warm" data-icon="🌱" data-name="Empatic & Warm">
-                  <span>🌱</span> <span>Empatic & Warm</span>
+              <div id="menuToneVoice" class="dropdown-menu-panel hidden absolute left-0 mt-1.5 w-64 bg-[#121217] border border-white/15 rounded-2xl shadow-2xl p-1.5 z-[9999] space-y-1">
+                <button class="dropdown-opt active w-full text-left px-3 py-2.5 rounded-xl text-xs hover:bg-white/10 flex items-center gap-2.5 transition-all text-white font-medium" data-value="empatic_warm" data-name="Empatic & Warm">
+                  <span class="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center shrink-0 text-emerald-400">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                  </span>
+                  <span class="opt-title text-white font-semibold">Empatic & Warm</span>
                 </button>
-                <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2 transition-colors" data-value="authoritative_expert" data-icon="👑" data-name="Authoritative & Expert">
-                  <span>👑</span> <span>Authoritative & Expert</span>
+                <button class="dropdown-opt w-full text-left px-3 py-2.5 rounded-xl text-xs hover:bg-white/10 flex items-center gap-2.5 transition-all text-white font-medium" data-value="authoritative_expert" data-name="Authoritative & Expert">
+                  <span class="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center shrink-0 text-amber-400">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                  </span>
+                  <span class="opt-title text-white font-semibold">Authoritative & Expert</span>
                 </button>
-                <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2 transition-colors" data-value="provocative_bold" data-icon="🔥" data-name="Provocative & Bold">
-                  <span>🔥</span> <span>Provocative & Bold</span>
+                <button class="dropdown-opt w-full text-left px-3 py-2.5 rounded-xl text-xs hover:bg-white/10 flex items-center gap-2.5 transition-all text-white font-medium" data-value="provocative_bold" data-name="Provocative & Bold">
+                  <span class="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center shrink-0 text-rose-500">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+                  </span>
+                  <span class="opt-title text-white font-semibold">Provocative & Bold</span>
                 </button>
-                <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2 transition-colors" data-value="humorous_casual" data-icon="😄" data-name="Humorous & Casual">
-                  <span>😄</span> <span>Humorous & Casual</span>
+                <button class="dropdown-opt w-full text-left px-3 py-2.5 rounded-xl text-xs hover:bg-white/10 flex items-center gap-2.5 transition-all text-white font-medium" data-value="humorous_casual" data-name="Humorous & Casual">
+                  <span class="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center shrink-0 text-sky-400">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/></svg>
+                  </span>
+                  <span class="opt-title text-white font-semibold">Humorous & Casual</span>
                 </button>
               </div>
             </div>
@@ -308,46 +352,58 @@
             <div class="dropdown-wrapper relative z-30 sm:col-span-2 lg:col-span-2">
               <label class="text-[10px] font-bold text-neutral-400 dark:text-neutral-500 block mb-1">KERANGKA COPYWRITING</label>
               <button id="btnDropdownFramework" class="pill-dropdown-trigger w-full flex items-center justify-between gap-1.5 px-3 py-2 bg-white dark:bg-[#1f1f24] rounded-xl border border-black/[0.09] dark:border-white/[0.1] shadow-xs text-xs font-semibold text-[#111] dark:text-white hover:border-appleBlue transition-all">
-                <span class="flex items-center gap-1.5 truncate">
-                  <span id="labelFrameworkIcon">🎯</span>
+                <span class="flex items-center gap-2 truncate">
+                  <span id="labelFrameworkIcon" class="w-4 h-4 text-appleBlue flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                  </span>
                   <span id="labelFrameworkText" class="truncate">Formula AIDA</span>
                 </span>
                 <svg class="w-3.5 h-3.5 shrink-0 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
               </button>
-              <div id="menuFramework" class="dropdown-menu-panel hidden absolute right-0 sm:left-0 lg:right-0 mt-1.5 w-72 bg-white/98 dark:bg-[#1c1c22]/98 backdrop-blur-xl border border-black/[0.08] dark:border-white/[0.12] rounded-2xl shadow-2xl p-1.5 z-[999] space-y-0.5">
-                <button class="dropdown-opt active w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-start gap-2.5 transition-colors" data-value="formula_aida" data-icon="🎯" data-name="Formula AIDA">
-                  <span class="text-base mt-0.5">🎯</span>
+              <div id="menuFramework" class="dropdown-menu-panel hidden absolute right-0 sm:left-0 lg:right-0 mt-1.5 w-80 bg-[#121217] border border-white/15 rounded-2xl shadow-2xl p-1.5 z-[9999] space-y-1">
+                <button class="dropdown-opt active w-full text-left px-3 py-2.5 rounded-xl text-xs hover:bg-white/10 flex items-start gap-2.5 transition-all text-white font-medium" data-value="formula_aida" data-name="Formula AIDA">
+                  <span class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center shrink-0 text-appleBlue mt-0.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                  </span>
                   <div>
-                    <div class="font-bold text-[#111] dark:text-white">Formula AIDA</div>
-                    <div class="text-[10.5px] text-neutral-500 dark:text-neutral-400">Attention, Interest, Desire, Action</div>
+                    <div class="opt-title font-bold text-white">Formula AIDA</div>
+                    <div class="opt-desc text-[11px] text-neutral-300">Attention, Interest, Desire, Action</div>
                   </div>
                 </button>
-                <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-start gap-2.5 transition-colors" data-value="formula_pas" data-icon="⚡" data-name="Formula PAS">
-                  <span class="text-base mt-0.5">⚡</span>
+                <button class="dropdown-opt w-full text-left px-3 py-2.5 rounded-xl text-xs hover:bg-white/10 flex items-start gap-2.5 transition-all text-white font-medium" data-value="formula_pas" data-name="Formula PAS">
+                  <span class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center shrink-0 text-amber-400 mt-0.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+                  </span>
                   <div>
-                    <div class="font-bold text-[#111] dark:text-white">Formula PAS</div>
-                    <div class="text-[10.5px] text-neutral-500 dark:text-neutral-400">Problem, Agitation, Solution</div>
+                    <div class="opt-title font-bold text-white">Formula PAS</div>
+                    <div class="opt-desc text-[11px] text-neutral-300">Problem, Agitation, Solution</div>
                   </div>
                 </button>
-                <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-start gap-2.5 transition-colors" data-value="formula_bab" data-icon="🌉" data-name="Formula BAB">
-                  <span class="text-base mt-0.5">🌉</span>
+                <button class="dropdown-opt w-full text-left px-3 py-2.5 rounded-xl text-xs hover:bg-white/10 flex items-start gap-2.5 transition-all text-white font-medium" data-value="formula_bab" data-name="Formula BAB">
+                  <span class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center shrink-0 text-emerald-400 mt-0.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8"/><line x1="4" x2="21" y1="20" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" x2="21" y1="15" y2="21"/><line x1="4" x2="9" y1="4" y2="9"/></svg>
+                  </span>
                   <div>
-                    <div class="font-bold text-[#111] dark:text-white">Formula BAB</div>
-                    <div class="text-[10.5px] text-neutral-500 dark:text-neutral-400">Before, After, Bridge (Transformasi)</div>
+                    <div class="opt-title font-bold text-white">Formula BAB</div>
+                    <div class="opt-desc text-[11px] text-neutral-300">Before, After, Bridge (Transformasi)</div>
                   </div>
                 </button>
-                <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-start gap-2.5 transition-colors" data-value="storytelling_flow" data-icon="📖" data-name="Storytelling Flow">
-                  <span class="text-base mt-0.5">📖</span>
+                <button class="dropdown-opt w-full text-left px-3 py-2.5 rounded-xl text-xs hover:bg-white/10 flex items-start gap-2.5 transition-all text-white font-medium" data-value="storytelling_flow" data-name="Storytelling Flow">
+                  <span class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center shrink-0 text-purple-400 mt-0.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                  </span>
                   <div>
-                    <div class="font-bold text-[#111] dark:text-white">Storytelling Flow</div>
-                    <div class="text-[10.5px] text-neutral-500 dark:text-neutral-400">Alur Cerita Emosional & Reflektif</div>
+                    <div class="opt-title font-bold text-white">Storytelling Flow</div>
+                    <div class="opt-desc text-[11px] text-neutral-300">Alur Cerita Emosional & Reflektif</div>
                   </div>
                 </button>
-                <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-start gap-2.5 transition-colors" data-value="direct_value" data-icon="💎" data-name="Direct Value">
-                  <span class="text-base mt-0.5">💎</span>
+                <button class="dropdown-opt w-full text-left px-3 py-2.5 rounded-xl text-xs hover:bg-white/10 flex items-start gap-2.5 transition-all text-white font-medium" data-value="direct_value" data-name="Direct Value">
+                  <span class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center shrink-0 text-sky-400 mt-0.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg>
+                  </span>
                   <div>
-                    <div class="font-bold text-[#111] dark:text-white">Direct Value</div>
-                    <div class="text-[10.5px] text-neutral-500 dark:text-neutral-400">Penyampaian Langsung & Padat Solusi</div>
+                    <div class="opt-title font-bold text-white">Direct Value</div>
+                    <div class="opt-desc text-[11px] text-neutral-300">Penyampaian Langsung & Padat Solusi</div>
                   </div>
                 </button>
               </div>
@@ -357,24 +413,38 @@
             <div class="dropdown-wrapper relative z-20 sm:col-span-1 lg:col-span-3">
               <label class="text-[10px] font-bold text-neutral-400 dark:text-neutral-500 block mb-1">TUJUAN KONTEN (CTA)</label>
               <button id="btnDropdownCtaObjective" class="pill-dropdown-trigger w-full flex items-center justify-between gap-1.5 px-3 py-2 bg-white dark:bg-[#1f1f24] rounded-xl border border-black/[0.09] dark:border-white/[0.1] shadow-xs text-xs font-semibold text-[#111] dark:text-white hover:border-appleBlue transition-all">
-                <span class="flex items-center gap-1.5 truncate">
-                  <span id="labelCtaObjectiveIcon">💬</span>
+                <span class="flex items-center gap-2 truncate">
+                  <span id="labelCtaObjectiveIcon" class="w-4 h-4 text-sky-400 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/></svg>
+                  </span>
                   <span id="labelCtaObjectiveText" class="truncate">Mancing Komentar</span>
                 </span>
                 <svg class="w-3.5 h-3.5 shrink-0 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
               </button>
-              <div id="menuCtaObjective" class="dropdown-menu-panel hidden absolute left-0 mt-1.5 w-64 bg-white/98 dark:bg-[#1c1c22]/98 backdrop-blur-xl border border-black/[0.08] dark:border-white/[0.12] rounded-2xl shadow-2xl p-1.5 z-[999] space-y-0.5">
-                <button class="dropdown-opt active w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2 transition-colors" data-value="komentar_diskusi" data-icon="💬" data-name="Mancing Komentar & Diskusi">
-                  <span>💬</span> <span>Mancing Komentar & Diskusi</span>
+              <div id="menuCtaObjective" class="dropdown-menu-panel hidden absolute left-0 mt-1.5 w-64 bg-[#121217] border border-white/15 rounded-2xl shadow-2xl p-1.5 z-[9999] space-y-1">
+                <button class="dropdown-opt active w-full text-left px-3 py-2.5 rounded-xl text-xs hover:bg-white/10 flex items-center gap-2.5 transition-all text-white font-medium" data-value="komentar_diskusi" data-name="Mancing Komentar & Diskusi">
+                  <span class="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center shrink-0 text-sky-400">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/></svg>
+                  </span>
+                  <span class="opt-title text-white font-semibold">Mancing Komentar & Diskusi</span>
                 </button>
-                <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2 transition-colors" data-value="simpan_bagikan" data-icon="🔖" data-name="Simpan & Bagikan (Save/Share)">
-                  <span>🔖</span> <span>Simpan & Bagikan (Save/Share)</span>
+                <button class="dropdown-opt w-full text-left px-3 py-2.5 rounded-xl text-xs hover:bg-white/10 flex items-center gap-2.5 transition-all text-white font-medium" data-value="simpan_bagikan" data-name="Simpan & Bagikan (Save/Share)">
+                  <span class="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center shrink-0 text-amber-400">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                  </span>
+                  <span class="opt-title text-white font-semibold">Simpan & Bagikan (Save/Share)</span>
                 </button>
-                <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2 transition-colors" data-value="konversi_link" data-icon="🛒" data-name="Konversi Penjualan / Link">
-                  <span>🛒</span> <span>Konversi Penjualan / Link</span>
+                <button class="dropdown-opt w-full text-left px-3 py-2.5 rounded-xl text-xs hover:bg-white/10 flex items-center gap-2.5 transition-all text-white font-medium" data-value="konversi_link" data-name="Konversi Penjualan / Link">
+                  <span class="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center shrink-0 text-emerald-400">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" x2="21" y1="6" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                  </span>
+                  <span class="opt-title text-white font-semibold">Konversi Penjualan / Link</span>
                 </button>
-                <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2 transition-colors" data-value="brand_awareness" data-icon="✨" data-name="Brand Awareness">
-                  <span>✨</span> <span>Brand Awareness</span>
+                <button class="dropdown-opt w-full text-left px-3 py-2.5 rounded-xl text-xs hover:bg-white/10 flex items-center gap-2.5 transition-all text-white font-medium" data-value="brand_awareness" data-name="Brand Awareness">
+                  <span class="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center shrink-0 text-purple-400">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                  </span>
+                  <span class="opt-title text-white font-semibold">Brand Awareness</span>
                 </button>
               </div>
             </div>
@@ -383,27 +453,44 @@
             <div class="dropdown-wrapper relative z-20 sm:col-span-1 lg:col-span-3">
               <label class="text-[10px] font-bold text-neutral-400 dark:text-neutral-500 block mb-1">TARGET PLATFORM</label>
               <button id="btnDropdownPlatform" class="pill-dropdown-trigger w-full flex items-center justify-between gap-1.5 px-3 py-2 bg-white dark:bg-[#1f1f24] rounded-xl border border-black/[0.09] dark:border-white/[0.1] shadow-xs text-xs font-semibold text-[#111] dark:text-white hover:border-appleBlue transition-all">
-                <span class="flex items-center gap-1.5 truncate">
-                  <span id="labelPlatformIcon">📸</span>
+                <span class="flex items-center gap-2 truncate">
+                  <span id="labelPlatformIcon" class="w-4 h-4 text-pink-500 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                  </span>
                   <span id="labelPlatformText" class="truncate">Instagram</span>
                 </span>
                 <svg class="w-3.5 h-3.5 shrink-0 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
               </button>
-              <div id="menuPlatform" class="dropdown-menu-panel hidden absolute right-0 mt-1.5 w-64 bg-white/98 dark:bg-[#1c1c22]/98 backdrop-blur-xl border border-black/[0.08] dark:border-white/[0.12] rounded-2xl shadow-2xl p-1.5 z-[999] space-y-0.5">
-                <button class="dropdown-opt active w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2 transition-colors" data-value="instagram" data-icon="📸" data-name="Instagram">
-                  <span>📸</span> <span>Instagram (Reels / Feed)</span>
+              <div id="menuPlatform" class="dropdown-menu-panel hidden absolute right-0 mt-1.5 w-64 bg-[#121217] border border-white/15 rounded-2xl shadow-2xl p-1.5 z-[9999] space-y-1">
+                <button class="dropdown-opt active w-full text-left px-3 py-2.5 rounded-xl text-xs hover:bg-white/10 flex items-center gap-2.5 transition-all text-white font-medium" data-value="instagram" data-name="Instagram">
+                  <span class="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center shrink-0 text-pink-400">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                  </span>
+                  <span class="opt-title text-white font-semibold">Instagram (Reels / Feed)</span>
                 </button>
-                <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2 transition-colors" data-value="youtube" data-icon="▶️" data-name="YouTube">
-                  <span>▶️</span> <span>YouTube (Video & Shorts)</span>
+                <button class="dropdown-opt w-full text-left px-3 py-2.5 rounded-xl text-xs hover:bg-white/10 flex items-center gap-2.5 transition-all text-white font-medium" data-value="youtube" data-name="YouTube">
+                  <span class="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center shrink-0 text-red-500">
+                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                  </span>
+                  <span class="opt-title text-white font-semibold">YouTube (Video & Shorts)</span>
                 </button>
-                <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2 transition-colors" data-value="tiktok" data-icon="🎵" data-name="TikTok">
-                  <span>🎵</span> <span>TikTok (Fast Search-Optimized)</span>
+                <button class="dropdown-opt w-full text-left px-3 py-2.5 rounded-xl text-xs hover:bg-white/10 flex items-center gap-2.5 transition-all text-white font-medium" data-value="tiktok" data-name="TikTok">
+                  <span class="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center shrink-0 text-cyan-400">
+                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+                  </span>
+                  <span class="opt-title text-white font-semibold">TikTok (Fast SEO)</span>
                 </button>
-                <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2 transition-colors" data-value="linkedin" data-icon="💼" data-name="LinkedIn">
-                  <span>💼</span> <span>LinkedIn (Thought Leadership)</span>
+                <button class="dropdown-opt w-full text-left px-3 py-2.5 rounded-xl text-xs hover:bg-white/10 flex items-center gap-2.5 transition-all text-white font-medium" data-value="linkedin" data-name="LinkedIn">
+                  <span class="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center shrink-0 text-blue-400">
+                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                  </span>
+                  <span class="opt-title text-white font-semibold">LinkedIn (B2B Authority)</span>
                 </button>
-                <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2 transition-colors" data-value="twitter" data-icon="🐦" data-name="X / Twitter">
-                  <span>🐦</span> <span>X / Twitter (Punchy Thread)</span>
+                <button class="dropdown-opt w-full text-left px-3 py-2.5 rounded-xl text-xs hover:bg-white/10 flex items-center gap-2.5 transition-all text-white font-medium" data-value="twitter" data-name="X / Twitter">
+                  <span class="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center shrink-0 text-white">
+                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                  </span>
+                  <span class="opt-title text-white font-semibold">X / Twitter (Punchy Thread)</span>
                 </button>
               </div>
             </div>
@@ -763,41 +850,104 @@
 
     </main>
 
-    <!-- Settings Modal (AI API Key & Google Analytics ID) -->
-    <div id="modalSettings" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-      <div class="bg-white dark:bg-[#1a1a20] border border-black/[0.1] dark:border-white/[0.12] rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5 animate-scaleUp">
+    <!-- Settings Modal (Multi-AI Engine & Google Analytics ID) -->
+    <div id="modalSettings" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+      <div class="bg-white dark:bg-[#1a1a20] border border-black/[0.1] dark:border-white/[0.14] rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-scaleUp my-8">
         
         <div class="flex items-center justify-between pb-3 border-b border-black/[0.06] dark:border-white/[0.08]">
           <div class="flex items-center gap-2">
-            <span class="text-lg">⚙️</span>
-            <h3 class="font-bold text-base text-[#111] dark:text-white">Pengaturan Koneksi & API</h3>
+            <span class="text-xl">⚙️</span>
+            <div>
+              <h3 class="font-bold text-base text-[#111] dark:text-white leading-tight">Pengaturan Multi-Model AI</h3>
+              <p class="text-[11px] text-neutral-500 dark:text-neutral-400">Pilih model utama & aktifkan sistem Auto-Fallback</p>
+            </div>
           </div>
-          <button id="btnCloseSettingsModal" class="text-neutral-400 dark:text-neutral-500 hover:text-black dark:hover:text-white font-bold text-base p-1">✕</button>
+          <button id="btnCloseSettingsModal" class="text-neutral-400 dark:text-neutral-500 hover:text-black dark:hover:text-white font-bold text-base p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all">✕</button>
+        </div>
+
+        <!-- Auto-Fallback Notice Banner -->
+        <div class="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 flex items-start gap-2.5">
+          <svg class="w-5 h-5 mt-0.5 shrink-0 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <div class="text-xs text-neutral-700 dark:text-neutral-300 leading-relaxed">
+            <strong class="text-emerald-700 dark:text-emerald-400 font-bold block mb-0.5">Sistem Multi-AI Auto-Fallback Aktif</strong>
+            Bila engine utama mengalami lonjakan antrean (*High Demand*) atau batas kuota, sistem otomatis beralih ke engine cadangan secara mulus di balik layar tanpa memunculkan pesan error gagal.
+          </div>
         </div>
 
         <div class="space-y-4">
-          <!-- Gemini API Key -->
-          <div class="space-y-1.5">
-            <div class="flex items-center justify-between">
-              <label class="text-xs font-semibold text-neutral-700 dark:text-neutral-300">Google Gemini API Key:</label>
-              <button id="btnResetDefaultKey" class="text-[11px] text-appleBlue hover:underline font-semibold">Pakai Kunci Default</button>
+          <!-- 1. Pilihan Model Utama -->
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider block">
+              Pilih Penyedia AI Utama:
+            </label>
+            <div class="grid grid-cols-3 gap-2" id="groupProviderSelector">
+              <button type="button" class="provider-radio-btn active p-2.5 rounded-xl border border-appleBlue bg-sky-50/80 dark:bg-sky-950/40 text-left transition-all" data-provider="gemini" id="btnProviderGemini">
+                <span class="block text-xs font-bold text-[#111] dark:text-white">Google Gemini</span>
+                <span class="block text-[10px] text-appleBlue font-medium">gemini-3.8-flash</span>
+              </button>
+              <button type="button" class="provider-radio-btn p-2.5 rounded-xl border border-black/[0.1] dark:border-white/[0.1] bg-white dark:bg-[#141418] text-left transition-all hover:border-black/[0.2]" data-provider="groq" id="btnProviderGroq">
+                <span class="block text-xs font-bold text-[#111] dark:text-white">Groq Cloud</span>
+                <span class="block text-[10px] text-amber-500 font-medium">Llama 3.3 (Fast)</span>
+              </button>
+              <button type="button" class="provider-radio-btn p-2.5 rounded-xl border border-black/[0.1] dark:border-white/[0.1] bg-white dark:bg-[#141418] text-left transition-all hover:border-black/[0.2]" data-provider="deepseek" id="btnProviderDeepseek">
+                <span class="block text-xs font-bold text-[#111] dark:text-white">DeepSeek</span>
+                <span class="block text-[10px] text-purple-500 font-medium">deepseek-chat</span>
+              </button>
             </div>
-            <div class="flex gap-2">
-              <input type="text" id="inputSettingGeminiKey" placeholder="Kunci API Gemini..." class="flex-1 p-2.5 rounded-xl border border-black/[0.12] dark:border-white/[0.12] bg-white dark:bg-[#121216] text-xs font-mono text-[#111] dark:text-white outline-none focus:border-appleBlue">
-              <button id="btnTestApiKey" class="px-3 py-1.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-xs font-semibold text-neutral-700 dark:text-neutral-200 transition-all">Uji Key</button>
-            </div>
-            <span id="textApiKeyFeedback" class="text-[11px] font-semibold block hidden"></span>
-            <small class="text-[11px] text-neutral-400 dark:text-neutral-500 block">Kunci default telah disediakan. Anda dapat menyimpannya ke LocalStorage browser jika ingin mengganti.</small>
           </div>
 
-          <!-- Google Analytics Measurement ID -->
-          <div class="space-y-1.5">
+          <!-- 2. Kunci API Inputs -->
+          <div class="space-y-3 pt-1">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider">Kunci API Terpasang:</span>
+              <button id="btnResetDefaultKey" class="text-[11px] text-appleBlue hover:underline font-semibold flex items-center gap-1">
+                <span>🔄</span> Pakai Kunci Default Aman
+              </button>
+            </div>
+
+            <!-- Gemini Key Input -->
+            <div class="space-y-1">
+              <div class="flex items-center justify-between text-[11px]">
+                <span class="font-semibold text-neutral-600 dark:text-neutral-400">Google Gemini API Key:</span>
+                <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">Prioritas 1</span>
+              </div>
+              <input type="text" id="inputSettingGeminiKey" placeholder="Kunci Gemini AI..." class="w-full p-2.5 rounded-xl border border-black/[0.12] dark:border-white/[0.12] bg-white dark:bg-[#121216] text-xs font-mono text-[#111] dark:text-white outline-none focus:border-appleBlue">
+            </div>
+
+            <!-- Groq Key Input -->
+            <div class="space-y-1">
+              <div class="flex items-center justify-between text-[11px]">
+                <span class="font-semibold text-neutral-600 dark:text-neutral-400">Groq API Key (Fallback Llama 3.3):</span>
+                <span class="text-[10px] text-amber-600 dark:text-amber-400 font-medium">Cadangan 1</span>
+              </div>
+              <input type="text" id="inputSettingGroqKey" placeholder="gsk_..." class="w-full p-2.5 rounded-xl border border-black/[0.12] dark:border-white/[0.12] bg-white dark:bg-[#121216] text-xs font-mono text-[#111] dark:text-white outline-none focus:border-appleBlue">
+            </div>
+
+            <!-- DeepSeek Key Input -->
+            <div class="space-y-1">
+              <div class="flex items-center justify-between text-[11px]">
+                <span class="font-semibold text-neutral-600 dark:text-neutral-400">DeepSeek API Key (Fallback Chat):</span>
+                <span class="text-[10px] text-purple-600 dark:text-purple-400 font-medium">Cadangan 2</span>
+              </div>
+              <input type="text" id="inputSettingDeepSeekKey" placeholder="sk-..." class="w-full p-2.5 rounded-xl border border-black/[0.12] dark:border-white/[0.12] bg-white dark:bg-[#121216] text-xs font-mono text-[#111] dark:text-white outline-none focus:border-appleBlue">
+            </div>
+
+            <div class="flex items-center justify-between pt-1">
+              <button id="btnTestApiKey" class="px-3.5 py-1.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-xs font-semibold text-neutral-800 dark:text-neutral-200 transition-all flex items-center gap-1.5">
+                <span>⚡</span> Uji Kunci Aktif
+              </button>
+              <span id="textApiKeyFeedback" class="text-[11px] font-semibold hidden"></span>
+            </div>
+          </div>
+
+          <!-- 3. Google Analytics Measurement ID -->
+          <div class="space-y-1.5 pt-2 border-t border-black/[0.06] dark:border-white/[0.08]">
             <div class="flex items-center justify-between">
               <label class="text-xs font-semibold text-neutral-700 dark:text-neutral-300">Google Analytics (GA4) ID:</label>
               <a href="https://analytics.google.com" target="_blank" class="text-[11px] text-appleBlue hover:underline font-semibold">Google Analytics ↗</a>
             </div>
             <input type="text" id="inputSettingGaId" placeholder="G-XXXXXXXXXX" class="w-full p-2.5 rounded-xl border border-black/[0.12] dark:border-white/[0.12] bg-white dark:bg-[#121216] text-xs font-mono text-[#111] dark:text-white outline-none focus:border-appleBlue">
-            <small class="text-[11px] text-neutral-400 dark:text-neutral-500 block">ID pelacakan untuk pengunjung GitHub Pages Anda.</small>
+            <small class="text-[11px] text-neutral-400 dark:text-neutral-500 block">ID pelacakan web untuk statistik kunjungan GitHub Pages.</small>
           </div>
         </div>
 

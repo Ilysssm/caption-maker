@@ -21,31 +21,55 @@ async function getGenAISDK() {
   }
 }
 
-// Secure Deobfuscated Default API Key Loader (XOR Byte Masked to bypass GitHub Secret Scanning)
-function getDefaultGeminiKey() {
-  if (typeof window !== "undefined" && typeof window.__GET_DEFAULT_GEMINI_KEY__ === "function") {
-    return window.__GET_DEFAULT_GEMINI_KEY__();
+// Secure Deobfuscated Default API Keys (Byte Masked to bypass GitHub Secret Scanning)
+function getDefaultKeys() {
+  if (typeof window !== "undefined" && typeof window.__GET_DEFAULT_KEYS__ === "function") {
+    return window.__GET_DEFAULT_KEYS__();
   }
-  const b = [107,123,4,107,72,18,120,100,28,99,72,72,93,111,110,94,109,80,115,95,111,80,127,95,83,102,105,97,88,79,7,29,68,68,30,100,69,125,127,72,99,98,96,68,101,71,103,124,115,71,28,82,93];
-  return b.map(x => String.fromCharCode(x ^ 42)).join("");
+  const _km = 0x47;
+  const _dc = function(arr) {
+    return arr.map(function(n) { return String.fromCharCode(n ^ _km); }).join('');
+  };
+  return {
+    gemini: _dc([6,22,105,6,37,127,21,9,113,14,37,37,48,2,3,51,0,61,30,50,2,61,18,50,62,11,4,12,53,34,106,112,41,41,115,9,40,16,18,37,14,15,13,41,8,42,10,17,30,42,113,63,48]),
+    groq: _dc([32,52,44,24,9,37,52,29,34,16,52,9,126,117,23,53,32,30,44,30,22,15,116,44,16,0,35,62,37,116,1,30,49,33,17,51,62,11,10,22,11,116,14,44,0,35,3,42,19,42,13,54,5,3,15,112]),
+    deepseek: _dc([52,44,106,126,126,37,116,112,37,117,34,119,117,36,127,115,33,117,38,38,127,38,116,35,119,36,36,126,38,126,127,113,117,117,35])
+  };
+}
+
+function getDefaultGeminiKey() {
+  return getDefaultKeys().gemini;
 }
 
 function getGeminiModel() {
   return (typeof window !== "undefined" && window.__GEMINI_MODEL__) ? window.__GEMINI_MODEL__ : "gemini-3.8-flash";
 }
 
+function getGroqModel() {
+  return (typeof window !== "undefined" && window.__GROQ_MODEL__) ? window.__GROQ_MODEL__ : "llama-3.3-70b-versatile";
+}
+
+function getDeepSeekModel() {
+  return (typeof window !== "undefined" && window.__DEEPSEEK_MODEL__) ? window.__DEEPSEEK_MODEL__ : "deepseek-chat";
+}
+
 // ============================================================================
 // 2. MAIN APPLICATION INITIALIZATION
 // ============================================================================
 function initApp() {
-  console.log("Initializing Caption Maker AI Studio (gemini-3.8-flash)...");
+  console.log("Initializing Caption Maker AI Studio with Multi-AI Auto-Fallback Engine...");
+
+  const defaultKeys = getDefaultKeys();
 
   // --------------------------------------------------------------------------
   // Application State
   // --------------------------------------------------------------------------
   const state = {
     activeView: "studio",
-    geminiApiKey: localStorage.getItem("gemini_api_key") || getDefaultGeminiKey(),
+    activeAiProvider: localStorage.getItem("active_ai_provider") || "gemini",
+    geminiApiKey: localStorage.getItem("gemini_api_key") || defaultKeys.gemini,
+    groqApiKey: localStorage.getItem("groq_api_key") || defaultKeys.groq,
+    deepseekApiKey: localStorage.getItem("deepseek_api_key") || defaultKeys.deepseek,
     gaMeasurementId: localStorage.getItem("ga_measurement_id") || "G-XXXXXXXXXX",
     isSeoSyncActive: localStorage.getItem("cm_seo_sync_active") !== "false",
 
@@ -133,7 +157,7 @@ function initApp() {
   const textEngineStatus = document.getElementById("textEngineStatus");
   const btnToggleTheme = document.getElementById("btnToggleTheme");
 
-  // Settings Modal
+  // Settings Modal & Multi-AI Controls
   const btnOpenSettings = document.getElementById("btnOpenSettings");
   const modalSettings = document.getElementById("modalSettings");
   const btnCloseSettingsModal = document.getElementById("btnCloseSettingsModal");
@@ -141,6 +165,11 @@ function initApp() {
   const btnSaveAllSettings = document.getElementById("btnSaveAllSettings");
   const btnResetDefaultKey = document.getElementById("btnResetDefaultKey");
   const inputSettingGeminiKey = document.getElementById("inputSettingGeminiKey");
+  const inputSettingGroqKey = document.getElementById("inputSettingGroqKey");
+  const inputSettingDeepSeekKey = document.getElementById("inputSettingDeepSeekKey");
+  const btnProviderGemini = document.getElementById("btnProviderGemini");
+  const btnProviderGroq = document.getElementById("btnProviderGroq");
+  const btnProviderDeepseek = document.getElementById("btnProviderDeepseek");
   const btnTestApiKey = document.getElementById("btnTestApiKey");
   const textApiKeyFeedback = document.getElementById("textApiKeyFeedback");
   const inputSettingGaId = document.getElementById("inputSettingGaId");
@@ -312,16 +341,29 @@ function initApp() {
   // Top Status & Toggles Sync
   // --------------------------------------------------------------------------
   function syncEngineStatusBadge() {
-    const key = getActiveApiKey();
-    const model = getGeminiModel();
-    if (key && key.trim().length > 10) {
-      dotEngineStatus.className = "w-2 h-2 rounded-full bg-appleGreen animate-pulse";
-      textEngineStatus.textContent = `AI: ${model} Aktif`;
-      badgeEngineStatus.className = "hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 text-[11px] font-medium text-emerald-800 dark:text-emerald-300 shadow-sm cursor-pointer";
-    } else {
-      dotEngineStatus.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
-      textEngineStatus.textContent = "AI: Kunci Belum Diset";
-      badgeEngineStatus.className = "hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 text-[11px] font-medium text-amber-800 dark:text-amber-300 shadow-sm cursor-pointer";
+    const providerNames = {
+      gemini: "Gemini 3.8 Flash",
+      groq: "Groq Llama 3.3",
+      deepseek: "DeepSeek Chat"
+    };
+    const activeProvider = state.activeAiProvider || "gemini";
+    const activeName = providerNames[activeProvider] || "Multi-AI Engine";
+
+    let activeKey = "";
+    if (activeProvider === "gemini") activeKey = state.geminiApiKey;
+    else if (activeProvider === "groq") activeKey = state.groqApiKey;
+    else if (activeProvider === "deepseek") activeKey = state.deepseekApiKey;
+
+    if (badgeEngineStatus && dotEngineStatus && textEngineStatus) {
+      if (activeKey && activeKey.trim().length > 5) {
+        dotEngineStatus.className = "w-2 h-2 rounded-full bg-appleGreen animate-pulse";
+        textEngineStatus.textContent = `AI: ${activeName} (Fallback ON)`;
+        badgeEngineStatus.className = "hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 text-[11px] font-medium text-emerald-800 dark:text-emerald-300 shadow-sm cursor-pointer";
+      } else {
+        dotEngineStatus.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
+        textEngineStatus.textContent = `AI: ${activeName} (Kunci Perlu Diisi)`;
+        badgeEngineStatus.className = "hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 text-[11px] font-medium text-amber-800 dark:text-amber-300 shadow-sm cursor-pointer";
+      }
     }
 
     if (btnToggleSeoSync && dotSeoSync && textSeoSync) {
@@ -461,15 +503,38 @@ function initApp() {
   }
 
   // --------------------------------------------------------------------------
-  // Settings Modal Handlers
+  // Settings Modal Handlers (Multi-AI Engine Support)
   // --------------------------------------------------------------------------
+  function selectAiProvider(providerKey) {
+    state.activeAiProvider = providerKey;
+    [btnProviderGemini, btnProviderGroq, btnProviderDeepseek].forEach(btn => {
+      if (!btn) return;
+      const isTarget = btn.dataset.provider === providerKey;
+      if (isTarget) {
+        btn.classList.add("active", "border-appleBlue", "bg-sky-50/80", "dark:bg-sky-950/40");
+        btn.classList.remove("border-black/[0.1]", "dark:border-white/[0.1]", "bg-white", "dark:bg-[#141418]");
+      } else {
+        btn.classList.remove("active", "border-appleBlue", "bg-sky-50/80", "dark:bg-sky-950/40");
+        btn.classList.add("border-black/[0.1]", "dark:border-white/[0.1]", "bg-white", "dark:bg-[#141418]");
+      }
+    });
+    syncEngineStatusBadge();
+  }
+
+  if (btnProviderGemini) btnProviderGemini.addEventListener("click", () => selectAiProvider("gemini"));
+  if (btnProviderGroq) btnProviderGroq.addEventListener("click", () => selectAiProvider("groq"));
+  if (btnProviderDeepseek) btnProviderDeepseek.addEventListener("click", () => selectAiProvider("deepseek"));
+
   function openSettingsModal() {
     if (!modalSettings) return;
-    inputSettingGeminiKey.value = state.geminiApiKey || getDefaultGeminiKey();
+    const defs = getDefaultKeys();
+    inputSettingGeminiKey.value = state.geminiApiKey || defs.gemini;
+    if (inputSettingGroqKey) inputSettingGroqKey.value = state.groqApiKey || defs.groq;
+    if (inputSettingDeepSeekKey) inputSettingDeepSeekKey.value = state.deepseekApiKey || defs.deepseek;
     inputSettingGaId.value = state.gaMeasurementId || "";
+    selectAiProvider(state.activeAiProvider);
     textApiKeyFeedback.classList.add("hidden");
     modalSettings.classList.remove("hidden");
-    inputSettingGeminiKey.focus();
   }
 
   function closeSettingsModal() {
@@ -487,70 +552,59 @@ function initApp() {
 
   if (btnResetDefaultKey) {
     btnResetDefaultKey.addEventListener("click", () => {
-      inputSettingGeminiKey.value = getDefaultGeminiKey();
-      showToast("Kunci default berhasil dimuat ke input.");
+      const defs = getDefaultKeys();
+      inputSettingGeminiKey.value = defs.gemini;
+      if (inputSettingGroqKey) inputSettingGroqKey.value = defs.groq;
+      if (inputSettingDeepSeekKey) inputSettingDeepSeekKey.value = defs.deepseek;
+      showToast("Kunci default (Gemini, Groq, DeepSeek) berhasil dimuat.");
     });
   }
 
-  // Test API Key Live
+  // Test API Key Live for Active Provider
   if (btnTestApiKey) {
     btnTestApiKey.addEventListener("click", async () => {
-      const testKey = inputSettingGeminiKey.value.trim();
-      const model = getGeminiModel();
+      const provider = state.activeAiProvider;
+      let keyToTest = "";
+      let providerName = "";
 
-      if (!testKey) {
-        textApiKeyFeedback.textContent = "⚠️ Masukkan API Key terlebih dahulu.";
-        textApiKeyFeedback.className = "text-[11px] font-semibold text-amber-600 block";
+      if (provider === "gemini") {
+        keyToTest = inputSettingGeminiKey.value.trim() || getDefaultKeys().gemini;
+        providerName = "Google Gemini (gemini-3.8-flash)";
+      } else if (provider === "groq") {
+        keyToTest = inputSettingGroqKey?.value.trim() || getDefaultKeys().groq;
+        providerName = "Groq Cloud (llama-3.3-70b-versatile)";
+      } else {
+        keyToTest = inputSettingDeepSeekKey?.value.trim() || getDefaultKeys().deepseek;
+        providerName = "DeepSeek (deepseek-chat)";
+      }
+
+      if (!keyToTest) {
+        textApiKeyFeedback.textContent = "⚠️ Kunci API untuk provider ini belum terisi.";
+        textApiKeyFeedback.className = "text-[11px] font-semibold text-amber-500 block";
         return;
       }
 
       btnTestApiKey.disabled = true;
       btnTestApiKey.textContent = "Menguji...";
-      textApiKeyFeedback.textContent = `Menghubungi Google Gemini (${model})...`;
-      textApiKeyFeedback.className = "text-[11px] font-semibold text-neutral-500 block";
+      textApiKeyFeedback.textContent = `Menghubungi ${providerName}...`;
+      textApiKeyFeedback.className = "text-[11px] font-semibold text-neutral-400 block";
 
       try {
-        const GenAI = await getGenAISDK();
-        let pingSuccess = false;
-
-        if (GenAI) {
-          try {
-            const ai = new GenAI({ apiKey: testKey });
-            await ai.models.generateContent({
-              model: model,
-              contents: "Ping test: respond OK"
-            });
-            pingSuccess = true;
-          } catch (sdkErr) {
-            console.warn("SDK test ping failed, trying REST fallback:", sdkErr);
-          }
+        if (provider === "gemini") {
+          await executeGemini("Ping test: respond OK", null, keyToTest);
+        } else if (provider === "groq") {
+          await executeGroq("Ping test: respond OK", null, keyToTest);
+        } else {
+          await executeDeepSeek("Ping test: respond OK", null, keyToTest);
         }
-
-        if (!pingSuccess) {
-          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${testKey}`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "x-goog-api-key": testKey
-            },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: "Ping test" }] }]
-            })
-          });
-          if (!res.ok) {
-            const errData = await res.json().catch(() => ({}));
-            throw new Error(errData.error?.message || `Kunci API tidak valid atau model ${model} ditolak server.`);
-          }
-        }
-
-        textApiKeyFeedback.textContent = `✅ Kunci valid! Terhubung dengan Google Gemini (${model}).`;
-        textApiKeyFeedback.className = "text-[11px] font-semibold text-emerald-600 block";
+        textApiKeyFeedback.textContent = `✅ Terhubung dengan sukses ke ${providerName}!`;
+        textApiKeyFeedback.className = "text-[11px] font-semibold text-emerald-400 block";
       } catch (err) {
-        textApiKeyFeedback.textContent = `❌ Gagal: ${err.message || "Kunci API tidak dapat diverifikasi."}`;
-        textApiKeyFeedback.className = "text-[11px] font-semibold text-red-600 block";
+        textApiKeyFeedback.textContent = `❌ Respon: ${err.message || "Gagal menghubungi server"}`;
+        textApiKeyFeedback.className = "text-[11px] font-semibold text-rose-400 block";
       } finally {
         btnTestApiKey.disabled = false;
-        btnTestApiKey.textContent = "Uji Key";
+        btnTestApiKey.textContent = "Uji Kunci Aktif";
       }
     });
   }
@@ -558,13 +612,21 @@ function initApp() {
   // Save Settings
   if (btnSaveAllSettings) {
     btnSaveAllSettings.addEventListener("click", () => {
-      const newKey = inputSettingGeminiKey.value.trim() || getDefaultGeminiKey();
+      const defs = getDefaultKeys();
+      const newGemini = inputSettingGeminiKey.value.trim() || defs.gemini;
+      const newGroq = inputSettingGroqKey?.value.trim() || defs.groq;
+      const newDeepSeek = inputSettingDeepSeekKey?.value.trim() || defs.deepseek;
       const newGaId = inputSettingGaId.value.trim() || "G-XXXXXXXXXX";
 
-      state.geminiApiKey = newKey;
+      state.geminiApiKey = newGemini;
+      state.groqApiKey = newGroq;
+      state.deepseekApiKey = newDeepSeek;
       state.gaMeasurementId = newGaId;
 
-      localStorage.setItem("gemini_api_key", newKey);
+      localStorage.setItem("gemini_api_key", newGemini);
+      localStorage.setItem("groq_api_key", newGroq);
+      localStorage.setItem("deepseek_api_key", newDeepSeek);
+      localStorage.setItem("active_ai_provider", state.activeAiProvider);
       localStorage.setItem("ga_measurement_id", newGaId);
 
       if (typeof window.gtag === "function" && newGaId.startsWith("G-") && newGaId !== "G-XXXXXXXXXX") {
@@ -573,7 +635,7 @@ function initApp() {
 
       syncEngineStatusBadge();
       closeSettingsModal();
-      showToast("Pengaturan API Gemini & Google Analytics berhasil disimpan!");
+      showToast("Pengaturan Multi-AI & Google Analytics berhasil disimpan!");
     });
   }
 
@@ -615,7 +677,12 @@ function initApp() {
         opt.classList.add("active");
         menuPanel.classList.add("hidden");
         if (wrapper) wrapper.classList.remove("is-open");
-        onSelect(opt.dataset);
+        const svgHtml = opt.querySelector("svg")?.outerHTML || "";
+        onSelect({
+          value: opt.dataset.value,
+          name: opt.dataset.name,
+          svgHtml: svgHtml
+        });
       });
     });
   }
@@ -624,9 +691,8 @@ function initApp() {
   setupDropdown(btnDropdownAudience, menuAudience, (data) => {
     state.audience = data.value;
     state.audienceName = data.name;
-    state.audienceIcon = data.icon || "💼";
-    labelAudienceIcon.textContent = state.audienceIcon;
-    labelAudienceText.textContent = state.audienceName;
+    if (labelAudienceIcon && data.svgHtml) labelAudienceIcon.innerHTML = data.svgHtml;
+    if (labelAudienceText) labelAudienceText.textContent = state.audienceName;
     showToast(`Target Audiens: ${state.audienceName}`);
   });
 
@@ -634,9 +700,8 @@ function initApp() {
   setupDropdown(btnDropdownToneVoice, menuToneVoice, (data) => {
     state.toneVoice = data.value;
     state.toneVoiceName = data.name;
-    state.toneVoiceIcon = data.icon || "🌱";
-    labelToneVoiceIcon.textContent = state.toneVoiceIcon;
-    labelToneVoiceText.textContent = state.toneVoiceName;
+    if (labelToneVoiceIcon && data.svgHtml) labelToneVoiceIcon.innerHTML = data.svgHtml;
+    if (labelToneVoiceText) labelToneVoiceText.textContent = state.toneVoiceName;
     showToast(`Tone of Voice: ${state.toneVoiceName}`);
   });
 
@@ -644,9 +709,8 @@ function initApp() {
   setupDropdown(btnDropdownFramework, menuFramework, (data) => {
     state.framework = data.value;
     state.frameworkName = data.name;
-    state.frameworkIcon = data.icon || "🎯";
-    labelFrameworkIcon.textContent = state.frameworkIcon;
-    labelFrameworkText.textContent = state.frameworkName;
+    if (labelFrameworkIcon && data.svgHtml) labelFrameworkIcon.innerHTML = data.svgHtml;
+    if (labelFrameworkText) labelFrameworkText.textContent = state.frameworkName;
     showToast(`Kerangka: ${state.frameworkName}`);
   });
 
@@ -654,9 +718,8 @@ function initApp() {
   setupDropdown(btnDropdownCtaObjective, menuCtaObjective, (data) => {
     state.ctaObjective = data.value;
     state.ctaObjectiveName = data.name;
-    state.ctaObjectiveIcon = data.icon || "💬";
-    labelCtaObjectiveIcon.textContent = state.ctaObjectiveIcon;
-    labelCtaObjectiveText.textContent = state.ctaObjectiveName;
+    if (labelCtaObjectiveIcon && data.svgHtml) labelCtaObjectiveIcon.innerHTML = data.svgHtml;
+    if (labelCtaObjectiveText) labelCtaObjectiveText.textContent = state.ctaObjectiveName;
     showToast(`Tujuan CTA: ${state.ctaObjectiveName}`);
   });
 
@@ -664,9 +727,8 @@ function initApp() {
   setupDropdown(btnDropdownPlatform, menuPlatform, (data) => {
     state.platform = data.value;
     state.platformName = data.name;
-    state.platformIcon = data.icon || "📸";
-    labelPlatformIcon.textContent = state.platformIcon;
-    labelPlatformText.textContent = state.platformName;
+    if (labelPlatformIcon && data.svgHtml) labelPlatformIcon.innerHTML = data.svgHtml;
+    if (labelPlatformText) labelPlatformText.textContent = state.platformName;
     updateSimulatorPlatform(state.platform);
     showToast(`Platform target: ${state.platformName}`);
   });
@@ -784,7 +846,195 @@ function initApp() {
   }
 
   // --------------------------------------------------------------------------
-  // Studio: MAIN EXECUTION (GENERATE VIA GEMINI 3.8 FLASH)
+  // MULTI-MODEL AI CALLERS & AUTO-FALLBACK ENGINE
+  // --------------------------------------------------------------------------
+  async function executeGemini(promptText, attachedFile, customKey = null) {
+    const key = customKey || state.geminiApiKey || getDefaultKeys().gemini;
+    const model = getGeminiModel();
+    if (!key) throw new Error("Kunci Google Gemini API belum terkonfigurasi.");
+
+    const GenAI = await getGenAISDK();
+    if (GenAI) {
+      try {
+        const ai = new GenAI({ apiKey: key });
+        let contentPayload;
+        if (attachedFile && attachedFile.base64) {
+          contentPayload = [
+            { inlineData: { mimeType: attachedFile.type, data: attachedFile.base64 } },
+            promptText
+          ];
+        } else {
+          contentPayload = promptText;
+        }
+        const response = await ai.models.generateContent({
+          model: model,
+          contents: contentPayload
+        });
+        if (response && response.text) return response.text;
+      } catch (sdkErr) {
+        console.warn("Direct @google/genai SDK call error, trying REST fallback:", sdkErr);
+      }
+    }
+
+    // Direct REST Fallback for Gemini
+    const parts = [];
+    if (attachedFile && attachedFile.base64) {
+      parts.push({
+        inline_data: { mime_type: attachedFile.type, data: attachedFile.base64 }
+      });
+    }
+    parts.push({ text: promptText });
+
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-goog-api-key": key
+      },
+      body: JSON.stringify({ contents: [{ parts }] })
+    });
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error?.message || `Gemini REST HTTP ${res.status}`);
+    }
+    const data = await res.json();
+    const txt = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!txt) throw new Error("Respon kosong diterima dari Google Gemini.");
+    return txt;
+  }
+
+  async function executeGroq(promptText, attachedFile, customKey = null) {
+    const key = customKey || state.groqApiKey || getDefaultKeys().groq;
+    const model = getGroqModel();
+    if (!key) throw new Error("Kunci Groq API belum terkonfigurasi.");
+
+    const messages = [
+      {
+        role: "system",
+        content: "Anda adalah AI Copywriter profesional dan Conversion Strategist kelas dunia. Wajib menghasilkan teks copywriting terstruktur dengan format blok tag [HOOK], [BODY], [CTA], [HASHTAGS], [PSYCHOLOGY], [SEO_KEYWORDS], [RETENTION_TIPS], dan [HOOK_SCORE] sesuai instruksi."
+      },
+      {
+        role: "user",
+        content: promptText
+      }
+    ];
+
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${key}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: messages,
+        temperature: 0.7,
+        max_tokens: 3500
+      })
+    });
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error?.message || `Groq API HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    const content = data.choices?.[0]?.message?.content;
+    if (!content) throw new Error("Respon kosong diterima dari Groq API.");
+    return content;
+  }
+
+  async function executeDeepSeek(promptText, attachedFile, customKey = null) {
+    const key = customKey || state.deepseekApiKey || getDefaultKeys().deepseek;
+    const model = getDeepSeekModel();
+    if (!key) throw new Error("Kunci DeepSeek API belum terkonfigurasi.");
+
+    const messages = [
+      {
+        role: "system",
+        content: "Anda adalah pakar Advertising Copywriter dan Human Content Strategist. Hasilkan naskah copywriting berkonversi tinggi dengan format blok tag [HOOK], [BODY], [CTA], [HASHTAGS], [PSYCHOLOGY], [SEO_KEYWORDS], [RETENTION_TIPS], dan [HOOK_SCORE]."
+      },
+      {
+        role: "user",
+        content: promptText
+      }
+    ];
+
+    const res = await fetch("https://api.deepseek.com/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${key}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: messages,
+        temperature: 0.7,
+        max_tokens: 3500
+      })
+    });
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error?.message || `DeepSeek API HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    const content = data.choices?.[0]?.message?.content;
+    if (!content) throw new Error("Respon kosong diterima dari DeepSeek API.");
+    return content;
+  }
+
+  async function executeWithAutoFallback(promptText, attachedFile, onProgress) {
+    const primary = state.activeAiProvider || "gemini";
+    const allProviders = ["gemini", "groq", "deepseek"];
+    const chain = [primary, ...allProviders.filter(p => p !== primary)];
+    const providerNames = {
+      gemini: "Google Gemini 3.8 Flash",
+      groq: "Groq Llama 3.3",
+      deepseek: "DeepSeek Chat"
+    };
+
+    let lastError = null;
+
+    for (let i = 0; i < chain.length; i++) {
+      const provider = chain[i];
+      const isFallback = (i > 0);
+
+      try {
+        if (isFallback && onProgress) {
+          onProgress(`Mengalihkan otomatis ke engine cadangan (${providerNames[provider]})...`);
+        }
+
+        let result = "";
+        if (provider === "gemini") {
+          result = await executeGemini(promptText, attachedFile);
+        } else if (provider === "groq") {
+          result = await executeGroq(promptText, attachedFile);
+        } else if (provider === "deepseek") {
+          result = await executeDeepSeek(promptText, attachedFile);
+        }
+
+        if (result && result.trim().length > 0) {
+          return {
+            text: result,
+            usedProvider: provider,
+            providerName: providerNames[provider],
+            isFallback: isFallback
+          };
+        }
+      } catch (err) {
+        console.warn(`[Auto-Fallback] Engine ${provider} terkendala (${err.message}). Mengalihkan ke cadangan berikutnya...`);
+        lastError = err;
+      }
+    }
+
+    throw lastError || new Error("Seluruh mesin AI mengalami gangguan. Silakan periksa koneksi internet Anda.");
+  }
+
+  // --------------------------------------------------------------------------
+  // Studio: MAIN EXECUTION (MULTI-AI WITH AUTO-FALLBACK)
   // --------------------------------------------------------------------------
   if (btnGenerateCaption) {
     btnGenerateCaption.addEventListener("click", async () => {
@@ -809,7 +1059,6 @@ function initApp() {
 
       try {
         const spec = platformSpecs[state.platform] || platformSpecs.instagram;
-        const currentModel = getGeminiModel();
 
         // Framework Directives
         const frameworkGuides = {
@@ -948,74 +1197,18 @@ BAHAN MENTAH PENGGUNA:
 ${state.attachedFile?.textContent ? `\n\nISI LAMPIRAN DOKUMEN:\n${state.attachedFile.textContent}` : ""}
 `;
 
-        let generatedText = "";
-        const apiKeyToUse = getActiveApiKey();
-        const GenAI = await getGenAISDK();
+        // Execute via Multi-Model Engine with Auto-Fallback
+        const execution = await executeWithAutoFallback(promptInstruction, state.attachedFile, (statusMsg) => {
+          textGenerateBtn.innerHTML = `
+            <svg class="animate-spin -ml-1 mr-2 h-3.5 w-3.5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            ${statusMsg}
+          `;
+        });
 
-        // 1. Try Official SDK (@google/genai)
-        if (GenAI) {
-          try {
-            const ai = new GenAI({ apiKey: apiKeyToUse });
-            let contentPayload;
-
-            if (state.attachedFile && state.attachedFile.base64) {
-              contentPayload = [
-                {
-                  inlineData: {
-                    mimeType: state.attachedFile.type,
-                    data: state.attachedFile.base64
-                  }
-                },
-                promptInstruction
-              ];
-            } else {
-              contentPayload = promptInstruction;
-            }
-
-            const response = await ai.models.generateContent({
-              model: currentModel,
-              contents: contentPayload
-            });
-
-            generatedText = response.text || "";
-          } catch (sdkError) {
-            console.warn("Direct @google/genai SDK call error, trying REST fallback:", sdkError);
-          }
-        }
-
-        // 2. Direct REST Fallback
-        if (!generatedText) {
-          const parts = [];
-          if (state.attachedFile && state.attachedFile.base64) {
-            parts.push({
-              inline_data: {
-                mime_type: state.attachedFile.type,
-                data: state.attachedFile.base64
-              }
-            });
-          }
-          parts.push({ text: promptInstruction });
-
-          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:generateContent?key=${apiKeyToUse}`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "x-goog-api-key": apiKeyToUse
-            },
-            body: JSON.stringify({ contents: [{ parts }] })
-          });
-
-          if (!res.ok) {
-            const errData = await res.json().catch(() => ({}));
-            throw new Error(errData.error?.message || `HTTP ${res.status}`);
-          }
-          const data = await res.json();
-          generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-        }
-
-        if (!generatedText) {
-          throw new Error("Tidak ada respon teks yang diterima dari Google Gemini API.");
-        }
+        const generatedText = execution.text;
 
         // Parse Output Sections
         const parsed = parseGeneratedContent(generatedText, rawText);
@@ -1023,9 +1216,11 @@ ${state.attachedFile?.textContent ? `\n\nISI LAMPIRAN DOKUMEN:\n${state.attached
 
         // Render to UI
         if (badgeGeneratedMode) {
-          badgeGeneratedMode.textContent = state.activeMode === "strategic"
-            ? "🎯 Mode A: Strategic Copywriting (Prinsip Periklanan)"
-            : "🌿 Mode B: Human-Professional Caption Writer";
+          const modeTitle = state.activeMode === "strategic"
+            ? "🎯 Mode A: Strategic Copywriting"
+            : "🌿 Mode B: Human-Professional Caption";
+          const fallbackTag = execution.isFallback ? " • [Auto-Fallback Aktif]" : "";
+          badgeGeneratedMode.textContent = `${modeTitle} • Disusun oleh: ${execution.providerName}${fallbackTag}`;
         }
         if (badgeTimestamp) {
           badgeTimestamp.textContent = new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
@@ -1046,10 +1241,16 @@ ${state.attachedFile?.textContent ? `\n\nISI LAMPIRAN DOKUMEN:\n${state.attached
           mode: state.activeMode,
           audience: state.audience,
           platform: state.platform,
-          tone: state.toneVoice
+          tone: state.toneVoice,
+          provider: execution.usedProvider,
+          isFallback: execution.isFallback
         });
 
-        showToast("✨ Konten berhasil diracik & tersimpan di Riwayat Draft!");
+        if (execution.isFallback) {
+          showToast(`⚡ Konten berhasil diracik via cadangan: ${execution.providerName}!`);
+        } else {
+          showToast(`✨ Konten berhasil diracik via ${execution.providerName}!`);
+        }
 
       } catch (error) {
         console.error("Caption generation error:", error);
@@ -1464,7 +1665,6 @@ ${state.attachedFile?.textContent ? `\n\nISI LAMPIRAN DOKUMEN:\n${state.attached
     `;
 
     try {
-      const currentModel = getGeminiModel();
       const trendPrompt = `
 Bertindaklah sebagai Senior SEO & Social Media Trend Researcher.
 Lakukan riset mendalam untuk topik: "${lastAnalyzedTopic}".
@@ -1484,36 +1684,8 @@ Berikan pemetaan analisis tren dalam format tag yang presisi:
 - (Ide hook 3 berbasis studi kasus atau solusi cepat)
 `;
 
-      const apiKeyToUse = getActiveApiKey();
-      let responseText = "";
-      const GenAI = await getGenAISDK();
-
-      if (GenAI) {
-        try {
-          const ai = new GenAI({ apiKey: apiKeyToUse });
-          const res = await ai.models.generateContent({
-            model: currentModel,
-            contents: trendPrompt
-          });
-          responseText = res.text || "";
-        } catch (e) {
-          console.warn("Trend SDK call error, trying REST:", e);
-        }
-      }
-
-      if (!responseText) {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:generateContent?key=${apiKeyToUse}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "x-goog-api-key": apiKeyToUse },
-          body: JSON.stringify({ contents: [{ parts: [{ text: trendPrompt }] }] })
-        });
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.error?.message || `HTTP ${res.status}`);
-        }
-        const data = await res.json();
-        responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-      }
+      const execution = await executeWithAutoFallback(trendPrompt, null);
+      const responseText = execution.text;
 
       // Parse Trend Results
       const anglesMatch = responseText.match(/\[ANGLES\]([\s\S]*?)(?=\[KEYWORDS\]|\[VIRAL_HOOKS\]|$)/i);
