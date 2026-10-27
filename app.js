@@ -1,19 +1,14 @@
 /**
  * Caption Maker AI — Pro Logic & Copywriting Strategy Engine
  * Apple HIG Standard & Captions.ai Aesthetics
- * Features:
- * - Dynamic Persona & Tone (Kasual, Psikolog, Profesional, Kreatif, Edukator, Promo)
- * - Multi-Framework (AIDA, PAS, BAB, FAB)
- * - Tone Sliders (Warmth & Urgency)
- * - Dual Engine: Smart Neural (Offline) & Gemini AI API (Cloud Live)
- * - Platform Adapters: Instagram, TikTok, LinkedIn, Twitter/X with character meters
- * - LocalStorage History & Drafts Collection + Markdown Exporter
- * - Strict Output Structure: [HOOK], [BODY], [CTA], [HASHTAGS]
+ * Powered by Google Gemini API Official SDK (@google/genai)
  */
+
+import { GoogleGenAI } from "@google/genai";
 
 document.addEventListener("DOMContentLoaded", () => {
   // ==========================================
-  // App State
+  // App State & Secure LocalStorage Management
   // ==========================================
   const state = {
     persona: "kasual_bisnis",
@@ -27,8 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
     warmth: 4,
     urgency: 3,
     isAnalyticsSynced: true,
-    aiMode: localStorage.getItem("cm_ai_mode") || "neural", // "neural" or "gemini"
-    geminiApiKey: localStorage.getItem("cm_gemini_key") || "",
+    geminiApiKey: localStorage.getItem("gemini_api_key") || localStorage.getItem("cm_gemini_key") || "",
     currentOutput: null,
     history: JSON.parse(localStorage.getItem("cm_history_drafts") || "[]")
   };
@@ -56,6 +50,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnToggleKeyVisibility = document.getElementById("btnToggleKeyVisibility");
   const checkGaAutoSync = document.getElementById("checkGaAutoSync");
   const historyCountBadge = document.getElementById("historyCountBadge");
+
+  // API Key Status Bar Elements
+  const apiStatusDot = document.getElementById("apiStatusDot");
+  const apiStatusText = document.getElementById("apiStatusText");
+  const btnConnectApiKey = document.getElementById("btnConnectApiKey");
 
   // Dropdowns
   const personaTrigger = document.getElementById("personaDropdownTrigger");
@@ -122,7 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ==========================================
   // Initialization
   // ==========================================
-  updateEngineBadge();
+  updateApiKeyStatusUI();
   updateHistoryUI();
   updateInputCounters();
   syncSliderLabels();
@@ -130,6 +129,45 @@ document.addEventListener("DOMContentLoaded", () => {
   // Load saved Gemini Key to input
   if (state.geminiApiKey) {
     geminiApiKeyInput.value = state.geminiApiKey;
+  }
+
+  function updateApiKeyStatusUI() {
+    const key = localStorage.getItem("gemini_api_key") || state.geminiApiKey;
+    if (key) {
+      if (apiStatusDot) {
+        apiStatusDot.classList.add("connected");
+      }
+      if (apiStatusText) {
+        apiStatusText.innerHTML = "Google Gemini 2.5 Flash SDK: <strong>Terhubung (Aktif)</strong>";
+      }
+      if (btnConnectApiKey) {
+        btnConnectApiKey.textContent = "Ubah API Key";
+      }
+      if (activeEngineLabel) {
+        activeEngineLabel.textContent = "Gemini 2.5 Flash";
+      }
+    } else {
+      if (apiStatusDot) {
+        apiStatusDot.classList.remove("connected");
+      }
+      if (apiStatusText) {
+        apiStatusText.textContent = "Google Gemini 2.5 Flash SDK: Belum Terhubung";
+      }
+      if (btnConnectApiKey) {
+        btnConnectApiKey.textContent = "Koneksikan API Key";
+      }
+      if (activeEngineLabel) {
+        activeEngineLabel.textContent = "Set API Key";
+      }
+    }
+  }
+
+  if (btnConnectApiKey) {
+    btnConnectApiKey.addEventListener("click", () => {
+      settingsModal.classList.add("show");
+      geminiKeyGroup.style.display = "flex";
+      geminiApiKeyInput.focus();
+    });
   }
 
   // ==========================================
@@ -367,7 +405,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const geminiConnectionFeedback = document.getElementById("geminiConnectionFeedback");
   const btnTestGeminiKey = document.getElementById("btnTestGeminiKey");
 
-  // Test Gemini Key Connection
+  // Test Gemini Key Connection with SDK
   if (btnTestGeminiKey) {
     btnTestGeminiKey.addEventListener("click", async () => {
       const key = geminiApiKeyInput.value.trim();
@@ -380,26 +418,30 @@ document.addEventListener("DOMContentLoaded", () => {
       btnTestGeminiKey.disabled = true;
 
       try {
-        const testUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
-        const res = await fetch(testUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: "ping" }] }]
-          })
+        const ai = new GoogleGenAI({ apiKey: key });
+        await ai.models.generateContent({
+          model: "gemini-2.5-flash",
+          contents: "ping"
         });
-
-        const data = await res.json();
-        if (res.ok && data.candidates) {
-          showFeedback("✓ Berhasil terhubung ke Google Gemini 1.5 Flash!", true);
-          state.geminiApiKey = key;
-          localStorage.setItem("cm_gemini_key", key);
-        } else {
-          const errMsg = data.error?.message || `Error ${res.status}`;
-          showFeedback(`✕ Gagal: ${errMsg}`, false);
-        }
+        showFeedback("✓ Berhasil terhubung ke Google Gemini 2.5 Flash SDK!", true);
+        state.geminiApiKey = key;
+        localStorage.setItem("gemini_api_key", key);
+        updateApiKeyStatusUI();
       } catch (err) {
-        showFeedback(`✕ Error koneksi jaringan: ${err.message}`, false);
+        console.warn("Test with gemini-2.5-flash failed, testing 1.5-flash...", err);
+        try {
+          const ai = new GoogleGenAI({ apiKey: key });
+          await ai.models.generateContent({
+            model: "gemini-1.5-flash",
+            contents: "ping"
+          });
+          showFeedback("✓ Berhasil terhubung ke Google Gemini SDK (Key Valid)!", true);
+          state.geminiApiKey = key;
+          localStorage.setItem("gemini_api_key", key);
+          updateApiKeyStatusUI();
+        } catch (err2) {
+          showFeedback(`✕ Gagal: ${err2.message || "Kunci API tidak valid"}`, false);
+        }
       } finally {
         btnTestGeminiKey.textContent = "Uji Koneksi";
         btnTestGeminiKey.disabled = false;
@@ -416,29 +458,24 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   btnSaveSettings.addEventListener("click", () => {
-    const activeSeg = document.querySelector(".segmented-control .seg-btn.active");
-    state.aiMode = activeSeg ? activeSeg.dataset.mode : "neural";
     state.geminiApiKey = geminiApiKeyInput.value.trim();
     state.isAnalyticsSynced = checkGaAutoSync.checked;
 
-    localStorage.setItem("cm_ai_mode", state.aiMode);
+    // Secure local storage save as specified
+    localStorage.setItem("gemini_api_key", state.geminiApiKey);
     localStorage.setItem("cm_gemini_key", state.geminiApiKey);
 
-    updateEngineBadge();
+    updateApiKeyStatusUI();
     closeSettingsModal();
-    showToast(`Pengaturan tersimpan! Menggunakan mode: ${state.aiMode === "gemini" ? "Google Gemini AI (Cloud)" : "Smart Neural Engine"}`);
+    if (state.geminiApiKey) {
+      showToast("✓ Pengaturan & Google Gemini API Key berhasil tersimpan di browser!");
+    } else {
+      showToast("Pengaturan tersimpan (API Key kosong).");
+    }
   });
 
-  function updateEngineBadge() {
-    if (state.aiMode === "gemini" && state.geminiApiKey) {
-      activeEngineLabel.textContent = "Gemini AI (Live)";
-    } else {
-      activeEngineLabel.textContent = "Neural (Offline)";
-    }
-  }
-
   // ==========================================
-  // Core Copywriting Generator
+  // Core Copywriting Generator via Official SDK
   // ==========================================
   btnGenerate.addEventListener("click", async () => {
     const raw = rawInput.value.trim();
@@ -448,19 +485,25 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Loading State
+    // 1. Verifikasi Keberadaan API Key di LocalStorage
+    const apiKey = localStorage.getItem("gemini_api_key") || state.geminiApiKey;
+    if (!apiKey) {
+      showToast("⚠️ Silakan masukkan Google Gemini API Key Anda terlebih dahulu!");
+      settingsModal.classList.add("show");
+      geminiKeyGroup.style.display = "flex";
+      geminiApiKeyInput.focus();
+      return;
+    }
+
+    // 2. Indikator Visual saat AI Sedang Bekerja
     btnGenerate.disabled = true;
-    btnGenerateText.textContent = state.aiMode === "gemini" && state.geminiApiKey ? "Menghubungi Gemini AI..." : "Meracik Hook & Formula...";
-    btnGenerate.style.opacity = "0.7";
+    btnGenerateText.textContent = "Sedang meracik konten dengan AI...";
+    btnGenerate.style.opacity = "0.75";
+    btnGenerate.style.cursor = "not-allowed";
 
     try {
-      let outputData;
-      if (state.aiMode === "gemini" && state.geminiApiKey) {
-        outputData = await generateWithGeminiAPI(raw);
-      } else {
-        // Smart Neural Engine (Deterministic & Heuristic with Rich Variants)
-        outputData = generateStrategicCopy(raw);
-      }
+      // Panggilan SDK Gemini 2.5 Flash
+      const outputData = await generateWithGeminiSDK(raw, apiKey);
 
       state.currentOutput = outputData;
       renderOutput(outputData);
@@ -470,100 +513,111 @@ document.addEventListener("DOMContentLoaded", () => {
 
       outputSection.style.display = "block";
       outputSection.scrollIntoView({ behavior: "smooth", block: "start" });
-      showToast("Caption siap! Format terstruktur [HOOK], [BODY], [CTA], [HASHTAGS].");
+      showToast("✓ Caption berhasil diracik oleh Gemini 2.5 Flash!");
     } catch (err) {
-      console.error(err);
-      showToast("Gagal memanggil Gemini API. Beralih ke Smart Neural Engine.");
-      const fallback = generateStrategicCopy(raw);
-      state.currentOutput = fallback;
-      renderOutput(fallback);
-      saveToHistory(fallback);
-      outputSection.style.display = "block";
+      console.error("Gemini API Error:", err);
+      let userFriendlyMsg = "Terjadi kesalahan saat memproses konten dengan AI.";
+      const errMsg = err.message || "";
+
+      if (errMsg.includes("API_KEY_INVALID") || errMsg.includes("API key not valid")) {
+        userFriendlyMsg = "Kunci API Google Gemini tidak valid. Mohon periksa kembali API Key Anda dari Google AI Studio.";
+      } else if (errMsg.includes("quota") || errMsg.includes("RESOURCE_EXHAUSTED")) {
+        userFriendlyMsg = "Batas kuota gratis Gemini tercapai sementara. Tunggu beberapa saat lalu coba lagi.";
+      } else if (errMsg.includes("Failed to fetch") || errMsg.includes("network")) {
+        userFriendlyMsg = "Koneksi internet bermasalah. Periksa koneksi Anda dan coba lagi.";
+      } else {
+        userFriendlyMsg = `Error: ${errMsg}`;
+      }
+
+      showToast(`✕ ${userFriendlyMsg}`);
     } finally {
       btnGenerate.disabled = false;
       btnGenerateText.textContent = "Generate Caption";
       btnGenerate.style.opacity = "1";
+      btnGenerate.style.cursor = "pointer";
     }
   });
 
   /**
-   * Gemini API Integration (Client-Side Direct Call with Strict Prompt)
+   * Gemini API Official SDK Integration (@google/genai)
+   * Menggunakan Model gemini-2.5-flash
    */
-  async function generateWithGeminiAPI(raw) {
-    const prompt = `Anda adalah Digital Marketer dan Copywriter ahli berstandar Apple HIG.
-Tugas Anda menghasilkan caption media sosial berkonversi tinggi dengan parameter:
-- Persona: ${state.personaName} (Kehangatan emosional level: ${state.warmth}/5)
-- Formula Copywriting: ${state.frameworkName}
+  async function generateWithGeminiSDK(raw, apiKey) {
+    const prompt = `Anda adalah seorang Digital Marketer, Copywriter, dan Strategis Media Sosial ahli yang beroperasi dengan standar Apple HIG.
+Tugas Anda: Hasilkan caption media sosial dan metadata dengan konversi tinggi berdasarkan input bahan mentah berikut.
+
+Spesifikasi & Konteks:
+- Persona: ${state.personaName} (Kehangatan emosional: ${state.warmth}/5)
+- Framework Copywriting: ${state.frameworkName}
 - Target Platform: ${state.platformName}
 - Tingkat Urgensi CTA: ${state.urgency}/5
-- Google Analytics & Search Trend Context: 85% audiens menonton video tanpa audio (silent), 3 detik pertama menentukan retensi 28%-42%.
+- Google Analytics & Search Trend Benchmark: 85% audiens menonton video tanpa audio (silent mode), target retensi 3 detik awal 28%-42%.
 
 Bahan mentah dari pengguna:
 "${raw}"
 
-Format output HARUS mengikuti struktur ini secara persis dalam teks Markdown:
+Format output HARUS mengikuti struktur ini secara persis dalam bentuk teks Markdown murni tanpa basa-basi:
 [HOOK]
-(1 kalimat tajam penghenti scroll, maks 125 karakter)
+(1 kalimat pembuka tajam penghenti scroll pada 3 detik awal, maks 125 karakter)
 
 [BODY]
-(Paragraf singkat, padat, berjarak rapi dengan line-break yang bersih sesuai framework ${state.frameworkName})
+(Paragraf singkat, padat, dan terstruktur rapi dengan spasi baris yang bersih dan bernapas sesuai formula ${state.frameworkName})
 
 [CTA]
-(Ajakan bertindak yang jelas, relevan, dan sesuai tingkat urgensi)
+(Ajakan bertindak yang jelas, relevan dengan persona dan tingkat urgensi yang dipilih)
 
 [HASHTAGS]
 (7-10 hashtag relevan gabungan core keyword, niche, dan trending)`;
 
     let generatedText = "";
 
-    // 1. Try local proxy if hosted on server
-    if (window.location.protocol.startsWith("http")) {
+    // 1. Pemanggilan via Official SDK @google/genai
+    try {
+      const ai = new GoogleGenAI({ apiKey: apiKey });
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt
+      });
+      generatedText = response.text || "";
+    } catch (sdkError) {
+      console.warn("Panggilan model gemini-2.5-flash gagal, mencoba fallback ke gemini-1.5-flash...", sdkError);
       try {
-        const proxyRes = await fetch("/api/gemini", {
+        const ai = new GoogleGenAI({ apiKey: apiKey });
+        const response = await ai.models.generateContent({
+          model: "gemini-1.5-flash",
+          contents: prompt
+        });
+        generatedText = response.text || "";
+      } catch (sdkFallbackErr) {
+        // Fallback REST endpoint jika modul bundler browser mengalami kendala
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        const response = await fetch(url, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt, apiKey: state.geminiApiKey })
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+              temperature: 0.7,
+              maxOutputTokens: 1400
+            }
+          })
         });
-        if (proxyRes.ok) {
-          const proxyData = await proxyRes.json();
-          if (proxyData.text) {
-            generatedText = proxyData.text;
-          }
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.error?.message || `HTTP ${response.status}`);
         }
-      } catch (e) {
-        console.warn("Proxy request failed, trying direct Google API call...", e);
+
+        const data = await response.json();
+        generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
       }
     }
 
-    // 2. Direct Google Gemini 1.5 Flash Call if not yet received
     if (!generatedText) {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${state.geminiApiKey}`;
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 1200
-          }
-        })
-      });
-
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error?.message || `HTTP ${response.status}`);
-      }
-
-      const data = await response.json();
-      generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      throw new Error("Model Gemini tidak mengembalikan respons teks.");
     }
 
-    if (!generatedText) {
-      throw new Error("Tidak ada teks yang dikembalikan oleh Gemini API.");
-    }
-
-    // Parse blocks
+    // Parse blocks ke struktur [HOOK], [BODY], [CTA], [HASHTAGS]
     return parseStrictMarkdown(generatedText, raw);
   }
 

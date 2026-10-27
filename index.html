@@ -26,6 +26,15 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+
+  <!-- Google Gen AI Official SDK via Import Map -->
+  <script type="importmap">
+    {
+      "imports": {
+        "@google/genai": "https://esm.run/@google/genai"
+      }
+    }
+  </script>
 </head>
 <body>
   <!-- Ambient Atmospheric Mesh Glow (Captions.ai style) -->
@@ -241,6 +250,15 @@
             <span>Tinggi (FOMO / Penawaran Terbatas)</span>
           </div>
         </div>
+      </div>
+
+      <!-- Google Gemini API Status & Connect Bar -->
+      <div class="api-key-status-bar" id="apiKeyStatusBar">
+        <div class="api-status-left">
+          <span class="status-indicator-dot" id="apiStatusDot"></span>
+          <span id="apiStatusText">Google Gemini 2.5 Flash SDK: Siap dihubungkan</span>
+        </div>
+        <button class="api-key-btn" id="btnConnectApiKey">Koneksikan API Key</button>
       </div>
 
       <!-- Main Interaction Card (Captions.ai Dashed Dropzone Style) -->
@@ -607,7 +625,7 @@
   <!-- Toast Notification for Haptic Feedback -->
   <div class="hig-toast" id="higToast">Tersalin ke clipboard dengan rapi!</div>
 
-  <script src="app.js"></script>
+  <script type="module" src="app.js"></script>
   <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
