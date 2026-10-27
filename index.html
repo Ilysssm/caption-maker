@@ -236,16 +236,21 @@
           </button>
         </div>
 
-        <!-- 2. PARAMETER KONTROL LANJUTAN (Target Audiens, Tone of Voice, CTA Objective, Platform) -->
-        <div class="max-w-3xl mx-auto bg-white/70 dark:bg-[#16161a]/70 border border-black/[0.07] dark:border-white/[0.08] rounded-3xl p-5 backdrop-blur-md shadow-sm space-y-3">
-          <span class="text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider block">
-            Parameter Penyesuaian Konten:
-          </span>
+        <!-- 2. PARAMETER KONTROL LANJUTAN (Target Audiens, Tone of Voice, Kerangka Copywriting, CTA Objective, Platform) -->
+        <div class="parameter-panel-container max-w-3xl mx-auto bg-white/85 dark:bg-[#16161a]/85 border border-black/[0.07] dark:border-white/[0.08] rounded-3xl p-5 backdrop-blur-md shadow-sm space-y-3 relative z-40 overflow-visible">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider block">
+              Parameter Penyesuaian Konten:
+            </span>
+            <span class="text-[11px] text-neutral-400 dark:text-neutral-500 hidden sm:inline-block">
+              5 Kontrol Presisi Aktif
+            </span>
+          </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
             
-            <!-- 1. Target Audiens Dropdown -->
-            <div class="relative">
+            <!-- 1. Target Audiens Dropdown (Span 2) -->
+            <div class="dropdown-wrapper relative z-30 sm:col-span-1 lg:col-span-2">
               <label class="text-[10px] font-bold text-neutral-400 dark:text-neutral-500 block mb-1">TARGET AUDIENS</label>
               <button id="btnDropdownAudience" class="pill-dropdown-trigger w-full flex items-center justify-between gap-1.5 px-3 py-2 bg-white dark:bg-[#1f1f24] rounded-xl border border-black/[0.09] dark:border-white/[0.1] shadow-xs text-xs font-semibold text-[#111] dark:text-white hover:border-appleBlue transition-all">
                 <span class="flex items-center gap-1.5 truncate">
@@ -254,7 +259,7 @@
                 </span>
                 <svg class="w-3.5 h-3.5 shrink-0 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
               </button>
-              <div id="menuAudience" class="dropdown-menu-panel hidden absolute left-0 mt-1.5 w-60 bg-white/95 dark:bg-[#1c1c22]/95 backdrop-blur-xl border border-black/[0.08] dark:border-white/[0.12] rounded-2xl shadow-xl p-1.5 z-40 space-y-0.5">
+              <div id="menuAudience" class="dropdown-menu-panel hidden absolute left-0 mt-1.5 w-60 bg-white/98 dark:bg-[#1c1c22]/98 backdrop-blur-xl border border-black/[0.08] dark:border-white/[0.12] rounded-2xl shadow-2xl p-1.5 z-[999] space-y-0.5">
                 <button class="dropdown-opt active w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2 transition-colors" data-value="bisnis_umkm" data-icon="💼" data-name="Pemilik Bisnis/UMKM">
                   <span>💼</span> <span>Pemilik Bisnis / UMKM</span>
                 </button>
@@ -273,8 +278,8 @@
               </div>
             </div>
 
-            <!-- 2. Tone of Voice Dropdown -->
-            <div class="relative">
+            <!-- 2. Tone of Voice Dropdown (Span 2) -->
+            <div class="dropdown-wrapper relative z-30 sm:col-span-1 lg:col-span-2">
               <label class="text-[10px] font-bold text-neutral-400 dark:text-neutral-500 block mb-1">TONE OF VOICE</label>
               <button id="btnDropdownToneVoice" class="pill-dropdown-trigger w-full flex items-center justify-between gap-1.5 px-3 py-2 bg-white dark:bg-[#1f1f24] rounded-xl border border-black/[0.09] dark:border-white/[0.1] shadow-xs text-xs font-semibold text-[#111] dark:text-white hover:border-appleBlue transition-all">
                 <span class="flex items-center gap-1.5 truncate">
@@ -283,7 +288,7 @@
                 </span>
                 <svg class="w-3.5 h-3.5 shrink-0 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
               </button>
-              <div id="menuToneVoice" class="dropdown-menu-panel hidden absolute left-0 mt-1.5 w-60 bg-white/95 dark:bg-[#1c1c22]/95 backdrop-blur-xl border border-black/[0.08] dark:border-white/[0.12] rounded-2xl shadow-xl p-1.5 z-40 space-y-0.5">
+              <div id="menuToneVoice" class="dropdown-menu-panel hidden absolute left-0 mt-1.5 w-60 bg-white/98 dark:bg-[#1c1c22]/98 backdrop-blur-xl border border-black/[0.08] dark:border-white/[0.12] rounded-2xl shadow-2xl p-1.5 z-[999] space-y-0.5">
                 <button class="dropdown-opt active w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2 transition-colors" data-value="empatic_warm" data-icon="🌱" data-name="Empatic & Warm">
                   <span>🌱</span> <span>Empatic & Warm</span>
                 </button>
@@ -299,8 +304,57 @@
               </div>
             </div>
 
-            <!-- 3. CTA Objective Dropdown -->
-            <div class="relative">
+            <!-- 3. Kerangka Copywriting (Framework) Dropdown (Span 2) -->
+            <div class="dropdown-wrapper relative z-30 sm:col-span-2 lg:col-span-2">
+              <label class="text-[10px] font-bold text-neutral-400 dark:text-neutral-500 block mb-1">KERANGKA COPYWRITING</label>
+              <button id="btnDropdownFramework" class="pill-dropdown-trigger w-full flex items-center justify-between gap-1.5 px-3 py-2 bg-white dark:bg-[#1f1f24] rounded-xl border border-black/[0.09] dark:border-white/[0.1] shadow-xs text-xs font-semibold text-[#111] dark:text-white hover:border-appleBlue transition-all">
+                <span class="flex items-center gap-1.5 truncate">
+                  <span id="labelFrameworkIcon">🎯</span>
+                  <span id="labelFrameworkText" class="truncate">Formula AIDA</span>
+                </span>
+                <svg class="w-3.5 h-3.5 shrink-0 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <div id="menuFramework" class="dropdown-menu-panel hidden absolute right-0 sm:left-0 lg:right-0 mt-1.5 w-72 bg-white/98 dark:bg-[#1c1c22]/98 backdrop-blur-xl border border-black/[0.08] dark:border-white/[0.12] rounded-2xl shadow-2xl p-1.5 z-[999] space-y-0.5">
+                <button class="dropdown-opt active w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-start gap-2.5 transition-colors" data-value="formula_aida" data-icon="🎯" data-name="Formula AIDA">
+                  <span class="text-base mt-0.5">🎯</span>
+                  <div>
+                    <div class="font-bold text-[#111] dark:text-white">Formula AIDA</div>
+                    <div class="text-[10.5px] text-neutral-500 dark:text-neutral-400">Attention, Interest, Desire, Action</div>
+                  </div>
+                </button>
+                <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-start gap-2.5 transition-colors" data-value="formula_pas" data-icon="⚡" data-name="Formula PAS">
+                  <span class="text-base mt-0.5">⚡</span>
+                  <div>
+                    <div class="font-bold text-[#111] dark:text-white">Formula PAS</div>
+                    <div class="text-[10.5px] text-neutral-500 dark:text-neutral-400">Problem, Agitation, Solution</div>
+                  </div>
+                </button>
+                <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-start gap-2.5 transition-colors" data-value="formula_bab" data-icon="🌉" data-name="Formula BAB">
+                  <span class="text-base mt-0.5">🌉</span>
+                  <div>
+                    <div class="font-bold text-[#111] dark:text-white">Formula BAB</div>
+                    <div class="text-[10.5px] text-neutral-500 dark:text-neutral-400">Before, After, Bridge (Transformasi)</div>
+                  </div>
+                </button>
+                <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-start gap-2.5 transition-colors" data-value="storytelling_flow" data-icon="📖" data-name="Storytelling Flow">
+                  <span class="text-base mt-0.5">📖</span>
+                  <div>
+                    <div class="font-bold text-[#111] dark:text-white">Storytelling Flow</div>
+                    <div class="text-[10.5px] text-neutral-500 dark:text-neutral-400">Alur Cerita Emosional & Reflektif</div>
+                  </div>
+                </button>
+                <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-start gap-2.5 transition-colors" data-value="direct_value" data-icon="💎" data-name="Direct Value">
+                  <span class="text-base mt-0.5">💎</span>
+                  <div>
+                    <div class="font-bold text-[#111] dark:text-white">Direct Value</div>
+                    <div class="text-[10.5px] text-neutral-500 dark:text-neutral-400">Penyampaian Langsung & Padat Solusi</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <!-- 4. CTA Objective Dropdown (Span 3) -->
+            <div class="dropdown-wrapper relative z-20 sm:col-span-1 lg:col-span-3">
               <label class="text-[10px] font-bold text-neutral-400 dark:text-neutral-500 block mb-1">TUJUAN KONTEN (CTA)</label>
               <button id="btnDropdownCtaObjective" class="pill-dropdown-trigger w-full flex items-center justify-between gap-1.5 px-3 py-2 bg-white dark:bg-[#1f1f24] rounded-xl border border-black/[0.09] dark:border-white/[0.1] shadow-xs text-xs font-semibold text-[#111] dark:text-white hover:border-appleBlue transition-all">
                 <span class="flex items-center gap-1.5 truncate">
@@ -309,7 +363,7 @@
                 </span>
                 <svg class="w-3.5 h-3.5 shrink-0 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
               </button>
-              <div id="menuCtaObjective" class="dropdown-menu-panel hidden absolute left-0 mt-1.5 w-64 bg-white/95 dark:bg-[#1c1c22]/95 backdrop-blur-xl border border-black/[0.08] dark:border-white/[0.12] rounded-2xl shadow-xl p-1.5 z-40 space-y-0.5">
+              <div id="menuCtaObjective" class="dropdown-menu-panel hidden absolute left-0 mt-1.5 w-64 bg-white/98 dark:bg-[#1c1c22]/98 backdrop-blur-xl border border-black/[0.08] dark:border-white/[0.12] rounded-2xl shadow-2xl p-1.5 z-[999] space-y-0.5">
                 <button class="dropdown-opt active w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2 transition-colors" data-value="komentar_diskusi" data-icon="💬" data-name="Mancing Komentar & Diskusi">
                   <span>💬</span> <span>Mancing Komentar & Diskusi</span>
                 </button>
@@ -325,8 +379,8 @@
               </div>
             </div>
 
-            <!-- 4. Target Platform Dropdown -->
-            <div class="relative">
+            <!-- 5. Target Platform Dropdown (Span 3) -->
+            <div class="dropdown-wrapper relative z-20 sm:col-span-1 lg:col-span-3">
               <label class="text-[10px] font-bold text-neutral-400 dark:text-neutral-500 block mb-1">TARGET PLATFORM</label>
               <button id="btnDropdownPlatform" class="pill-dropdown-trigger w-full flex items-center justify-between gap-1.5 px-3 py-2 bg-white dark:bg-[#1f1f24] rounded-xl border border-black/[0.09] dark:border-white/[0.1] shadow-xs text-xs font-semibold text-[#111] dark:text-white hover:border-appleBlue transition-all">
                 <span class="flex items-center gap-1.5 truncate">
@@ -335,7 +389,7 @@
                 </span>
                 <svg class="w-3.5 h-3.5 shrink-0 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
               </button>
-              <div id="menuPlatform" class="dropdown-menu-panel hidden absolute right-0 mt-1.5 w-64 bg-white/95 dark:bg-[#1c1c22]/95 backdrop-blur-xl border border-black/[0.08] dark:border-white/[0.12] rounded-2xl shadow-xl p-1.5 z-40 space-y-0.5">
+              <div id="menuPlatform" class="dropdown-menu-panel hidden absolute right-0 mt-1.5 w-64 bg-white/98 dark:bg-[#1c1c22]/98 backdrop-blur-xl border border-black/[0.08] dark:border-white/[0.12] rounded-2xl shadow-2xl p-1.5 z-[999] space-y-0.5">
                 <button class="dropdown-opt active w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2 transition-colors" data-value="instagram" data-icon="📸" data-name="Instagram">
                   <span>📸</span> <span>Instagram (Reels / Feed)</span>
                 </button>
@@ -358,7 +412,7 @@
         </div>
 
         <!-- 3. SLIDER KONTROL DINAMIS (Warmth & Urgensi) -->
-        <div class="max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
           <div class="bg-white/90 dark:bg-[#16161a]/90 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.1] rounded-2xl p-4 shadow-sm space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-xs font-semibold text-neutral-600 dark:text-neutral-400">Tingkat Kehangatan Emosional (Warmth):</span>

@@ -61,6 +61,10 @@ function initApp() {
     toneVoiceName: "Empatic & Warm",
     toneVoiceIcon: "🌱",
 
+    framework: "formula_aida",
+    frameworkName: "Formula AIDA",
+    frameworkIcon: "🎯",
+
     ctaObjective: "komentar_diskusi",
     ctaObjectiveName: "Mancing Komentar & Diskusi",
     ctaObjectiveIcon: "💬",
@@ -156,6 +160,11 @@ function initApp() {
   const menuToneVoice = document.getElementById("menuToneVoice");
   const labelToneVoiceIcon = document.getElementById("labelToneVoiceIcon");
   const labelToneVoiceText = document.getElementById("labelToneVoiceText");
+
+  const btnDropdownFramework = document.getElementById("btnDropdownFramework");
+  const menuFramework = document.getElementById("menuFramework");
+  const labelFrameworkIcon = document.getElementById("labelFrameworkIcon");
+  const labelFrameworkText = document.getElementById("labelFrameworkText");
 
   const btnDropdownCtaObjective = document.getElementById("btnDropdownCtaObjective");
   const menuCtaObjective = document.getElementById("menuCtaObjective");
@@ -569,21 +578,33 @@ function initApp() {
   }
 
   // --------------------------------------------------------------------------
-  // Studio: Dropdowns Setup
+  // Studio: Dropdowns Setup (Z-Index Layering & Positioning)
   // --------------------------------------------------------------------------
+  function closeAllDropdowns() {
+    [menuAudience, menuToneVoice, menuFramework, menuCtaObjective, menuPlatform].forEach(m => {
+      if (m) {
+        m.classList.add("hidden");
+        const wrapper = m.closest(".dropdown-wrapper");
+        if (wrapper) wrapper.classList.remove("is-open");
+      }
+    });
+  }
+
   function setupDropdown(triggerBtn, menuPanel, onSelect) {
     if (!triggerBtn || !menuPanel) return;
+
+    const wrapper = triggerBtn.closest(".dropdown-wrapper");
 
     triggerBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       const isHidden = menuPanel.classList.contains("hidden");
-      [menuAudience, menuToneVoice, menuCtaObjective, menuPlatform].forEach(m => {
-        if (m && m !== menuPanel) m.classList.add("hidden");
-      });
+      closeAllDropdowns();
       if (isHidden) {
         menuPanel.classList.remove("hidden");
+        if (wrapper) wrapper.classList.add("is-open");
       } else {
         menuPanel.classList.add("hidden");
+        if (wrapper) wrapper.classList.remove("is-open");
       }
     });
 
@@ -593,6 +614,7 @@ function initApp() {
         menuPanel.querySelectorAll(".dropdown-opt").forEach(o => o.classList.remove("active"));
         opt.classList.add("active");
         menuPanel.classList.add("hidden");
+        if (wrapper) wrapper.classList.remove("is-open");
         onSelect(opt.dataset);
       });
     });
@@ -618,7 +640,17 @@ function initApp() {
     showToast(`Tone of Voice: ${state.toneVoiceName}`);
   });
 
-  // 3. CTA Objective
+  // 3. Kerangka Copywriting (Framework)
+  setupDropdown(btnDropdownFramework, menuFramework, (data) => {
+    state.framework = data.value;
+    state.frameworkName = data.name;
+    state.frameworkIcon = data.icon || "🎯";
+    labelFrameworkIcon.textContent = state.frameworkIcon;
+    labelFrameworkText.textContent = state.frameworkName;
+    showToast(`Kerangka: ${state.frameworkName}`);
+  });
+
+  // 4. CTA Objective
   setupDropdown(btnDropdownCtaObjective, menuCtaObjective, (data) => {
     state.ctaObjective = data.value;
     state.ctaObjectiveName = data.name;
@@ -628,7 +660,7 @@ function initApp() {
     showToast(`Tujuan CTA: ${state.ctaObjectiveName}`);
   });
 
-  // 4. Target Platform
+  // 5. Target Platform
   setupDropdown(btnDropdownPlatform, menuPlatform, (data) => {
     state.platform = data.value;
     state.platformName = data.name;
@@ -640,9 +672,7 @@ function initApp() {
   });
 
   document.addEventListener("click", () => {
-    [menuAudience, menuToneVoice, menuCtaObjective, menuPlatform].forEach(m => {
-      if (m) m.classList.add("hidden");
-    });
+    closeAllDropdowns();
   });
 
   // --------------------------------------------------------------------------
@@ -781,6 +811,41 @@ function initApp() {
         const spec = platformSpecs[state.platform] || platformSpecs.instagram;
         const currentModel = getGeminiModel();
 
+        // Framework Directives
+        const frameworkGuides = {
+          formula_aida: `
+- FORMULA AIDA (Attention, Interest, Desire, Action):
+  * Attention (Hook): Tangkap perhatian dalam 3 detik pertama dengan sudut pandang mengejutkan atau pertanyaan yang sangat relatable.
+  * Interest: Kembangkan minat audiens dengan membedah fakta, konteks masalah, atau situasi yang dialami audiens.
+  * Desire: Bangkitkan hasrat audiens dengan memperlihatkan manfaat nyata, keunggulan solusi/ide, atau gambaran transformasi positif.
+  * Action: Arahkan ke tindakan nyata (CTA) secara meyakinkan dan terarah.
+`,
+          formula_pas: `
+- FORMULA PAS (Problem, Agitation, Solution):
+  * Problem: Angkat masalah atau titik frustrasi utama (pain point) yang dirasakan audiens secara spesifik.
+  * Agitation: Perdalam dampak emosional jika masalah tersebut dibiarkan tanpa tindakan (sentuh keresahan secara berempati).
+  * Solution: Sajikan ide atau produk ini sebagai jembatan solusi paling melegakan, praktis, dan dapat diandalkan.
+`,
+          formula_bab: `
+- FORMULA BAB (Before, After, Bridge):
+  * Before: Gambarkan kondisi awal audiens yang penuh hambatan, lelah, atau mencari solusi.
+  * After: Visualisasikan kondisi ideal atau impian setelah masalah tersebut terselesaikan tuntas.
+  * Bridge: Posisikan ide/solusi ini sebagai jembatan langsung yang membawa mereka dari Before menuju After.
+`,
+          storytelling_flow: `
+- STORYTELLING FLOW (Alur Cerita Emosional & Reflektif):
+  * Gunakan struktur narasi bertingkat: pengantar emosional yang menyentuh, refleksi/titik balik yang menggugah, dan pencerahan yang membekas.
+  * Bangun kedekatan batin dengan audiens melalui diksi yang hangat, personal, dan tidak menggurui.
+`,
+          direct_value: `
+- DIRECT VALUE (Penyampaian Langsung & Padat Solusi):
+  * Hindari basa-basi. Langsung berikan inti manfaat, poin-poin daging (actionable insight), atau solusi dalam 1-2 kalimat awal.
+  * Padat, berbobot, to the point, dan sangat menghemat waktu audiens.
+`
+        };
+
+        const frameworkInstruction = frameworkGuides[state.framework] || frameworkGuides.formula_aida;
+
         // Specific Prompt Directives based on Mode A vs Mode B
         let modeDirectives = "";
         if (state.activeMode === "strategic") {
@@ -789,7 +854,7 @@ MODE A: STRATEGIC COPYWRITING (PRINSIP PERIKLANAN & KONVERSI TINGGI):
 - Bertindaklah sebagai Senior Advertising Creative Director & Conversion Strategist.
 - Analisis materi pengguna layaknya membedah creative brief profesional.
 - Tajamkan Unique Selling Proposition (USP) yang membedakan produk/ide ini dari kompetitor.
-- Terapkan struktur persuasi berbasis solusi masalah (problem-solver) dengan formula konversi teruji (AIDA: Attention -> Interest -> Desire -> Action, atau PAS: Problem -> Agitate -> Solution).
+- Terapkan struktur persuasi berbasis solusi masalah (problem-solver) dengan formula konversi teruji (${state.frameworkName}).
 - Orientasikan narasi pada penyelesaian masalah audiens, penegasan nilai produk, dan dorongan Call to Action yang terukur.
 `;
         } else {
@@ -797,6 +862,7 @@ MODE A: STRATEGIC COPYWRITING (PRINSIP PERIKLANAN & KONVERSI TINGGI):
 MODE B: HUMAN-PROFESSIONAL CAPTION WRITER (GAYA NATURAL & BERJIWA TINGGI):
 - Bertindaklah sebagai Human Copywriter berpengalaman dengan empati dan rasa bahasa yang hidup.
 - Tulis dengan gaya bahasa yang mengalir natural, hangat, berjiwa, dan berirama dinamis (kombinasikan kalimat pendek yang tajam dan kalimat panjang yang mengalir ritmis).
+- Selaraskan alur emosional dengan kerangka kerja ${state.frameworkName} secara organik.
 - Bangun koneksi emosional mendalam dengan audiens, selaras dengan realitas kehidupan sehari-hari mereka.
 - ATURAN KETAT (MELARANG KERAS FRASA KLISE AI/ROBOTIK):
   JANGAN PERNAH menggunakan kata atau frasa pembuka/penutup yang klise dan kaku seperti:
@@ -817,11 +883,17 @@ ${modeDirectives}
 PARAMETER KONTEN TERPILIH:
 - Target Audiens: ${state.audienceName}
 - Sudut Pandang / Tone of Voice: ${state.toneVoiceName}
+- Kerangka Copywriting (Framework): ${state.frameworkName}
 - Tujuan Konten (CTA Objective): ${state.ctaObjectiveName}
 - Tingkat Kehangatan Emosional: ${state.warmth}/5 (${warmthLabels[state.warmth]})
 - Tingkat Urgensi CTA: ${state.urgency}/5 (${urgencyLabels[state.urgency]})
 - Target Platform: ${spec.name} (${spec.sub}, Batas Maksimal: ${spec.maxChars} karakter, Lipatan Hook: ${spec.hookFold} karakter)
 - Optimasi Social SEO & Search Intent: ${state.isSeoSyncActive ? "Wajib disertakan" : "Standar"}
+
+PANDUAN KERANGKA KERJA (${state.frameworkName.toUpperCase()}):
+${frameworkInstruction}
+*ATURAN PENERAPAN ALAMI & ANTI-ROBOTIK*:
+Gunakan alur formula di atas sebagai psikologi persuasi di balik layar. DILARANG KERAS menuliskan label nama tahap di dalam teks hasil akhir (jangan pernah tulis "Attention:", "Problem:", "Solution:", "Tahap BAB:", dll). Selaraskan dengan Tone of Voice (${state.toneVoiceName}) sehingga kalimat mengalir luwes, berbobot, manusiawi, dan tidak terasa seperti rumus kaku buatan AI.
 
 SPESIFIKASI PLATFORM:
 ${state.platform === "youtube" ? `
@@ -1047,7 +1119,7 @@ ${state.attachedFile?.textContent ? `\n\nISI LAMPIRAN DOKUMEN:\n${state.attached
     }
 
     const modeTitle = state.activeMode === "strategic" ? "Mode A: Strategic Copywriting" : "Mode B: Human-Professional Caption";
-    const fullMarkdown = `### ${modeTitle}\n**Target Audiens:** ${state.audienceName} | **Tone:** ${state.toneVoiceName} | **CTA:** ${state.ctaObjectiveName}\n\n### Hook\n${hook}\n\n### Body\n${body}\n\n### CTA\n${cta}\n\n### Hashtags\n${hashtags}\n\n### Analisis Strategis & SEO\n- **Psikologi & Landasan:** ${psychology}\n- **Kata Kunci Pencarian:** ${seoKeywords.join(", ")}\n- **Skor Potensi Hook:** ${hookScore}`;
+    const fullMarkdown = `### ${modeTitle}\n**Target Audiens:** ${state.audienceName} | **Tone:** ${state.toneVoiceName} | **Framework:** ${state.frameworkName} | **CTA:** ${state.ctaObjectiveName}\n\n### Hook\n${hook}\n\n### Body\n${body}\n\n### CTA\n${cta}\n\n### Hashtags\n${hashtags}\n\n### Analisis Strategis & SEO\n- **Psikologi & Landasan:** ${psychology}\n- **Kata Kunci Pencarian:** ${seoKeywords.join(", ")}\n- **Skor Potensi Hook:** ${hookScore}`;
 
     return {
       hook,
@@ -1209,6 +1281,8 @@ ${state.attachedFile?.textContent ? `\n\nISI LAMPIRAN DOKUMEN:\n${state.attached
       modeLabel: modeLabel,
       audienceName: state.audienceName,
       toneVoiceName: state.toneVoiceName,
+      framework: state.framework,
+      frameworkName: state.frameworkName,
       ctaObjectiveName: state.ctaObjectiveName,
       platform: state.platform,
       platformName: state.platformName,
@@ -1257,6 +1331,9 @@ ${state.attachedFile?.textContent ? `\n\nISI LAMPIRAN DOKUMEN:\n${state.attached
             <span class="px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-[#111] dark:text-neutral-300 font-semibold text-[10px]">
               ${escapeHtml(draft.platformName || "Social")}
             </span>
+            <span class="px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-900/40 text-sky-800 dark:text-sky-300 font-semibold text-[10px]">
+              ${escapeHtml(draft.frameworkName || "Formula AIDA")}
+            </span>
             <span class="text-[11px] text-neutral-400 font-mono">${dateFormatted}</span>
             <span class="text-[11px] text-neutral-500 dark:text-neutral-400 hidden sm:inline">• ${escapeHtml(draft.audienceName || "")}</span>
           </div>
@@ -1299,6 +1376,10 @@ ${state.attachedFile?.textContent ? `\n\nISI LAMPIRAN DOKUMEN:\n${state.attached
         labelCharCounter.textContent = `${inputRawCaption.value.length.toLocaleString("id-ID")} karakter`;
         if (draft.mode) {
           setWorkingMode(draft.mode);
+        }
+        if (draft.frameworkName) {
+          state.frameworkName = draft.frameworkName;
+          if (labelFrameworkText) labelFrameworkText.textContent = draft.frameworkName;
         }
         switchView("studio");
         showToast("Draft dimuat kembali ke editor Studio.");

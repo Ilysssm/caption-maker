@@ -160,8 +160,25 @@ body {
   transform: scale(1.005);
 }
 
-/* Dropdown transition */
+/* Dropdown transition & Z-Index Layering Fix */
+.parameter-panel-container {
+  position: relative !important;
+  z-index: 40 !important;
+  overflow: visible !important;
+}
+
+.dropdown-wrapper {
+  position: relative;
+  overflow: visible;
+}
+
+.dropdown-wrapper.is-open {
+  z-index: 999 !important;
+}
+
 .dropdown-menu-panel {
+  position: absolute !important;
+  z-index: 999 !important;
   transform-origin: top left;
   animation: menuOpen 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
