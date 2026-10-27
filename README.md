@@ -1,6 +1,6 @@
 # Caption Maker AI Studio — Strategic Copywriting & Trend Analytics
 
-**Aplikasi web copywriting media sosial berkonversi tinggi dan analisis tren pencarian (Social SEO)** yang ditenagai oleh **Google Gemini AI (Model: `gemini-2.5-flash`)** via SDK resmi `@google/genai`.
+**Aplikasi web copywriting media sosial berkonversi tinggi dan analisis tren pencarian (Social SEO)** yang ditenagai oleh **Google Gemini AI (Model: `gemini-3.8-flash`)** via SDK resmi `@google/genai`.
 
 Aplikasi ini 100% *client-side* murni (Single Page Application / SPA) berbasis HTML, Tailwind CSS, dan JavaScript ES Module, sehingga dapat langsung di-deploy secara statis ke **GitHub Pages**, **Vercel**, atau **Netlify** tanpa membutuhkan server backend terpisah.
 
@@ -9,21 +9,21 @@ Aplikasi ini 100% *client-side* murni (Single Page Application / SPA) berbasis H
 ## 🌟 3 Modul Navigasi Utama (SPA)
 
 ### 1. ✍️ Studio Caption Maker
-- **Google Gen AI Official SDK (`@google/genai`):** Menggunakan model `gemini-2.5-flash` dengan respon cepat dan pemahaman konteks mendalam.
-- **Dukungan Kunci Bawaan & Kustom:** Dilengkapi API Key bawaan langsung yang siap pakai, serta opsi simpan/ganti kunci pribadi melalui `localStorage`.
-- **Target Platform Lengkap:**
-  - 📸 **Instagram:** Format Reels & Feed dengan batas 2.200 karakter serta lipatan hook 125 karakter.
-  - ▶️ **YouTube:** Judul video memikat, deskripsi lengkap, format bab & *timestamps* (`00:00 - Intro`, `01:25 - Tips Utama`), serta ajakan Subscribe/Like.
-  - 🎵 **TikTok:** Ringkas, *fast-paced*, dan dioptimalkan untuk mesin pencari TikTok.
-  - 💼 **LinkedIn:** Narasi berbobot (*thought leadership*), format spasi bernapas untuk audiens profesional & B2B.
-  - 🐦 **X / Twitter:** Kalimat *punchy* 1 baris, padat, dan siap dijadikan *thread*.
-- **Pilihan Persona & Tone of Voice:** Kasual / Bisnis, Psikolog / Ruang Kalem, Profesional Korporat, Kreatif / Gen-Z, Edukator & Mentor, Direct Promo & Launch.
-- **Formula Copywriting Teruji:** AIDA, PAS, BAB, dan FAB.
-- **Penggeser Karakter Emosional (Tone Sliders):** 
-  - Kehangatan Emosi (Sangat Formal ⟷ Sangat Intim & Personal).
+- **Google Gen AI Official SDK (`@google/genai`):** Menggunakan model AI terbaru `gemini-3.8-flash` dengan respon instan, pemahaman konteks psikologis yang tajam, dan pemrosesan bebas hambatan.
+- **2 Mode Kerja Utama:**
+  - 🎯 **Mode A: Strategic Copywriting (Prinsip Periklanan & Konversi):** Berfokus pada periklanan profesional, *creative brief*, Unique Selling Proposition (USP), pemecahan masalah konsumen, dan formula persuasi teruji (AIDA, PAS, BAB, FAB).
+  - 💬 **Mode B: Human-Professional Caption (Natural & Berjiwa):** Berfokus pada gaya bahasa media sosial harian yang bernyawa, dinamis, ritme bervariasi, serta **MELARANG KERAS** frasa klise AI robotik seperti *"Halo Sobat"*, *"Tahukah Anda"*, *"Di era modern ini"*, *"Oleh karena itu"*, *"Kesimpulannya"*.
+- **Parameter Kontrol Presisi:**
+  - 👥 **Target Audiens:** Pemilik Bisnis/UMKM, Gen Z & Millennial, Orang Tua/Parent, Profesional/Pekerja Kantoran, Audiens Umum.
+  - 🎙️ **Sudut Pandang / Tone of Voice:** Empatic & Warm, Authoritative & Expert, Provocative & Bold, Humorous & Casual.
+  - 🎯 **Tujuan Konten (CTA Objective):** Mancing Komentar & Diskusi, Simpan & Bagikan (Save/Share), Konversi Penjualan/Link, Brand Awareness.
+  - 📱 **Target Platform Lengkap:** Instagram, YouTube, TikTok, LinkedIn, X / Twitter.
+- **Penggeser Karakter Emosional Dinamis:**
+  - Kehangatan Emosional (Sangat Formal ⟷ Sangat Intim & Personal).
   - Tingkat Urgensi CTA (Halus & Santai ⟷ FOMO Maksimal / Hard Sell).
-- **Format Output 4 Blok Ketat:** `[HOOK]`, `[BODY]`, `[CTA]`, dan `[HASHTAGS]` yang dapat disalin per blok atau seluruhnya dalam format Markdown murni.
-- **Kartu Analisis Tren & Social SEO:** Menampilkan sudut pandang psikologi audiens, daftar kata kunci pencarian populer, tips retensi 3 detik, dan skor potensi viralitas hook.
+- **Format Output 4 Blok:** `[HOOK]`, `[BODY]`, `[CTA]`, dan `[HASHTAGS]` yang dapat disalin per blok atau seluruhnya dalam format Markdown murni.
+- **Kartu Analisis Strategis & Social SEO:** Menampilkan alasan psikologis formula, kata kunci pencarian populer (Social SEO pills), tips retensi 3 detik, dan estimasi skor viralitas hook.
+- **Simulator Feed Sosial:** Meninjau tampilan caption di feed Instagram, YouTube, TikTok, LinkedIn, dan X secara real-time.
 - **Penyimpanan Otomatis:** Setiap hasil *generate* langsung tersimpan otomatis ke dalam **Riwayat Draft**.
 
 ### 2. 📚 Riwayat Draft (Draft History Manager)
@@ -39,12 +39,12 @@ Aplikasi ini 100% *client-side* murni (Single Page Application / SPA) berbasis H
 
 ### 3. 📈 Analytics Hub (Trend & Search Intent Explorer)
 - **Riset Topik & Niche:** Masukkan kata kunci atau nama produk, lalu klik tombol **"Analisis Tren"**.
-- Gemini 2.5 Flash memetakan:
+- Gemini 3.8 Flash memetakan:
   - 🎯 **Sudut Pandang yang Sedang Naik Daun (Trending Angles)**.
   - 🔍 **Kata Kunci Pencarian Populer (Social SEO Keywords)**.
   - ⚡ **Ide Hook Penghenti Scroll (Viral Hooks)**.
 - Tombol **"Pakai Topik Ini di Studio ➔"** untuk langsung memindahkan topik hasil riset ke editor penulisan caption.
-- Pemantauan metrik retensi 3 detik (34.8%) dan rasio penonton tanpa suara (85.4%).
+- Pemantauan metrik retensi 3 detik dan rasio penonton tanpa suara.
 
 ---
 
