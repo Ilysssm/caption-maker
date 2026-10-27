@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,6 +13,20 @@
     gtag('js', new Date());
     const savedGaId = localStorage.getItem('ga_measurement_id') || 'G-XXXXXXXXXX';
     gtag('config', savedGaId, { 'send_page_view': true });
+  </script>
+
+  <!-- Early Theme Detection to Prevent Flicker -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('cm_theme');
+      if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+      }
+    })();
   </script>
 
   <!-- SEO & Social Meta -->
@@ -31,13 +45,14 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Caption Maker">
 
-  <!-- Fonts & Tailwind CSS CDN -->
+  <!-- Fonts & Tailwind CSS CDN with Dark Mode Support -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
+      darkMode: 'class',
       theme: {
         extend: {
           fontFamily: {
@@ -46,6 +61,7 @@
           },
           colors: {
             canvas: '#fbfbfd',
+            darkCanvas: '#0c0c0e',
             appleBlue: '#0071e3',
             appleGreen: '#34c759',
             appleOrange: '#ff9500',
@@ -66,8 +82,11 @@
     }
   </script>
 
-  <!-- Secure Client-Side Runtime Config Assembly -->
+  <!-- Official AI Model & Client-Side Runtime Config Assembly -->
   <script>
+    // Konfigurasi Model AI Resmi Google Gemini (gemini-2.5-flash)
+    window.__GEMINI_MODEL__ = "gemini-2.5-flash";
+
     // Menyediakan kunci konfigurasi default melalui fungsi byte-unmasking lokal
     // yang aman dari pendeteksian secret scanning publik
     window.__GET_DEFAULT_GEMINI_KEY__ = function() {
@@ -78,7 +97,7 @@
 
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-canvas text-[#1d1d1f] font-sans antialiased min-h-screen relative selection:bg-appleBlue selection:text-white">
+<body class="bg-canvas dark:bg-[#0c0c0e] text-[#1d1d1f] dark:text-[#f5f5f7] font-sans antialiased min-h-screen relative selection:bg-appleBlue selection:text-white transition-colors duration-200">
 
   <!-- Ambient Atmospheric Mesh Glow -->
   <div class="ambient-glow glow-peach pointer-events-none"></div>
@@ -88,7 +107,7 @@
   <div class="min-h-screen flex flex-col">
 
     <!-- Top Navigation Bar -->
-    <header class="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-black/[0.06] transition-all">
+    <header class="sticky top-0 z-50 backdrop-blur-xl bg-white/80 dark:bg-[#141418]/85 border-b border-black/[0.06] dark:border-white/[0.08] transition-colors duration-200">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
         
         <!-- Brand Logo -->
@@ -99,42 +118,55 @@
             </div>
           </div>
           <div>
-            <h1 class="font-bold text-base tracking-tight leading-none text-[#111]">Caption Maker AI</h1>
-            <span class="text-[11px] font-medium text-neutral-400">Social Copywriting & Trend Studio</span>
+            <h1 class="font-bold text-base tracking-tight leading-none text-[#111] dark:text-white">Caption Maker AI</h1>
+            <span class="text-[11px] font-medium text-neutral-400 dark:text-neutral-500">Social Copywriting & Trend Studio</span>
           </div>
         </div>
 
         <!-- Navigation Tabs (SPA Views Switcher) -->
-        <nav class="hidden md:flex items-center bg-neutral-200/60 p-1 rounded-full border border-black/[0.04]">
-          <button class="nav-tab-btn active px-4 py-1.5 rounded-full text-xs font-semibold text-[#111] transition-all" data-view="studio" id="navStudio">
+        <nav class="hidden md:flex items-center bg-neutral-200/60 dark:bg-neutral-800/60 p-1 rounded-full border border-black/[0.04] dark:border-white/[0.06] transition-colors">
+          <button class="nav-tab-btn active px-4 py-1.5 rounded-full text-xs font-semibold text-[#111] dark:text-white transition-all" data-view="studio" id="navStudio">
             ✍️ Studio
           </button>
-          <button class="nav-tab-btn px-4 py-1.5 rounded-full text-xs font-semibold text-neutral-600 hover:text-black transition-all flex items-center gap-1.5" data-view="history" id="navHistory">
+          <button class="nav-tab-btn px-4 py-1.5 rounded-full text-xs font-semibold text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-all flex items-center gap-1.5" data-view="history" id="navHistory">
             <span>📚 Riwayat Draft</span>
-            <span id="badgeHistoryCount" class="px-1.5 py-0.2 rounded-full bg-neutral-300 text-neutral-700 text-[10px] font-bold">0</span>
+            <span id="badgeHistoryCount" class="px-1.5 py-0.2 rounded-full bg-neutral-300 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 text-[10px] font-bold">0</span>
           </button>
-          <button class="nav-tab-btn px-4 py-1.5 rounded-full text-xs font-semibold text-neutral-600 hover:text-black transition-all" data-view="analytics" id="navAnalytics">
+          <button class="nav-tab-btn px-4 py-1.5 rounded-full text-xs font-semibold text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-all" data-view="analytics" id="navAnalytics">
             📈 Analytics Hub (Trend & SEO)
           </button>
         </nav>
 
-        <!-- Right System Indicators, Toggle & Settings Button -->
+        <!-- Right System Indicators, Theme Toggle & Settings Button -->
         <div class="flex items-center gap-2">
           
           <!-- Google Analytics & Search Index Toggle -->
-          <button id="btnToggleSeoSync" class="hidden xl:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] font-semibold text-emerald-800 transition-all shadow-sm hover:border-emerald-300" title="Klik untuk beralih mode optimasi SEO & Search Intent">
+          <button id="btnToggleSeoSync" class="hidden xl:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 text-[11px] font-semibold text-emerald-800 dark:text-emerald-300 transition-all shadow-sm hover:border-emerald-300" title="Klik untuk beralih mode optimasi SEO & Search Intent">
             <span class="w-2 h-2 rounded-full bg-emerald-500" id="dotSeoSync"></span>
             <span id="textSeoSync">Google Analytics & Search Index: Aktif [AUTO]</span>
           </button>
 
           <!-- Gemini Engine Status Badge -->
-          <div class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] font-medium text-emerald-800 shadow-sm cursor-pointer" id="badgeEngineStatus" title="Klik untuk Pengaturan API Key">
+          <div class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 text-[11px] font-medium text-emerald-800 dark:text-emerald-300 shadow-sm cursor-pointer" id="badgeEngineStatus" title="Klik untuk Pengaturan API Key">
             <span class="w-2 h-2 rounded-full bg-appleGreen animate-pulse" id="dotEngineStatus"></span>
             <span id="textEngineStatus">AI: Gemini 2.5 Flash Aktif</span>
           </div>
 
+          <!-- Night / Light Mode Toggle Button -->
+          <button id="btnToggleTheme" class="w-9 h-9 rounded-full bg-white dark:bg-[#1f1f24] border border-black/[0.08] dark:border-white/[0.12] flex items-center justify-center text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all shadow-sm active:scale-95" title="Beralih Mode Malam / Terang">
+            <!-- Moon icon (shown in light mode) -->
+            <svg id="iconThemeMoon" class="w-4 h-4 block dark:hidden text-neutral-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+            <!-- Sun icon (shown in dark mode) -->
+            <svg id="iconThemeSun" class="w-4 h-4 hidden dark:block text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="5"/>
+              <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+            </svg>
+          </button>
+
           <!-- Settings Button -->
-          <button class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#111] text-white hover:bg-neutral-800 text-xs font-semibold shadow-sm transition-all active:scale-95" id="btnOpenSettings">
+          <button class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#111] dark:bg-white text-white dark:text-[#111] hover:bg-neutral-800 dark:hover:bg-neutral-200 text-xs font-semibold shadow-sm transition-all active:scale-95" id="btnOpenSettings">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             <span>Pengaturan</span>
           </button>
@@ -143,15 +175,15 @@
       </div>
 
       <!-- Mobile Navigation Bar -->
-      <div class="flex md:hidden overflow-x-auto px-4 py-2 border-t border-black/[0.04] gap-2 scrollbar-none">
-        <button class="nav-tab-btn active shrink-0 px-3 py-1 rounded-full text-xs font-semibold text-[#111]" data-view="studio">
+      <div class="flex md:hidden overflow-x-auto px-4 py-2 border-t border-black/[0.04] dark:border-white/[0.06] gap-2 scrollbar-none">
+        <button class="nav-tab-btn active shrink-0 px-3 py-1 rounded-full text-xs font-semibold text-[#111] dark:text-white" data-view="studio">
           ✍️ Studio
         </button>
-        <button class="nav-tab-btn shrink-0 px-3 py-1 rounded-full text-xs font-semibold text-neutral-600 flex items-center gap-1" data-view="history">
+        <button class="nav-tab-btn shrink-0 px-3 py-1 rounded-full text-xs font-semibold text-neutral-600 dark:text-neutral-400 flex items-center gap-1" data-view="history">
           <span>📚 Riwayat</span>
-          <span id="badgeHistoryCountMobile" class="px-1.5 py-0.2 rounded-full bg-neutral-200 text-[10px] font-bold">0</span>
+          <span id="badgeHistoryCountMobile" class="px-1.5 py-0.2 rounded-full bg-neutral-200 dark:bg-neutral-700 text-[10px] font-bold">0</span>
         </button>
-        <button class="nav-tab-btn shrink-0 px-3 py-1 rounded-full text-xs font-semibold text-neutral-600" data-view="analytics">
+        <button class="nav-tab-btn shrink-0 px-3 py-1 rounded-full text-xs font-semibold text-neutral-600 dark:text-neutral-400" data-view="analytics">
           📈 Analytics (Trend & SEO)
         </button>
       </div>
@@ -167,14 +199,14 @@
         
         <!-- Hero Header -->
         <div class="text-center max-w-3xl mx-auto space-y-3">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/80 border border-black/[0.08] text-xs font-medium text-neutral-600 shadow-sm backdrop-blur-md">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/80 dark:bg-[#1a1a20]/80 border border-black/[0.08] dark:border-white/[0.1] text-xs font-medium text-neutral-600 dark:text-neutral-300 shadow-sm backdrop-blur-md">
             <span class="w-2 h-2 rounded-full bg-appleGreen"></span>
             <span>Gemini 2.5 Flash & High-Converting Engine</span>
           </div>
-          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[#111]">
+          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[#111] dark:text-white">
             AI that writes like a high-converting strategist would.
           </h2>
-          <p class="text-sm sm:text-base text-neutral-500 max-w-xl mx-auto">
+          <p class="text-sm sm:text-base text-neutral-500 dark:text-neutral-400 max-w-xl mx-auto">
             Hasilkan konten dan caption berkonversi tinggi dengan formula copywriting teruji, adaptasi persona, dan optimasi search intent lintas platform.
           </p>
         </div>
@@ -183,52 +215,52 @@
         <div class="flex flex-wrap items-center justify-center gap-3">
           <!-- Persona Dropdown -->
           <div class="relative">
-            <button id="btnDropdownPersona" class="pill-dropdown-trigger flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-black/[0.09] shadow-sm text-xs font-semibold hover:border-black/[0.2] transition-all">
+            <button id="btnDropdownPersona" class="pill-dropdown-trigger flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a20] rounded-full border border-black/[0.09] dark:border-white/[0.12] shadow-sm text-xs font-semibold text-[#111] dark:text-white hover:border-black/[0.2] dark:hover:border-white/[0.25] transition-all">
               <span id="labelPersonaIcon">💼</span>
               <span id="labelPersonaText">Kasual / Bisnis</span>
               <svg class="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
             </button>
-            <div id="menuPersona" class="dropdown-menu-panel hidden absolute left-0 mt-2 w-72 bg-white/95 backdrop-blur-xl border border-black/[0.08] rounded-2xl shadow-xl p-1.5 z-40 space-y-1">
-              <button class="dropdown-opt active w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 flex items-center gap-2.5 transition-colors" data-value="kasual_bisnis" data-icon="💼" data-name="Kasual / Bisnis">
+            <div id="menuPersona" class="dropdown-menu-panel hidden absolute left-0 mt-2 w-72 bg-white/95 dark:bg-[#1c1c22]/95 backdrop-blur-xl border border-black/[0.08] dark:border-white/[0.12] rounded-2xl shadow-xl p-1.5 z-40 space-y-1">
+              <button class="dropdown-opt active w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2.5 transition-colors" data-value="kasual_bisnis" data-icon="💼" data-name="Kasual / Bisnis">
                 <span class="text-base">💼</span>
                 <div>
-                  <strong class="block font-semibold text-[#111]">Kasual / Bisnis</strong>
-                  <span class="text-[11px] text-neutral-500">Hangat, solutif, persuasif & mudah dipahami</span>
+                  <strong class="block font-semibold text-[#111] dark:text-white">Kasual / Bisnis</strong>
+                  <span class="text-[11px] text-neutral-500 dark:text-neutral-400">Hangat, solutif, persuasif & mudah dipahami</span>
                 </div>
               </button>
-              <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 flex items-center gap-2.5 transition-colors" data-value="psikolog" data-icon="🌿" data-name="Psikolog / Ruang Kalem">
+              <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2.5 transition-colors" data-value="psikolog" data-icon="🌿" data-name="Psikolog / Ruang Kalem">
                 <span class="text-base">🌿</span>
                 <div>
-                  <strong class="block font-semibold text-[#111]">Psikolog / Ruang Kalem</strong>
-                  <span class="text-[11px] text-neutral-500">Empatis, mindful, menenangkan tanpa penghakiman</span>
+                  <strong class="block font-semibold text-[#111] dark:text-white">Psikolog / Ruang Kalem</strong>
+                  <span class="text-[11px] text-neutral-500 dark:text-neutral-400">Empatis, mindful, menenangkan tanpa penghakiman</span>
                 </div>
               </button>
-              <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 flex items-center gap-2.5 transition-colors" data-value="profesional" data-icon="👔" data-name="Profesional Korporat">
+              <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2.5 transition-colors" data-value="profesional" data-icon="👔" data-name="Profesional Korporat">
                 <span class="text-base">👔</span>
                 <div>
-                  <strong class="block font-semibold text-[#111]">Profesional Korporat</strong>
-                  <span class="text-[11px] text-neutral-500">Data-driven, tajam, kredibel & berwibawa</span>
+                  <strong class="block font-semibold text-[#111] dark:text-white">Profesional Korporat</strong>
+                  <span class="text-[11px] text-neutral-500 dark:text-neutral-400">Data-driven, tajam, kredibel & berwibawa</span>
                 </div>
               </button>
-              <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 flex items-center gap-2.5 transition-colors" data-value="kreatif_genz" data-icon="⚡" data-name="Kreatif / Gen-Z">
+              <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2.5 transition-colors" data-value="kreatif_genz" data-icon="⚡" data-name="Kreatif / Gen-Z">
                 <span class="text-base">⚡</span>
                 <div>
-                  <strong class="block font-semibold text-[#111]">Kreatif / Gen-Z</strong>
-                  <span class="text-[11px] text-neutral-500">Punchy, relatable, cepat & relevan tren video</span>
+                  <strong class="block font-semibold text-[#111] dark:text-white">Kreatif / Gen-Z</strong>
+                  <span class="text-[11px] text-neutral-500 dark:text-neutral-400">Punchy, relatable, cepat & relevan tren video</span>
                 </div>
               </button>
-              <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 flex items-center gap-2.5 transition-colors" data-value="edukator" data-icon="🎓" data-name="Edukator & Mentor">
+              <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2.5 transition-colors" data-value="edukator" data-icon="🎓" data-name="Edukator & Mentor">
                 <span class="text-base">🎓</span>
                 <div>
-                  <strong class="block font-semibold text-[#111]">Edukator & Mentor</strong>
-                  <span class="text-[11px] text-neutral-500">Langkah demi langkah, terstruktur & praktis</span>
+                  <strong class="block font-semibold text-[#111] dark:text-white">Edukator & Mentor</strong>
+                  <span class="text-[11px] text-neutral-500 dark:text-neutral-400">Langkah demi langkah, terstruktur & praktis</span>
                 </div>
               </button>
-              <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 flex items-center gap-2.5 transition-colors" data-value="hard_sale" data-icon="🛒" data-name="Direct Promo & Launch">
+              <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2.5 transition-colors" data-value="hard_sale" data-icon="🛒" data-name="Direct Promo & Launch">
                 <span class="text-base">🛒</span>
                 <div>
-                  <strong class="block font-semibold text-[#111]">Direct Promo & Launch</strong>
-                  <span class="text-[11px] text-neutral-500">Urgensi tinggi, FOMO, dorongan closing cepat</span>
+                  <strong class="block font-semibold text-[#111] dark:text-white">Direct Promo & Launch</strong>
+                  <span class="text-[11px] text-neutral-500 dark:text-neutral-400">Urgensi tinggi, FOMO, dorongan closing cepat</span>
                 </div>
               </button>
             </div>
@@ -236,72 +268,72 @@
 
           <!-- Framework Dropdown -->
           <div class="relative">
-            <button id="btnDropdownFramework" class="pill-dropdown-trigger flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-black/[0.09] shadow-sm text-xs font-semibold hover:border-black/[0.2] transition-all">
+            <button id="btnDropdownFramework" class="pill-dropdown-trigger flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a20] rounded-full border border-black/[0.09] dark:border-white/[0.12] shadow-sm text-xs font-semibold text-[#111] dark:text-white hover:border-black/[0.2] dark:hover:border-white/[0.25] transition-all">
               <span>📐</span>
               <span id="labelFrameworkText">Formula: AIDA</span>
               <svg class="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
             </button>
-            <div id="menuFramework" class="dropdown-menu-panel hidden absolute left-0 mt-2 w-64 bg-white/95 backdrop-blur-xl border border-black/[0.08] rounded-2xl shadow-xl p-1.5 z-40 space-y-1">
-              <button class="dropdown-opt active w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 transition-colors" data-value="AIDA" data-name="Formula: AIDA">
-                <strong class="block font-semibold text-[#111]">AIDA</strong>
-                <span class="text-[11px] text-neutral-500">Attention → Interest → Desire → Action</span>
+            <div id="menuFramework" class="dropdown-menu-panel hidden absolute left-0 mt-2 w-64 bg-white/95 dark:bg-[#1c1c22]/95 backdrop-blur-xl border border-black/[0.08] dark:border-white/[0.12] rounded-2xl shadow-xl p-1.5 z-40 space-y-1">
+              <button class="dropdown-opt active w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors" data-value="AIDA" data-name="Formula: AIDA">
+                <strong class="block font-semibold text-[#111] dark:text-white">AIDA</strong>
+                <span class="text-[11px] text-neutral-500 dark:text-neutral-400">Attention → Interest → Desire → Action</span>
               </button>
-              <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 transition-colors" data-value="PAS" data-name="Formula: PAS">
-                <strong class="block font-semibold text-[#111]">PAS</strong>
-                <span class="text-[11px] text-neutral-500">Problem → Agitate → Solution</span>
+              <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors" data-value="PAS" data-name="Formula: PAS">
+                <strong class="block font-semibold text-[#111] dark:text-white">PAS</strong>
+                <span class="text-[11px] text-neutral-500 dark:text-neutral-400">Problem → Agitate → Solution</span>
               </button>
-              <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 transition-colors" data-value="BAB" data-name="Formula: BAB">
-                <strong class="block font-semibold text-[#111]">BAB</strong>
-                <span class="text-[11px] text-neutral-500">Before → After → Bridge</span>
+              <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors" data-value="BAB" data-name="Formula: BAB">
+                <strong class="block font-semibold text-[#111] dark:text-white">BAB</strong>
+                <span class="text-[11px] text-neutral-500 dark:text-neutral-400">Before → After → Bridge</span>
               </button>
-              <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 transition-colors" data-value="FAB" data-name="Formula: FAB">
-                <strong class="block font-semibold text-[#111]">FAB</strong>
-                <span class="text-[11px] text-neutral-500">Features → Advantages → Benefits</span>
+              <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors" data-value="FAB" data-name="Formula: FAB">
+                <strong class="block font-semibold text-[#111] dark:text-white">FAB</strong>
+                <span class="text-[11px] text-neutral-500 dark:text-neutral-400">Features → Advantages → Benefits</span>
               </button>
             </div>
           </div>
 
           <!-- Target Platform Dropdown -->
           <div class="relative">
-            <button id="btnDropdownPlatform" class="pill-dropdown-trigger flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-black/[0.09] shadow-sm text-xs font-semibold hover:border-black/[0.2] transition-all">
+            <button id="btnDropdownPlatform" class="pill-dropdown-trigger flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a20] rounded-full border border-black/[0.09] dark:border-white/[0.12] shadow-sm text-xs font-semibold text-[#111] dark:text-white hover:border-black/[0.2] dark:hover:border-white/[0.25] transition-all">
               <span id="labelPlatformIcon">📸</span>
               <span id="labelPlatformText">Instagram</span>
               <svg class="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
             </button>
-            <div id="menuPlatform" class="dropdown-menu-panel hidden absolute left-0 mt-2 w-72 bg-white/95 backdrop-blur-xl border border-black/[0.08] rounded-2xl shadow-xl p-1.5 z-40 space-y-1">
-              <button class="dropdown-opt active w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 flex items-center gap-2.5 transition-colors" data-value="instagram" data-icon="📸" data-name="Instagram">
+            <div id="menuPlatform" class="dropdown-menu-panel hidden absolute left-0 mt-2 w-72 bg-white/95 dark:bg-[#1c1c22]/95 backdrop-blur-xl border border-black/[0.08] dark:border-white/[0.12] rounded-2xl shadow-xl p-1.5 z-40 space-y-1">
+              <button class="dropdown-opt active w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2.5 transition-colors" data-value="instagram" data-icon="📸" data-name="Instagram">
                 <span class="text-base">📸</span>
                 <div>
-                  <strong class="block font-semibold text-[#111]">Instagram</strong>
-                  <span class="text-[11px] text-neutral-500">Maks 2.200 karakter • Hook 125 chars sebelum '...more'</span>
+                  <strong class="block font-semibold text-[#111] dark:text-white">Instagram</strong>
+                  <span class="text-[11px] text-neutral-500 dark:text-neutral-400">Maks 2.200 karakter • Hook 125 chars sebelum '...more'</span>
                 </div>
               </button>
-              <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 flex items-center gap-2.5 transition-colors" data-value="youtube" data-icon="▶️" data-name="YouTube (Video & Shorts)">
+              <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2.5 transition-colors" data-value="youtube" data-icon="▶️" data-name="YouTube (Video & Shorts)">
                 <span class="text-base">▶️</span>
                 <div>
-                  <strong class="block font-semibold text-[#111]">YouTube</strong>
-                  <span class="text-[11px] text-neutral-500">Maks 5.000 chars • SEO Deskripsi & Timestamps Bab</span>
+                  <strong class="block font-semibold text-[#111] dark:text-white">YouTube</strong>
+                  <span class="text-[11px] text-neutral-500 dark:text-neutral-400">Maks 5.000 chars • SEO Deskripsi & Timestamps Bab</span>
                 </div>
               </button>
-              <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 flex items-center gap-2.5 transition-colors" data-value="tiktok" data-icon="🎵" data-name="TikTok">
+              <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2.5 transition-colors" data-value="tiktok" data-icon="🎵" data-name="TikTok">
                 <span class="text-base">🎵</span>
                 <div>
-                  <strong class="block font-semibold text-[#111]">TikTok</strong>
-                  <span class="text-[11px] text-neutral-500">Maks 2.200 chars • Ringkas, cepat & search-optimized</span>
+                  <strong class="block font-semibold text-[#111] dark:text-white">TikTok</strong>
+                  <span class="text-[11px] text-neutral-500 dark:text-neutral-400">Maks 2.200 chars • Ringkas, cepat & search-optimized</span>
                 </div>
               </button>
-              <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 flex items-center gap-2.5 transition-colors" data-value="linkedin" data-icon="💼" data-name="LinkedIn">
+              <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2.5 transition-colors" data-value="linkedin" data-icon="💼" data-name="LinkedIn">
                 <span class="text-base">💼</span>
                 <div>
-                  <strong class="block font-semibold text-[#111]">LinkedIn</strong>
-                  <span class="text-[11px] text-neutral-500">Maks 3.000 chars • B2B & Thought Leadership</span>
+                  <strong class="block font-semibold text-[#111] dark:text-white">LinkedIn</strong>
+                  <span class="text-[11px] text-neutral-500 dark:text-neutral-400">Maks 3.000 chars • B2B & Thought Leadership</span>
                 </div>
               </button>
-              <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 flex items-center gap-2.5 transition-colors" data-value="twitter" data-icon="🐦" data-name="X / Twitter">
+              <button class="dropdown-opt w-full text-left px-3 py-2 rounded-xl text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2.5 transition-colors" data-value="twitter" data-icon="🐦" data-name="X / Twitter">
                 <span class="text-base">🐦</span>
                 <div>
-                  <strong class="block font-semibold text-[#111]">X / Twitter</strong>
-                  <span class="text-[11px] text-neutral-500">Maks 280 chars • Punchy & Thread-Ready</span>
+                  <strong class="block font-semibold text-[#111] dark:text-white">X / Twitter</strong>
+                  <span class="text-[11px] text-neutral-500 dark:text-neutral-400">Maks 280 chars • Punchy & Thread-Ready</span>
                 </div>
               </button>
             </div>
@@ -310,26 +342,26 @@
 
         <!-- Tone Fine-Tuning Sliders -->
         <div class="max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div class="bg-white/90 backdrop-blur-md border border-black/[0.08] rounded-2xl p-4 shadow-sm space-y-2">
+          <div class="bg-white/90 dark:bg-[#16161a]/90 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.1] rounded-2xl p-4 shadow-sm space-y-2">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-semibold text-neutral-600">Kehangatan Emosi (Emotional Warmth):</span>
+              <span class="text-xs font-semibold text-neutral-600 dark:text-neutral-400">Kehangatan Emosi (Emotional Warmth):</span>
               <span class="text-xs font-bold text-appleBlue" id="badgeWarmthVal">Hangat & Empatis</span>
             </div>
-            <input type="range" id="inputWarmth" min="1" max="5" value="4" class="w-full h-1.5 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-appleBlue">
-            <div class="flex justify-between text-[10px] text-neutral-400">
+            <input type="range" id="inputWarmth" min="1" max="5" value="4" class="w-full h-1.5 bg-neutral-200 dark:bg-neutral-700 rounded-lg appearance-none cursor-pointer accent-appleBlue">
+            <div class="flex justify-between text-[10px] text-neutral-400 dark:text-neutral-500">
               <span>Formal</span>
               <span>Netral</span>
               <span>Sangat Intim</span>
             </div>
           </div>
 
-          <div class="bg-white/90 backdrop-blur-md border border-black/[0.08] rounded-2xl p-4 shadow-sm space-y-2">
+          <div class="bg-white/90 dark:bg-[#16161a]/90 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.1] rounded-2xl p-4 shadow-sm space-y-2">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-semibold text-neutral-600">Tingkat Urgensi CTA:</span>
+              <span class="text-xs font-semibold text-neutral-600 dark:text-neutral-400">Tingkat Urgensi CTA:</span>
               <span class="text-xs font-bold text-appleBlue" id="badgeUrgencyVal">Persuasif</span>
             </div>
-            <input type="range" id="inputUrgency" min="1" max="5" value="3" class="w-full h-1.5 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-appleBlue">
-            <div class="flex justify-between text-[10px] text-neutral-400">
+            <input type="range" id="inputUrgency" min="1" max="5" value="3" class="w-full h-1.5 bg-neutral-200 dark:bg-neutral-700 rounded-lg appearance-none cursor-pointer accent-appleBlue">
+            <div class="flex justify-between text-[10px] text-neutral-400 dark:text-neutral-500">
               <span>Santai</span>
               <span>Persuasif</span>
               <span>FOMO Maksimal</span>
@@ -338,24 +370,24 @@
         </div>
 
         <!-- Main Input Card (Dashed Dropzone Style) -->
-        <div class="max-w-3xl mx-auto bg-white border border-black/[0.09] rounded-3xl p-5 shadow-lg space-y-4">
-          <div id="dropzoneArea" class="border-2 border-dashed border-sky-300/80 bg-sky-50/20 rounded-2xl p-6 text-center transition-all hover:border-appleBlue/80">
+        <div class="max-w-3xl mx-auto bg-white dark:bg-[#16161a] border border-black/[0.09] dark:border-white/[0.1] rounded-3xl p-5 shadow-lg space-y-4">
+          <div id="dropzoneArea" class="border-2 border-dashed border-sky-300/80 dark:border-sky-700/60 bg-sky-50/20 dark:bg-sky-950/20 rounded-2xl p-6 text-center transition-all hover:border-appleBlue/80">
             <div class="flex justify-center items-center gap-2 mb-3">
-              <div class="w-10 h-12 rounded-lg bg-orange-100 border border-orange-200 shadow-sm transform -rotate-6 flex items-center justify-center text-[10px] font-bold text-orange-700">HOOK</div>
-              <div class="w-12 h-14 rounded-lg bg-sky-100 border border-sky-300 shadow-md flex items-center justify-center text-xl font-light text-appleBlue">+</div>
-              <div class="w-10 h-12 rounded-lg bg-emerald-100 border border-emerald-200 shadow-sm transform rotate-6 flex items-center justify-center text-[10px] font-bold text-emerald-700">CTA</div>
+              <div class="w-10 h-12 rounded-lg bg-orange-100 dark:bg-orange-950/60 border border-orange-200 dark:border-orange-800/60 shadow-sm transform -rotate-6 flex items-center justify-center text-[10px] font-bold text-orange-700 dark:text-orange-300">HOOK</div>
+              <div class="w-12 h-14 rounded-lg bg-sky-100 dark:bg-sky-950/60 border border-sky-300 dark:border-sky-800/60 shadow-md flex items-center justify-center text-xl font-light text-appleBlue">+</div>
+              <div class="w-10 h-12 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/60 shadow-sm transform rotate-6 flex items-center justify-center text-[10px] font-bold text-emerald-700 dark:text-emerald-300">CTA</div>
             </div>
-            <p class="text-sm font-semibold text-[#111] mb-1">Ketik bahan mentah atau tarik file dokumen/gambar ke sini</p>
-            <p class="text-xs text-neutral-400 mb-3">AI akan menyusun Hook penghenti scroll, Body bernapas, CTA tertarget, Hashtags & Analisis Search Intent.</p>
+            <p class="text-sm font-semibold text-[#111] dark:text-white mb-1">Ketik bahan mentah atau tarik file dokumen/gambar ke sini</p>
+            <p class="text-xs text-neutral-400 dark:text-neutral-500 mb-3">AI akan menyusun Hook penghenti scroll, Body bernapas, CTA tertarget, Hashtags & Analisis Search Intent.</p>
 
-            <textarea id="inputRawCaption" rows="4" class="w-full p-4 rounded-xl border border-black/[0.1] bg-white text-sm text-[#111] focus:ring-2 focus:ring-appleBlue/20 focus:border-appleBlue outline-none transition-all placeholder:text-neutral-400" placeholder="Contoh: 'Tips cara bangun pagi tanpa rasa lelah untuk pekerja kantoran yang sering lembur, dengan kebiasaan hidrasi dan teknik breathing 4-7-8...'"></textarea>
+            <textarea id="inputRawCaption" rows="4" class="w-full p-4 rounded-xl border border-black/[0.1] dark:border-white/[0.12] bg-white dark:bg-[#111115] text-sm text-[#111] dark:text-white focus:ring-2 focus:ring-appleBlue/20 focus:border-appleBlue outline-none transition-all placeholder:text-neutral-400 dark:placeholder:text-neutral-500" placeholder="Contoh: 'Tips cara bangun pagi tanpa rasa lelah untuk pekerja kantoran yang sering lembur, dengan kebiasaan hidrasi dan teknik breathing 4-7-8...'"></textarea>
 
             <!-- Attachment File Preview -->
-            <div id="boxAttachmentPreview" class="hidden mt-3 p-2.5 px-4 bg-sky-50 border border-sky-200 rounded-xl flex items-center justify-between text-xs">
+            <div id="boxAttachmentPreview" class="hidden mt-3 p-2.5 px-4 bg-sky-50 dark:bg-sky-950/50 border border-sky-200 dark:border-sky-800/60 rounded-xl flex items-center justify-between text-xs">
               <div class="flex items-center gap-2 truncate">
                 <span id="labelAttachIcon">📎</span>
-                <span id="labelAttachName" class="font-semibold text-neutral-800 truncate">lampiran.png</span>
-                <span id="labelAttachSize" class="text-neutral-400">(0 KB)</span>
+                <span id="labelAttachName" class="font-semibold text-neutral-800 dark:text-neutral-200 truncate">lampiran.png</span>
+                <span id="labelAttachSize" class="text-neutral-400 dark:text-neutral-500">(0 KB)</span>
               </div>
               <button id="btnRemoveAttachment" class="text-neutral-400 hover:text-appleRed font-bold text-sm px-1.5 py-0.5">✕</button>
             </div>
@@ -365,14 +397,14 @@
           <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
             <div class="flex items-center gap-2">
               <input type="file" id="fileAttachInput" accept="image/*,video/*,text/*,.txt,.md,.pdf" class="hidden">
-              <button id="btnAttachFile" class="w-9 h-9 rounded-full border border-black/[0.12] bg-white flex items-center justify-center text-neutral-600 hover:bg-neutral-100 transition-all" title="Lampirkan File">
+              <button id="btnAttachFile" class="w-9 h-9 rounded-full border border-black/[0.12] dark:border-white/[0.12] bg-white dark:bg-[#1f1f24] flex items-center justify-center text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all" title="Lampirkan File">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
               </button>
-              <span class="text-xs text-neutral-400" id="labelCharCounter">0 karakter</span>
+              <span class="text-xs text-neutral-400 dark:text-neutral-500" id="labelCharCounter">0 karakter</span>
             </div>
 
             <!-- Generate Button -->
-            <button id="btnGenerateCaption" class="px-6 py-2.5 rounded-full bg-[#111113] text-white hover:bg-neutral-800 text-xs font-semibold shadow-md transition-all active:scale-95 flex items-center gap-2">
+            <button id="btnGenerateCaption" class="px-6 py-2.5 rounded-full bg-[#111113] dark:bg-white text-white dark:text-[#111] hover:bg-neutral-800 dark:hover:bg-neutral-200 text-xs font-semibold shadow-md transition-all active:scale-95 flex items-center gap-2">
               <span id="textGenerateBtn">Generate Caption</span>
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
             </button>
@@ -380,18 +412,18 @@
         </div>
 
         <!-- Output Section (Strict Format, SEO Intent & Social Simulator) -->
-        <div id="sectionOutput" class="hidden max-w-3xl mx-auto bg-white border border-black/[0.09] rounded-3xl shadow-xl overflow-hidden space-y-0">
+        <div id="sectionOutput" class="hidden max-w-3xl mx-auto bg-white dark:bg-[#16161a] border border-black/[0.09] dark:border-white/[0.1] rounded-3xl shadow-xl overflow-hidden space-y-0">
           
           <!-- Output Header Tabs -->
-          <div class="p-4 bg-neutral-50/80 border-b border-black/[0.06] flex flex-wrap items-center justify-between gap-3">
-            <div class="flex items-center bg-neutral-200/60 p-1 rounded-full text-xs">
-              <button class="out-tab-btn active px-3 py-1 rounded-full font-semibold text-[#111]" data-tab="structured">Struktur Terformat</button>
-              <button class="out-tab-btn px-3 py-1 rounded-full font-semibold text-neutral-600" data-tab="seo">🔍 Tren & Search Intent</button>
-              <button class="out-tab-btn px-3 py-1 rounded-full font-semibold text-neutral-600" data-tab="simulator">Simulator Platform</button>
-              <button class="out-tab-btn px-3 py-1 rounded-full font-semibold text-neutral-600" data-tab="markdown">Markdown Murni</button>
+          <div class="p-4 bg-neutral-50/80 dark:bg-[#111115] border-b border-black/[0.06] dark:border-white/[0.08] flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center bg-neutral-200/60 dark:bg-neutral-800/60 p-1 rounded-full text-xs">
+              <button class="out-tab-btn active px-3 py-1 rounded-full font-semibold text-[#111] dark:text-white" data-tab="structured">Struktur Terformat</button>
+              <button class="out-tab-btn px-3 py-1 rounded-full font-semibold text-neutral-600 dark:text-neutral-400" data-tab="seo">🔍 Tren & Search Intent</button>
+              <button class="out-tab-btn px-3 py-1 rounded-full font-semibold text-neutral-600 dark:text-neutral-400" data-tab="simulator">Simulator Platform</button>
+              <button class="out-tab-btn px-3 py-1 rounded-full font-semibold text-neutral-600 dark:text-neutral-400" data-tab="markdown">Markdown Murni</button>
             </div>
             
-            <button id="btnCopyAllMarkdown" class="px-4 py-1.5 rounded-full bg-[#111] text-white hover:bg-neutral-800 text-xs font-semibold flex items-center gap-1.5 transition-all">
+            <button id="btnCopyAllMarkdown" class="px-4 py-1.5 rounded-full bg-[#111] dark:bg-white text-white dark:text-[#111] hover:bg-neutral-800 dark:hover:bg-neutral-200 text-xs font-semibold flex items-center gap-1.5 transition-all">
               <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
               <span id="labelCopyBtn">Salin Markdown</span>
             </button>
@@ -400,72 +432,72 @@
           <!-- Tab Pane 1: Structured Blocks -->
           <div id="paneStructured" class="p-6 space-y-4">
             <!-- [HOOK] -->
-            <div class="p-4 rounded-2xl bg-orange-50/50 border border-orange-200/80 space-y-2">
+            <div class="p-4 rounded-2xl bg-orange-50/50 dark:bg-orange-950/20 border border-orange-200/80 dark:border-orange-800/40 space-y-2">
               <div class="flex items-center justify-between">
-                <span class="px-2.5 py-0.5 rounded-md bg-orange-100 text-orange-700 font-mono text-[11px] font-bold">[HOOK]</span>
-                <button class="btn-copy-part text-[11px] font-semibold text-neutral-500 hover:text-black" data-target="hook">Salin Hook</button>
+                <span class="px-2.5 py-0.5 rounded-md bg-orange-100 dark:bg-orange-900/60 text-orange-700 dark:text-orange-300 font-mono text-[11px] font-bold">[HOOK]</span>
+                <button class="btn-copy-part text-[11px] font-semibold text-neutral-500 dark:text-neutral-400 hover:text-black dark:hover:text-white" data-target="hook">Salin Hook</button>
               </div>
-              <div id="outHookText" class="font-bold text-sm sm:text-base text-[#111] leading-snug"></div>
+              <div id="outHookText" class="font-bold text-sm sm:text-base text-[#111] dark:text-neutral-100 leading-snug"></div>
             </div>
 
             <!-- [BODY] -->
-            <div class="p-4 rounded-2xl bg-sky-50/50 border border-sky-200/80 space-y-2">
+            <div class="p-4 rounded-2xl bg-sky-50/50 dark:bg-sky-950/20 border border-sky-200/80 dark:border-sky-800/40 space-y-2">
               <div class="flex items-center justify-between">
-                <span class="px-2.5 py-0.5 rounded-md bg-sky-100 text-sky-700 font-mono text-[11px] font-bold">[BODY]</span>
-                <button class="btn-copy-part text-[11px] font-semibold text-neutral-500 hover:text-black" data-target="body">Salin Body</button>
+                <span class="px-2.5 py-0.5 rounded-md bg-sky-100 dark:bg-sky-900/60 text-sky-700 dark:text-sky-300 font-mono text-[11px] font-bold">[BODY]</span>
+                <button class="btn-copy-part text-[11px] font-semibold text-neutral-500 dark:text-neutral-400 hover:text-black dark:hover:text-white" data-target="body">Salin Body</button>
               </div>
-              <div id="outBodyText" class="text-xs sm:text-sm text-[#222] leading-relaxed whitespace-pre-wrap"></div>
+              <div id="outBodyText" class="text-xs sm:text-sm text-[#222] dark:text-neutral-200 leading-relaxed whitespace-pre-wrap"></div>
             </div>
 
             <!-- [CTA] -->
-            <div class="p-4 rounded-2xl bg-emerald-50/50 border border-emerald-200/80 space-y-2">
+            <div class="p-4 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/80 dark:border-emerald-800/40 space-y-2">
               <div class="flex items-center justify-between">
-                <span class="px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-700 font-mono text-[11px] font-bold">[CTA]</span>
-                <button class="btn-copy-part text-[11px] font-semibold text-neutral-500 hover:text-black" data-target="cta">Salin CTA</button>
+                <span class="px-2.5 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 font-mono text-[11px] font-bold">[CTA]</span>
+                <button class="btn-copy-part text-[11px] font-semibold text-neutral-500 dark:text-neutral-400 hover:text-black dark:hover:text-white" data-target="cta">Salin CTA</button>
               </div>
-              <div id="outCtaText" class="text-xs sm:text-sm font-semibold text-[#111]"></div>
+              <div id="outCtaText" class="text-xs sm:text-sm font-semibold text-[#111] dark:text-neutral-100"></div>
             </div>
 
             <!-- [HASHTAGS] -->
-            <div class="p-4 rounded-2xl bg-purple-50/50 border border-purple-200/80 space-y-2">
+            <div class="p-4 rounded-2xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-200/80 dark:border-purple-800/40 space-y-2">
               <div class="flex items-center justify-between">
-                <span class="px-2.5 py-0.5 rounded-md bg-purple-100 text-purple-700 font-mono text-[11px] font-bold">[HASHTAGS]</span>
-                <button class="btn-copy-part text-[11px] font-semibold text-neutral-500 hover:text-black" data-target="hashtags">Salin Hashtag</button>
+                <span class="px-2.5 py-0.5 rounded-md bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300 font-mono text-[11px] font-bold">[HASHTAGS]</span>
+                <button class="btn-copy-part text-[11px] font-semibold text-neutral-500 dark:text-neutral-400 hover:text-black dark:hover:text-white" data-target="hashtags">Salin Hashtag</button>
               </div>
-              <div id="outHashtagsText" class="text-xs font-medium text-purple-700"></div>
+              <div id="outHashtagsText" class="text-xs font-medium text-purple-700 dark:text-purple-300"></div>
             </div>
           </div>
 
           <!-- Tab Pane 2: SEO & Search Intent Analysis Card -->
           <div id="paneSeo" class="hidden p-6 space-y-4">
-            <div class="bg-gradient-to-br from-neutral-50 to-sky-50/40 border border-black/[0.08] rounded-2xl p-5 space-y-4">
-              <div class="flex items-center justify-between border-b border-black/[0.05] pb-3">
+            <div class="bg-gradient-to-br from-neutral-50 dark:from-[#15151a] to-sky-50/40 dark:to-sky-950/30 border border-black/[0.08] dark:border-white/[0.1] rounded-2xl p-5 space-y-4">
+              <div class="flex items-center justify-between border-b border-black/[0.05] dark:border-white/[0.08] pb-3">
                 <div class="flex items-center gap-2">
                   <span class="text-base">📈</span>
-                  <h4 class="font-bold text-sm text-[#111]">Kartu Analisis Tren & Social SEO</h4>
+                  <h4 class="font-bold text-sm text-[#111] dark:text-white">Kartu Analisis Tren & Social SEO</h4>
                 </div>
-                <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold" id="outHookScoreBadge">Skor Potensi Hook: 9.2/10</span>
+                <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 text-[11px] font-bold" id="outHookScoreBadge">Skor Potensi Hook: 9.4/10</span>
               </div>
 
               <!-- Alasan Psikologis Konten -->
               <div class="space-y-1">
-                <span class="text-xs font-bold text-neutral-700 uppercase tracking-wider block">🧠 Sudut Pandang Psikologi Audiens:</span>
-                <p class="text-xs text-neutral-600 leading-relaxed" id="outPsychAngle">
+                <span class="text-xs font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider block">🧠 Sudut Pandang Psikologi Audiens:</span>
+                <p class="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed" id="outPsychAngle">
                   Konten ini menyentuh rasa frustrasi kelelahan harian dan memberikan resolusi instan yang tidak membebani, memicu retensi kuat pada 3 detik pertama.
                 </p>
               </div>
 
               <!-- Kata Kunci Pencarian Populer (Social SEO) -->
               <div class="space-y-1.5">
-                <span class="text-xs font-bold text-neutral-700 uppercase tracking-wider block">🔍 Kata Kunci Pencarian Populer (Search Intent):</span>
+                <span class="text-xs font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider block">🔍 Kata Kunci Pencarian Populer (Search Intent):</span>
                 <div class="flex flex-wrap gap-1.5" id="outSeoKeywordsList">
                   <!-- Populated dynamically -->
                 </div>
               </div>
 
               <!-- Rekomendasi Algoritma Retensi -->
-              <div class="p-3 bg-white border border-black/[0.06] rounded-xl text-xs space-y-1 text-neutral-600">
-                <strong class="text-[#111] block">💡 Kunci Retensi 3 Detik:</strong>
+              <div class="p-3 bg-white dark:bg-[#111115] border border-black/[0.06] dark:border-white/[0.08] rounded-xl text-xs space-y-1 text-neutral-600 dark:text-neutral-400">
+                <strong class="text-[#111] dark:text-white block">💡 Kunci Retensi 3 Detik:</strong>
                 <p id="outRetentionTips">Pastikan baris pembuka diucapkan atau ditampilkan dalam teks layar tebal sebelum detik ke-2 agar 85% silent viewers tidak beralih ke video lain.</p>
               </div>
             </div>
@@ -474,23 +506,23 @@
           <!-- Tab Pane 3: Social Platform Simulator -->
           <div id="paneSimulator" class="hidden p-6 space-y-4">
             <div class="flex gap-2 overflow-x-auto pb-1">
-              <button class="sim-plat-btn active px-3 py-1 rounded-full text-xs font-semibold bg-[#111] text-white" data-sim="instagram">Instagram</button>
-              <button class="sim-plat-btn px-3 py-1 rounded-full text-xs font-semibold bg-neutral-100 text-neutral-700" data-sim="youtube">YouTube</button>
-              <button class="sim-plat-btn px-3 py-1 rounded-full text-xs font-semibold bg-neutral-100 text-neutral-700" data-sim="tiktok">TikTok</button>
-              <button class="sim-plat-btn px-3 py-1 rounded-full text-xs font-semibold bg-neutral-100 text-neutral-700" data-sim="linkedin">LinkedIn</button>
-              <button class="sim-plat-btn px-3 py-1 rounded-full text-xs font-semibold bg-neutral-100 text-neutral-700" data-sim="twitter">X / Twitter</button>
+              <button class="sim-plat-btn active px-3 py-1 rounded-full text-xs font-semibold bg-[#111] dark:bg-white text-white dark:text-[#111]" data-sim="instagram">Instagram</button>
+              <button class="sim-plat-btn px-3 py-1 rounded-full text-xs font-semibold bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300" data-sim="youtube">YouTube</button>
+              <button class="sim-plat-btn px-3 py-1 rounded-full text-xs font-semibold bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300" data-sim="tiktok">TikTok</button>
+              <button class="sim-plat-btn px-3 py-1 rounded-full text-xs font-semibold bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300" data-sim="linkedin">LinkedIn</button>
+              <button class="sim-plat-btn px-3 py-1 rounded-full text-xs font-semibold bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300" data-sim="twitter">X / Twitter</button>
             </div>
 
             <!-- Simulator Mock Frame -->
-            <div class="max-w-md mx-auto bg-white border border-black/[0.1] rounded-2xl p-4 shadow-sm space-y-3">
-              <div class="flex items-center gap-2.5 pb-2 border-b border-black/[0.05]">
+            <div class="max-w-md mx-auto bg-white dark:bg-[#121216] border border-black/[0.1] dark:border-white/[0.12] rounded-2xl p-4 shadow-sm space-y-3">
+              <div class="flex items-center gap-2.5 pb-2 border-b border-black/[0.05] dark:border-white/[0.06]">
                 <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-400 to-rose-500 flex items-center justify-center text-white font-bold text-xs">CM</div>
                 <div>
-                  <strong class="block text-xs text-[#111]" id="simAuthorName">brand_official</strong>
-                  <span class="text-[10px] text-neutral-400" id="simPlatformSubtitle">Sponsored • Active</span>
+                  <strong class="block text-xs text-[#111] dark:text-white" id="simAuthorName">brand_official</strong>
+                  <span class="text-[10px] text-neutral-400 dark:text-neutral-500" id="simPlatformSubtitle">Sponsored • Active</span>
                 </div>
               </div>
-              <div id="simContentBody" class="text-xs text-neutral-800 leading-relaxed whitespace-pre-wrap"></div>
+              <div id="simContentBody" class="text-xs text-neutral-800 dark:text-neutral-200 leading-relaxed whitespace-pre-wrap"></div>
             </div>
           </div>
 
@@ -511,16 +543,16 @@
         <div class="max-w-4xl mx-auto space-y-6">
           <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h3 class="text-2xl font-extrabold text-[#111]">Riwayat Draft Caption</h3>
-              <p class="text-xs text-neutral-500">Semua caption yang pernah Anda buat tersimpan otomatis di browser lokal ini.</p>
+              <h3 class="text-2xl font-extrabold text-[#111] dark:text-white">Riwayat Draft Caption</h3>
+              <p class="text-xs text-neutral-500 dark:text-neutral-400">Semua caption yang pernah Anda buat tersimpan otomatis di browser lokal ini.</p>
             </div>
             
             <div class="flex items-center gap-2">
-              <button id="btnExportAllHistory" class="px-3.5 py-1.5 rounded-full border border-black/[0.1] text-xs font-semibold text-neutral-700 hover:bg-neutral-100 transition-all flex items-center gap-1.5">
+              <button id="btnExportAllHistory" class="px-3.5 py-1.5 rounded-full border border-black/[0.1] dark:border-white/[0.12] text-xs font-semibold text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all flex items-center gap-1.5">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 <span>Ekspor Semua (.md)</span>
               </button>
-              <button id="btnClearAllHistory" class="px-3.5 py-1.5 rounded-full bg-red-50 text-red-600 hover:bg-red-100 text-xs font-semibold transition-all">
+              <button id="btnClearAllHistory" class="px-3.5 py-1.5 rounded-full bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/60 text-xs font-semibold transition-all">
                 Hapus Semua
               </button>
             </div>
@@ -532,11 +564,11 @@
           </div>
 
           <!-- Empty State -->
-          <div id="emptyHistoryState" class="hidden py-16 text-center bg-white border border-black/[0.08] rounded-3xl p-8 space-y-3">
+          <div id="emptyHistoryState" class="hidden py-16 text-center bg-white dark:bg-[#16161a] border border-black/[0.08] dark:border-white/[0.1] rounded-3xl p-8 space-y-3">
             <span class="text-4xl block">📝</span>
-            <h4 class="font-bold text-sm text-[#111]">Belum Ada Riwayat Draft</h4>
-            <p class="text-xs text-neutral-400 max-w-sm mx-auto">Buat caption pertama Anda di tab Studio, maka hasil copywriting akan tersimpan otomatis di sini.</p>
-            <button id="btnGoToStudioFromHistory" class="px-5 py-2 rounded-full bg-[#111] text-white text-xs font-semibold hover:bg-neutral-800 transition-all">
+            <h4 class="font-bold text-sm text-[#111] dark:text-white">Belum Ada Riwayat Draft</h4>
+            <p class="text-xs text-neutral-400 dark:text-neutral-500 max-w-sm mx-auto">Buat caption pertama Anda di tab Studio, maka hasil copywriting akan tersimpan otomatis di sini.</p>
+            <button id="btnGoToStudioFromHistory" class="px-5 py-2 rounded-full bg-[#111] dark:bg-white text-white dark:text-[#111] text-xs font-semibold hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-all">
               Mulai Buat di Studio
             </button>
           </div>
@@ -551,24 +583,24 @@
         
         <div class="max-w-4xl mx-auto space-y-6">
           <div class="space-y-1">
-            <h3 class="text-2xl font-extrabold text-[#111]">Trend & Search Intent Explorer</h3>
-            <p class="text-xs text-neutral-500">Riset kata kunci populer, sudut pandang konten viral, dan intensi pencarian audiens menggunakan Google Gemini 2.5 Flash.</p>
+            <h3 class="text-2xl font-extrabold text-[#111] dark:text-white">Trend & Search Intent Explorer</h3>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400">Riset kata kunci populer, sudut pandang konten viral, dan intensi pencarian audiens menggunakan Google Gemini 2.5 Flash.</p>
           </div>
 
           <!-- Topic Research Input Box -->
-          <div class="bg-white border border-black/[0.09] rounded-3xl p-6 shadow-md space-y-4">
+          <div class="bg-white dark:bg-[#16161a] border border-black/[0.09] dark:border-white/[0.1] rounded-3xl p-6 shadow-md space-y-4">
             <div class="space-y-1.5">
-              <label class="text-xs font-semibold text-neutral-700">Ketik Topik, Produk, atau Niche yang Ingin Diteliti:</label>
+              <label class="text-xs font-semibold text-neutral-700 dark:text-neutral-300">Ketik Topik, Produk, atau Niche yang Ingin Diteliti:</label>
               <div class="flex gap-2">
-                <input type="text" id="inputTrendQuery" placeholder="Contoh: Skincare retinol untuk pemula, bisnis kopi susu, tips investasi gaji UMR..." class="flex-1 p-3 rounded-xl border border-black/[0.12] text-sm outline-none focus:ring-2 focus:ring-appleBlue/20 focus:border-appleBlue">
-                <button id="btnAnalyzeTrend" class="px-6 py-3 rounded-xl bg-[#111] text-white hover:bg-neutral-800 text-xs font-semibold transition-all active:scale-95 shrink-0 flex items-center gap-2">
+                <input type="text" id="inputTrendQuery" placeholder="Contoh: Skincare retinol untuk pemula, bisnis kopi susu, tips investasi gaji UMR..." class="flex-1 p-3 rounded-xl border border-black/[0.12] dark:border-white/[0.12] bg-white dark:bg-[#111115] text-sm text-[#111] dark:text-white outline-none focus:ring-2 focus:ring-appleBlue/20 focus:border-appleBlue placeholder:text-neutral-400 dark:placeholder:text-neutral-500">
+                <button id="btnAnalyzeTrend" class="px-6 py-3 rounded-xl bg-[#111] dark:bg-white text-white dark:text-[#111] hover:bg-neutral-800 dark:hover:bg-neutral-200 text-xs font-semibold transition-all active:scale-95 shrink-0 flex items-center gap-2">
                   <span id="textAnalyzeTrendBtn">Analisis Tren</span>
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </button>
               </div>
             </div>
             
-            <div class="flex flex-wrap gap-2 text-[11px] text-neutral-400">
+            <div class="flex flex-wrap gap-2 text-[11px] text-neutral-400 dark:text-neutral-500">
               <span>Saran cepat:</span>
               <button class="btn-quick-topic hover:text-appleBlue underline">Skincare Anti Aging</button> •
               <button class="btn-quick-topic hover:text-appleBlue underline">Bisnis Kopi Susu</button> •
@@ -578,11 +610,11 @@
           </div>
 
           <!-- Trend Analysis Results -->
-          <div id="trendResultBox" class="hidden bg-white border border-black/[0.09] rounded-3xl p-6 shadow-lg space-y-5 animate-scaleUp">
-            <div class="flex items-center justify-between pb-3 border-b border-black/[0.06]">
+          <div id="trendResultBox" class="hidden bg-white dark:bg-[#16161a] border border-black/[0.09] dark:border-white/[0.1] rounded-3xl p-6 shadow-lg space-y-5 animate-scaleUp">
+            <div class="flex items-center justify-between pb-3 border-b border-black/[0.06] dark:border-white/[0.08]">
               <div class="flex items-center gap-2">
                 <span class="text-lg">🔥</span>
-                <h4 class="font-bold text-sm text-[#111]" id="trendResultTitle">Peta Analisis Tren & Search Intent</h4>
+                <h4 class="font-bold text-sm text-[#111] dark:text-white" id="trendResultTitle">Peta Analisis Tren & Search Intent</h4>
               </div>
               <button id="btnSendTrendToStudio" class="px-3.5 py-1.5 rounded-full bg-appleBlue text-white hover:bg-blue-600 text-xs font-semibold transition-all">
                 Pakai Topik Ini di Studio ➔
@@ -592,18 +624,18 @@
             <!-- Grid Result Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <!-- Trending Angles -->
-              <div class="p-4 rounded-2xl bg-amber-50/60 border border-amber-200/80 space-y-2">
-                <h5 class="text-xs font-bold text-amber-800 uppercase tracking-wider flex items-center gap-1.5">
+              <div class="p-4 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-800/40 space-y-2">
+                <h5 class="text-xs font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
                   <span>🎯</span> Sudut Pandang yang Sedang Naik Daun:
                 </h5>
-                <ul class="text-xs text-neutral-700 space-y-1.5 list-disc list-inside leading-relaxed" id="listTrendAngles">
+                <ul class="text-xs text-neutral-700 dark:text-neutral-300 space-y-1.5 list-disc list-inside leading-relaxed" id="listTrendAngles">
                   <!-- Dynamically populated -->
                 </ul>
               </div>
 
               <!-- Popular Search Keywords (Social SEO) -->
-              <div class="p-4 rounded-2xl bg-sky-50/60 border border-sky-200/80 space-y-2">
-                <h5 class="text-xs font-bold text-sky-800 uppercase tracking-wider flex items-center gap-1.5">
+              <div class="p-4 rounded-2xl bg-sky-50/60 dark:bg-sky-950/20 border border-sky-200/80 dark:border-sky-800/40 space-y-2">
+                <h5 class="text-xs font-bold text-sky-800 dark:text-sky-300 uppercase tracking-wider flex items-center gap-1.5">
                   <span>🔍</span> Kata Kunci Pencarian Populer:
                 </h5>
                 <div class="flex flex-wrap gap-1.5" id="listTrendKeywords">
@@ -612,11 +644,11 @@
               </div>
 
               <!-- Viral Hook Ideas -->
-              <div class="p-4 rounded-2xl bg-rose-50/60 border border-rose-200/80 space-y-2 md:col-span-2">
-                <h5 class="text-xs font-bold text-rose-800 uppercase tracking-wider flex items-center gap-1.5">
+              <div class="p-4 rounded-2xl bg-rose-50/60 dark:bg-rose-950/20 border border-rose-200/80 dark:border-rose-800/40 space-y-2 md:col-span-2">
+                <h5 class="text-xs font-bold text-rose-800 dark:text-rose-300 uppercase tracking-wider flex items-center gap-1.5">
                   <span>⚡</span> Rekomendasi Hook Penghenti Scroll:
                 </h5>
-                <div class="space-y-1.5 text-xs text-neutral-800" id="listTrendHooks">
+                <div class="space-y-1.5 text-xs text-neutral-800 dark:text-neutral-200" id="listTrendHooks">
                   <!-- Dynamically populated -->
                 </div>
               </div>
@@ -625,22 +657,22 @@
 
           <!-- Retention Benchmarks Overview -->
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="bg-white border border-black/[0.08] rounded-2xl p-4 shadow-sm space-y-1">
-              <span class="text-[11px] font-semibold text-neutral-400 uppercase">3s Retention Benchmark</span>
-              <h4 class="text-2xl font-extrabold text-[#111]">34.8%</h4>
-              <span class="text-[11px] text-emerald-600 font-medium">↑ +4.2% di atas rata-rata industri</span>
+            <div class="bg-white dark:bg-[#16161a] border border-black/[0.08] dark:border-white/[0.1] rounded-2xl p-4 shadow-sm space-y-1">
+              <span class="text-[11px] font-semibold text-neutral-400 dark:text-neutral-500 uppercase">3s Retention Benchmark</span>
+              <h4 class="text-2xl font-extrabold text-[#111] dark:text-white">34.8%</h4>
+              <span class="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">↑ +4.2% di atas rata-rata industri</span>
             </div>
 
-            <div class="bg-white border border-black/[0.08] rounded-2xl p-4 shadow-sm space-y-1">
-              <span class="text-[11px] font-semibold text-neutral-400 uppercase">Silent Viewers Rate</span>
-              <h4 class="text-2xl font-extrabold text-[#111]">85.4%</h4>
-              <span class="text-[11px] text-neutral-500">Pentingnya hook visual teks</span>
+            <div class="bg-white dark:bg-[#16161a] border border-black/[0.08] dark:border-white/[0.1] rounded-2xl p-4 shadow-sm space-y-1">
+              <span class="text-[11px] font-semibold text-neutral-400 dark:text-neutral-500 uppercase">Silent Viewers Rate</span>
+              <h4 class="text-2xl font-extrabold text-[#111] dark:text-white">85.4%</h4>
+              <span class="text-[11px] text-neutral-500 dark:text-neutral-400">Pentingnya hook visual teks</span>
             </div>
 
-            <div class="bg-white border border-black/[0.08] rounded-2xl p-4 shadow-sm space-y-1">
-              <span class="text-[11px] font-semibold text-neutral-400 uppercase">Total Draft Tersimpan</span>
+            <div class="bg-white dark:bg-[#16161a] border border-black/[0.08] dark:border-white/[0.1] rounded-2xl p-4 shadow-sm space-y-1">
+              <span class="text-[11px] font-semibold text-neutral-400 dark:text-neutral-500 uppercase">Total Draft Tersimpan</span>
               <h4 class="text-2xl font-extrabold text-appleBlue" id="analyticsDraftsCount">0</h4>
-              <span class="text-[11px] text-purple-600 font-medium">Tersimpan di riwayat lokal</span>
+              <span class="text-[11px] text-purple-600 dark:text-purple-400 font-medium">Tersimpan di riwayat lokal</span>
             </div>
           </div>
 
@@ -651,53 +683,53 @@
     </main>
 
     <!-- Settings Modal (AI API Key & Google Analytics ID) -->
-    <div id="modalSettings" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-      <div class="bg-white border border-black/[0.1] rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5 animate-scaleUp">
+    <div id="modalSettings" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-white dark:bg-[#1a1a20] border border-black/[0.1] dark:border-white/[0.12] rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5 animate-scaleUp">
         
-        <div class="flex items-center justify-between pb-3 border-b border-black/[0.06]">
+        <div class="flex items-center justify-between pb-3 border-b border-black/[0.06] dark:border-white/[0.08]">
           <div class="flex items-center gap-2">
             <span class="text-lg">⚙️</span>
-            <h3 class="font-bold text-base text-[#111]">Pengaturan Koneksi & API</h3>
+            <h3 class="font-bold text-base text-[#111] dark:text-white">Pengaturan Koneksi & API</h3>
           </div>
-          <button id="btnCloseSettingsModal" class="text-neutral-400 hover:text-black font-bold text-base p-1">✕</button>
+          <button id="btnCloseSettingsModal" class="text-neutral-400 dark:text-neutral-500 hover:text-black dark:hover:text-white font-bold text-base p-1">✕</button>
         </div>
 
         <div class="space-y-4">
           <!-- Gemini API Key -->
           <div class="space-y-1.5">
             <div class="flex items-center justify-between">
-              <label class="text-xs font-semibold text-neutral-700">Google Gemini API Key:</label>
+              <label class="text-xs font-semibold text-neutral-700 dark:text-neutral-300">Google Gemini API Key:</label>
               <button id="btnResetDefaultKey" class="text-[11px] text-appleBlue hover:underline font-semibold">Pakai Kunci Default</button>
             </div>
             <div class="flex gap-2">
-              <input type="text" id="inputSettingGeminiKey" placeholder="Kunci API Gemini..." class="flex-1 p-2.5 rounded-xl border border-black/[0.12] text-xs font-mono outline-none focus:border-appleBlue">
-              <button id="btnTestApiKey" class="px-3 py-1.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-xs font-semibold text-neutral-700 transition-all">Uji Key</button>
+              <input type="text" id="inputSettingGeminiKey" placeholder="Kunci API Gemini..." class="flex-1 p-2.5 rounded-xl border border-black/[0.12] dark:border-white/[0.12] bg-white dark:bg-[#121216] text-xs font-mono text-[#111] dark:text-white outline-none focus:border-appleBlue">
+              <button id="btnTestApiKey" class="px-3 py-1.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-xs font-semibold text-neutral-700 dark:text-neutral-200 transition-all">Uji Key</button>
             </div>
             <span id="textApiKeyFeedback" class="text-[11px] font-semibold block hidden"></span>
-            <small class="text-[11px] text-neutral-400 block">Kunci default telah disediakan. Anda dapat menyimpannya ke LocalStorage browser jika ingin mengganti.</small>
+            <small class="text-[11px] text-neutral-400 dark:text-neutral-500 block">Kunci default telah disediakan. Anda dapat menyimpannya ke LocalStorage browser jika ingin mengganti.</small>
           </div>
 
           <!-- Google Analytics Measurement ID -->
           <div class="space-y-1.5">
             <div class="flex items-center justify-between">
-              <label class="text-xs font-semibold text-neutral-700">Google Analytics (GA4) ID:</label>
+              <label class="text-xs font-semibold text-neutral-700 dark:text-neutral-300">Google Analytics (GA4) ID:</label>
               <a href="https://analytics.google.com" target="_blank" class="text-[11px] text-appleBlue hover:underline font-semibold">Google Analytics ↗</a>
             </div>
-            <input type="text" id="inputSettingGaId" placeholder="G-XXXXXXXXXX" class="w-full p-2.5 rounded-xl border border-black/[0.12] text-xs font-mono outline-none focus:border-appleBlue">
-            <small class="text-[11px] text-neutral-400 block">ID pelacakan untuk pengunjung GitHub Pages Anda.</small>
+            <input type="text" id="inputSettingGaId" placeholder="G-XXXXXXXXXX" class="w-full p-2.5 rounded-xl border border-black/[0.12] dark:border-white/[0.12] bg-white dark:bg-[#121216] text-xs font-mono text-[#111] dark:text-white outline-none focus:border-appleBlue">
+            <small class="text-[11px] text-neutral-400 dark:text-neutral-500 block">ID pelacakan untuk pengunjung GitHub Pages Anda.</small>
           </div>
         </div>
 
-        <div class="pt-3 border-t border-black/[0.06] flex justify-end gap-2">
-          <button id="btnCancelSettingsModal" class="px-4 py-2 rounded-full border border-black/[0.1] text-xs font-semibold text-neutral-600 hover:bg-neutral-100 transition-all">Batal</button>
-          <button id="btnSaveAllSettings" class="px-5 py-2 rounded-full bg-[#111] text-white hover:bg-neutral-800 text-xs font-semibold shadow-sm transition-all">Simpan Pengaturan</button>
+        <div class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex justify-end gap-2">
+          <button id="btnCancelSettingsModal" class="px-4 py-2 rounded-full border border-black/[0.1] dark:border-white/[0.12] text-xs font-semibold text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all">Batal</button>
+          <button id="btnSaveAllSettings" class="px-5 py-2 rounded-full bg-[#111] dark:bg-white text-white dark:text-[#111] hover:bg-neutral-800 dark:hover:bg-neutral-200 text-xs font-semibold shadow-sm transition-all">Simpan Pengaturan</button>
         </div>
 
       </div>
     </div>
 
     <!-- Minimalist Footer -->
-    <footer class="border-t border-black/[0.06] py-6 px-4 bg-white/50 text-center text-xs text-neutral-400">
+    <footer class="border-t border-black/[0.06] dark:border-white/[0.08] py-6 px-4 bg-white/50 dark:bg-[#0c0c0e]/50 text-center text-xs text-neutral-400 dark:text-neutral-500 transition-colors">
       <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
         <span>© 2026 Caption Maker AI Studio • High-Converting Social Media Copywriting</span>
         <span>Google Gemini 2.5 Flash & GA4 Ready</span>
@@ -705,7 +737,7 @@
     </footer>
 
     <!-- Toast Notification -->
-    <div id="appToast" class="fixed bottom-6 left-1/2 -translate-x-1/2 translate-y-20 opacity-0 pointer-events-none bg-[#111113]/90 backdrop-blur-md text-white text-xs font-medium px-5 py-2.5 rounded-full shadow-2xl transition-all duration-300 z-50">
+    <div id="appToast" class="fixed bottom-6 left-1/2 -translate-x-1/2 translate-y-20 opacity-0 pointer-events-none bg-[#111113]/90 dark:bg-white/95 text-white dark:text-[#111] text-xs font-medium px-5 py-2.5 rounded-full shadow-2xl transition-all duration-300 z-50">
       Notifikasi
     </div>
 

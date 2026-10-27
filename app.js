@@ -118,6 +118,7 @@ function initApp() {
 
   // Settings Modal
   const btnOpenSettings = document.getElementById("btnOpenSettings");
+  const btnToggleTheme = document.getElementById("btnToggleTheme");
   const modalSettings = document.getElementById("modalSettings");
   const btnCloseSettingsModal = document.getElementById("btnCloseSettingsModal");
   const btnCancelSettingsModal = document.getElementById("btnCancelSettingsModal");
@@ -315,6 +316,22 @@ function initApp() {
     });
   }
 
+  // Night / Light Mode Toggle Button
+  if (btnToggleTheme) {
+    btnToggleTheme.addEventListener("click", () => {
+      const isDark = document.documentElement.classList.toggle("dark");
+      if (isDark) {
+        document.documentElement.classList.remove("light");
+        localStorage.setItem("cm_theme", "dark");
+        showToast("🌙 Mode Malam diaktifkan.");
+      } else {
+        document.documentElement.classList.add("light");
+        localStorage.setItem("cm_theme", "light");
+        showToast("☀️ Mode Terang diaktifkan.");
+      }
+    });
+  }
+
   // --------------------------------------------------------------------------
   // SPA Navigation Switcher
   // --------------------------------------------------------------------------
@@ -326,11 +343,11 @@ function initApp() {
     navTabBtns.forEach(btn => {
       const isTarget = btn.dataset.view === viewName;
       if (isTarget) {
-        btn.classList.add("active", "bg-white", "shadow-sm", "text-[#111]");
-        btn.classList.remove("text-neutral-600");
+        btn.classList.add("active", "bg-white", "dark:bg-[#22222a]", "shadow-sm", "text-[#111]", "dark:text-white");
+        btn.classList.remove("text-neutral-600", "dark:text-neutral-400");
       } else {
-        btn.classList.remove("active", "bg-white", "shadow-sm", "text-[#111]");
-        btn.classList.add("text-neutral-600");
+        btn.classList.remove("active", "bg-white", "dark:bg-[#22222a]", "shadow-sm", "text-[#111]", "dark:text-white");
+        btn.classList.add("text-neutral-600", "dark:text-neutral-400");
       }
     });
 
@@ -446,16 +463,8 @@ function initApp() {
             })
           });
           if (!res.ok) {
-            // Also test 1.5-flash if 2.5 is not activated
-            const res15 = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${testKey}`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json", "x-goog-api-key": testKey },
-              body: JSON.stringify({ contents: [{ parts: [{ text: "Ping test" }] }] })
-            });
-            if (!res15.ok) {
-              const errData = await res15.json().catch(() => ({}));
-              throw new Error(errData.error?.message || "Kunci API tidak valid atau ditolak oleh server.");
-            }
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.error?.message || "Kunci API tidak valid atau model gemini-2.5-flash ditolak server.");
           }
         }
 
@@ -824,12 +833,7 @@ ${state.attachedFile?.textContent ? `\n\nISI LAMPIRAN DOKUMEN:\n${state.attached
             return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
           };
 
-          try {
-            generatedText = await makeRestCall("gemini-2.5-flash");
-          } catch (err25) {
-            console.warn("Gemini 2.5 REST call failed, trying 1.5-flash fallback:", err25);
-            generatedText = await makeRestCall("gemini-1.5-flash");
-          }
+          generatedText = await makeRestCall("gemini-2.5-flash");
         }
 
         if (!generatedText) {
@@ -1036,11 +1040,11 @@ ${state.attachedFile?.textContent ? `\n\nISI LAMPIRAN DOKUMEN:\n${state.attached
   outTabBtns.forEach(btn => {
     btn.addEventListener("click", () => {
       outTabBtns.forEach(b => {
-        b.classList.remove("active", "bg-white", "shadow-sm", "text-[#111]");
-        b.classList.add("text-neutral-600");
+        b.classList.remove("active", "bg-white", "dark:bg-[#22222a]", "shadow-sm", "text-[#111]", "dark:text-white");
+        b.classList.add("text-neutral-600", "dark:text-neutral-400");
       });
-      btn.classList.add("active", "bg-white", "shadow-sm", "text-[#111]");
-      btn.classList.remove("text-neutral-600");
+      btn.classList.add("active", "bg-white", "dark:bg-[#22222a]", "shadow-sm", "text-[#111]", "dark:text-white");
+      btn.classList.remove("text-neutral-600", "dark:text-neutral-400");
 
       const tab = btn.dataset.tab;
       paneStructured.classList.add("hidden");
@@ -1059,11 +1063,11 @@ ${state.attachedFile?.textContent ? `\n\nISI LAMPIRAN DOKUMEN:\n${state.attached
   function updateSimulatorPlatform(platKey) {
     simPlatBtns.forEach(btn => {
       if (btn.dataset.sim === platKey) {
-        btn.classList.add("active", "bg-[#111]", "text-white");
-        btn.classList.remove("bg-neutral-100", "text-neutral-700");
+        btn.classList.add("active", "bg-[#111]", "dark:bg-white", "text-white", "dark:text-[#111]");
+        btn.classList.remove("bg-neutral-100", "dark:bg-neutral-800", "text-neutral-700", "dark:text-neutral-300");
       } else {
-        btn.classList.remove("active", "bg-[#111]", "text-white");
-        btn.classList.add("bg-neutral-100", "text-neutral-700");
+        btn.classList.remove("active", "bg-[#111]", "dark:bg-white", "text-white", "dark:text-[#111]");
+        btn.classList.add("bg-neutral-100", "dark:bg-neutral-800", "text-neutral-700", "dark:text-neutral-300");
       }
     });
     if (state.currentOutput) {
@@ -1295,17 +1299,11 @@ Berikan pemetaan analisis tren dalam format tag yang presisi:
           body: JSON.stringify({ contents: [{ parts: [{ text: trendPrompt }] }] })
         });
         if (!res.ok) {
-          const res15 = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKeyToUse}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "x-goog-api-key": apiKeyToUse },
-            body: JSON.stringify({ contents: [{ parts: [{ text: trendPrompt }] }] })
-          });
-          const data15 = await res15.json();
-          responseText = data15.candidates?.[0]?.content?.parts?.[0]?.text || "";
-        } else {
-          const data = await res.json();
-          responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error?.message || `HTTP ${res.status}`);
         }
+        const data = await res.json();
+        responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
       }
 
       // Parse Trend Results

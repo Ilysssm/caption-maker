@@ -24,7 +24,7 @@ const MIME_TYPES = {
 
 // Helper: Forward request to Gemini API
 function callGeminiAPI(apiKey, prompt, callback) {
-  const model = "gemini-1.5-flash";
+  const model = "gemini-2.5-flash";
   const postData = JSON.stringify({
     contents: [{ parts: [{ text: prompt }] }],
     generationConfig: {
