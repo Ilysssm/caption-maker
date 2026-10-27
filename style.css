@@ -610,6 +610,68 @@ body {
   background: #f7faff;
 }
 
+.dropzone-area.dragover {
+  border-color: var(--accent-blue) !important;
+  background: #eef6ff !important;
+  transform: scale(1.008);
+}
+
+/* File Attachment Preview Bar */
+.attachment-preview-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: #f0f7ff;
+  border: 1px solid rgba(0, 113, 227, 0.2);
+  border-radius: 12px;
+  margin: 12px 0 6px 0;
+  font-size: 12.5px;
+  color: #1d1d1f;
+  animation: higMenuOpen 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.attachment-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.attachment-icon {
+  font-size: 15px;
+}
+
+.attachment-name {
+  font-weight: 600;
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attachment-size {
+  color: var(--text-tertiary);
+  font-size: 11px;
+}
+
+.attachment-remove-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.attachment-remove-btn:hover {
+  background: rgba(255, 59, 48, 0.1);
+  color: var(--accent-red);
+}
+
 .floating-mockup-cards {
   display: flex;
   align-items: center;

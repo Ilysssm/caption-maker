@@ -212,6 +212,13 @@
                 <small>Maks 280 karakter • Punchy, padat, dan to-the-point</small>
               </div>
             </div>
+            <div class="dropdown-item" data-platform="youtube" data-icon="▶️" data-name="YouTube (Video & Shorts)">
+              <span class="item-icon">▶️</span>
+              <div class="item-text">
+                <strong>YouTube</strong>
+                <small>Maks 5.000 karakter • Deskripsi SEO, Timestamps/Chapters & Subscribe CTA</small>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -291,6 +298,16 @@
               rows="4"
             ></textarea>
 
+            <!-- Attachment Preview Bar -->
+            <div class="attachment-preview-bar" id="attachmentPreviewBar" style="display: none;">
+              <div class="attachment-info">
+                <span class="attachment-icon" id="attachmentIcon">📎</span>
+                <span class="attachment-name" id="attachmentName">nama_file</span>
+                <span class="attachment-size" id="attachmentSize">(0 KB)</span>
+              </div>
+              <button class="attachment-remove-btn" id="btnRemoveAttachment" title="Hapus lampiran">✕</button>
+            </div>
+
             <!-- Character and Word Counter -->
             <div class="input-meta-bar">
               <span class="counter-text" id="inputCharCount">0 karakter • 0 kata</span>
@@ -310,7 +327,8 @@
           <!-- Bottom Card Controls Toolbar -->
           <div class="card-footer-toolbar">
             <div class="toolbar-left">
-              <button class="icon-btn" id="btnAttach" title="Lampirkan referensi gambar/video">
+              <input type="file" id="fileInput" accept="image/*,video/*,text/*,.txt,.md,.pdf,.csv" style="display: none;">
+              <button class="icon-btn" id="btnAttach" title="Lampirkan referensi gambar, video, atau dokumen">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
               </button>
 
@@ -439,6 +457,7 @@
               <div class="platform-switcher">
                 <button class="platform-btn active" data-platform="instagram">Instagram</button>
                 <button class="platform-btn" data-platform="tiktok">TikTok</button>
+                <button class="platform-btn" data-platform="youtube">YouTube</button>
                 <button class="platform-btn" data-platform="linkedin">LinkedIn</button>
                 <button class="platform-btn" data-platform="twitter">X / Twitter</button>
               </div>

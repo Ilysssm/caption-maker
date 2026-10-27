@@ -4,9 +4,23 @@
  * Powered by Google Gemini API Official SDK (@google/genai)
  */
 
-import { GoogleGenAI } from "@google/genai";
+// Helper: Asynchronous Safe Loader for @google/genai SDK
+let GoogleGenAIClass = null;
+async function getGenAISDK() {
+  if (GoogleGenAIClass) return GoogleGenAIClass;
+  try {
+    const mod = await import("@google/genai");
+    GoogleGenAIClass = mod.GoogleGenAI || mod.default?.GoogleGenAI || mod.default;
+    return GoogleGenAIClass;
+  } catch (err) {
+    console.warn("Dynamic import of @google/genai failed, falling back to direct REST API:", err);
+    return null;
+  }
+}
 
-document.addEventListener("DOMContentLoaded", () => {
+function initializeCaptionMaker() {
+  console.log("Initializing Caption Maker AI Studio...");
+
   // ==========================================
   // App State & Secure LocalStorage Management
   // ==========================================
@@ -24,21 +38,23 @@ document.addEventListener("DOMContentLoaded", () => {
     isAnalyticsSynced: true,
     geminiApiKey: localStorage.getItem("gemini_api_key") || localStorage.getItem("cm_gemini_key") || "",
     currentOutput: null,
+    attachedFile: null,
+    attachedImageBase64: null,
     history: JSON.parse(localStorage.getItem("cm_history_drafts") || "[]")
   };
 
-  // Platform limits
+  // Platform limits (including YouTube Shorts & Video)
   const platformLimits = {
     instagram: { maxChars: 2200, hookFold: 125, name: "Instagram" },
     tiktok: { maxChars: 2200, hookFold: 150, name: "TikTok" },
+    youtube: { maxChars: 5000, hookFold: 150, name: "YouTube" },
     linkedin: { maxChars: 3000, hookFold: 210, name: "LinkedIn" },
     twitter: { maxChars: 280, hookFold: 140, name: "X / Twitter" }
   };
 
   // ==========================================
-  // DOM Elements
+  // DOM Elements Retrieval
   // ==========================================
-  // Nav & Modals
   const activeEngineLabel = document.getElementById("activeEngineLabel");
   const btnOpenSettings = document.getElementById("btnOpenSettings");
   const settingsModal = document.getElementById("settingsModal");
@@ -48,10 +64,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const geminiKeyGroup = document.getElementById("geminiKeyGroup");
   const geminiApiKeyInput = document.getElementById("geminiApiKeyInput");
   const btnToggleKeyVisibility = document.getElementById("btnToggleKeyVisibility");
+  const btnTestGeminiKey = document.getElementById("btnTestGeminiKey");
+  const geminiConnectionFeedback = document.getElementById("geminiConnectionFeedback");
   const checkGaAutoSync = document.getElementById("checkGaAutoSync");
   const historyCountBadge = document.getElementById("historyCountBadge");
 
-  // API Key Status Bar Elements
+  // API Status Bar
   const apiStatusDot = document.getElementById("apiStatusDot");
   const apiStatusText = document.getElementById("apiStatusText");
   const btnConnectApiKey = document.getElementById("btnConnectApiKey");
@@ -77,7 +95,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const sliderUrgency = document.getElementById("sliderUrgency");
   const urgencyValueLabel = document.getElementById("urgencyValueLabel");
 
-  // Input & Dropzone
+  // Dropzone & File Input
+  const dropzoneBox = document.getElementById("dropzoneBox");
+  const fileInput = document.getElementById("fileInput");
+  const btnAttach = document.getElementById("btnAttach");
+  const attachmentPreviewBar = document.getElementById("attachmentPreviewBar");
+  const attachmentIcon = document.getElementById("attachmentIcon");
+  const attachmentName = document.getElementById("attachmentName");
+  const attachmentSize = document.getElementById("attachmentSize");
+  const btnRemoveAttachment = document.getElementById("btnRemoveAttachment");
+
+  // Text Inputs
   const rawInput = document.getElementById("rawInput");
   const inputCharCount = document.getElementById("inputCharCount");
   const btnClearInput = document.getElementById("btnClearInput");
@@ -119,135 +147,214 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnClearHistory = document.getElementById("btnClearHistory");
 
   // ==========================================
-  // Initialization
+  // Immediate UI Synchronization
   // ==========================================
   updateApiKeyStatusUI();
   updateHistoryUI();
   updateInputCounters();
   syncSliderLabels();
 
-  // Load saved Gemini Key to input
-  if (state.geminiApiKey) {
+  if (state.geminiApiKey && geminiApiKeyInput) {
     geminiApiKeyInput.value = state.geminiApiKey;
   }
 
   function updateApiKeyStatusUI() {
     const key = localStorage.getItem("gemini_api_key") || state.geminiApiKey;
     if (key) {
-      if (apiStatusDot) {
-        apiStatusDot.classList.add("connected");
-      }
-      if (apiStatusText) {
-        apiStatusText.innerHTML = "Google Gemini 2.5 Flash SDK: <strong>Terhubung (Aktif)</strong>";
-      }
-      if (btnConnectApiKey) {
-        btnConnectApiKey.textContent = "Ubah API Key";
-      }
-      if (activeEngineLabel) {
-        activeEngineLabel.textContent = "Gemini 2.5 Flash";
-      }
+      if (apiStatusDot) apiStatusDot.classList.add("connected");
+      if (apiStatusText) apiStatusText.innerHTML = "Google Gemini 2.5 Flash SDK: <strong>Terhubung (Aktif)</strong>";
+      if (btnConnectApiKey) btnConnectApiKey.textContent = "Ubah API Key";
+      if (activeEngineLabel) activeEngineLabel.textContent = "Gemini 2.5 Flash";
     } else {
-      if (apiStatusDot) {
-        apiStatusDot.classList.remove("connected");
+      if (apiStatusDot) apiStatusDot.classList.remove("connected");
+      if (apiStatusText) apiStatusText.textContent = "Google Gemini 2.5 Flash SDK: Belum Terhubung";
+      if (btnConnectApiKey) btnConnectApiKey.textContent = "Koneksikan API Key";
+      if (activeEngineLabel) activeEngineLabel.textContent = "Set API Key";
+    }
+  }
+
+  // ==========================================
+  // File Attachment & Drag-and-Drop Handler
+  // ==========================================
+  if (btnAttach && fileInput) {
+    btnAttach.addEventListener("click", () => {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener("change", (e) => {
+      if (e.target.files && e.target.files[0]) {
+        processUploadedFile(e.target.files[0]);
       }
-      if (apiStatusText) {
-        apiStatusText.textContent = "Google Gemini 2.5 Flash SDK: Belum Terhubung";
+    });
+  }
+
+  // Drag and drop onto dashed dropzone
+  if (dropzoneBox) {
+    ["dragenter", "dragover"].forEach((eventName) => {
+      dropzoneBox.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzoneBox.classList.add("dragover");
+      });
+    });
+
+    ["dragleave", "drop"].forEach((eventName) => {
+      dropzoneBox.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzoneBox.classList.remove("dragover");
+      });
+    });
+
+    dropzoneBox.addEventListener("drop", (e) => {
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+        processUploadedFile(e.dataTransfer.files[0]);
       }
-      if (btnConnectApiKey) {
-        btnConnectApiKey.textContent = "Koneksikan API Key";
-      }
-      if (activeEngineLabel) {
-        activeEngineLabel.textContent = "Set API Key";
+    });
+  }
+
+  function formatBytes(bytes) {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
+  }
+
+  function processUploadedFile(file) {
+    state.attachedFile = file;
+
+    // Show preview bar
+    if (attachmentPreviewBar) {
+      attachmentPreviewBar.style.display = "flex";
+      if (attachmentName) attachmentName.textContent = file.name;
+      if (attachmentSize) attachmentSize.textContent = `(${formatBytes(file.size)})`;
+
+      if (file.type.startsWith("image/")) {
+        if (attachmentIcon) attachmentIcon.textContent = "🖼️";
+        // Convert to base64 for Multimodal Vision AI
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          state.attachedImageBase64 = e.target.result;
+          showToast(`Gambar "${file.name}" siap dianalisis oleh AI!`);
+        };
+        reader.readAsDataURL(file);
+      } else if (file.type.startsWith("video/")) {
+        if (attachmentIcon) attachmentIcon.textContent = "🎬";
+        showToast(`Video "${file.name}" dilampirkan sebagai referensi konten!`);
+      } else if (file.name.endsWith(".txt") || file.name.endsWith(".md") || file.type.includes("text")) {
+        if (attachmentIcon) attachmentIcon.textContent = "📄";
+        // Auto-read text file into textarea
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          rawInput.value = e.target.result;
+          updateInputCounters();
+          showToast(`Teks dari "${file.name}" berhasil dimuat ke editor!`);
+        };
+        reader.readAsText(file);
+      } else {
+        if (attachmentIcon) attachmentIcon.textContent = "📎";
+        showToast(`File "${file.name}" dilampirkan.`);
       }
     }
   }
 
-  if (btnConnectApiKey) {
-    btnConnectApiKey.addEventListener("click", () => {
-      settingsModal.classList.add("show");
-      geminiKeyGroup.style.display = "flex";
-      geminiApiKeyInput.focus();
+  if (btnRemoveAttachment) {
+    btnRemoveAttachment.addEventListener("click", () => {
+      state.attachedFile = null;
+      state.attachedImageBase64 = null;
+      if (fileInput) fileInput.value = "";
+      if (attachmentPreviewBar) attachmentPreviewBar.style.display = "none";
+      showToast("Lampiran dibatalkan.");
     });
   }
 
   // ==========================================
-  // Dropdown Handling
+  // Dropdown Handling (Bulletproof & Immediate)
   // ==========================================
   function closeAllDropdowns() {
-    personaMenu.classList.remove("show");
-    frameworkMenu.classList.remove("show");
-    platformMenu.classList.remove("show");
+    if (personaMenu) personaMenu.classList.remove("show");
+    if (frameworkMenu) frameworkMenu.classList.remove("show");
+    if (platformMenu) platformMenu.classList.remove("show");
   }
 
-  personaTrigger.addEventListener("click", (e) => {
-    e.stopPropagation();
-    const isShown = personaMenu.classList.contains("show");
-    closeAllDropdowns();
-    if (!isShown) personaMenu.classList.add("show");
-  });
+  if (personaTrigger) {
+    personaTrigger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isShown = personaMenu.classList.contains("show");
+      closeAllDropdowns();
+      if (!isShown) personaMenu.classList.add("show");
+    });
+  }
 
-  frameworkTrigger.addEventListener("click", (e) => {
-    e.stopPropagation();
-    const isShown = frameworkMenu.classList.contains("show");
-    closeAllDropdowns();
-    if (!isShown) frameworkMenu.classList.add("show");
-  });
+  if (frameworkTrigger) {
+    frameworkTrigger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isShown = frameworkMenu.classList.contains("show");
+      closeAllDropdowns();
+      if (!isShown) frameworkMenu.classList.add("show");
+    });
+  }
 
-  platformTrigger.addEventListener("click", (e) => {
-    e.stopPropagation();
-    const isShown = platformMenu.classList.contains("show");
-    closeAllDropdowns();
-    if (!isShown) platformMenu.classList.add("show");
-  });
+  if (platformTrigger) {
+    platformTrigger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isShown = platformMenu.classList.contains("show");
+      closeAllDropdowns();
+      if (!isShown) platformMenu.classList.add("show");
+    });
+  }
 
   document.addEventListener("click", closeAllDropdowns);
 
   // Persona Selection
   document.querySelectorAll("#personaMenu .dropdown-item").forEach((item) => {
     item.addEventListener("click", () => {
-      document.querySelectorAll("#personaMenu .dropdown-item").forEach(i => i.classList.remove("active"));
+      document.querySelectorAll("#personaMenu .dropdown-item").forEach((i) => i.classList.remove("active"));
       item.classList.add("active");
       state.persona = item.dataset.persona;
       state.personaName = item.dataset.name;
       state.personaIcon = item.dataset.icon;
-      currentPersonaTextEl.textContent = state.personaName;
-      currentPersonaIconEl.textContent = state.personaIcon;
+      if (currentPersonaTextEl) currentPersonaTextEl.textContent = state.personaName;
+      if (currentPersonaIconEl) currentPersonaIconEl.textContent = state.personaIcon;
       closeAllDropdowns();
       syncPersonaDefaults(state.persona);
+      showToast(`Persona aktif: ${state.personaName}`);
     });
   });
 
   // Framework Selection
   document.querySelectorAll("#frameworkMenu .dropdown-item").forEach((item) => {
     item.addEventListener("click", () => {
-      document.querySelectorAll("#frameworkMenu .dropdown-item").forEach(i => i.classList.remove("active"));
+      document.querySelectorAll("#frameworkMenu .dropdown-item").forEach((i) => i.classList.remove("active"));
       item.classList.add("active");
       state.framework = item.dataset.framework;
       state.frameworkName = item.dataset.name;
-      currentFrameworkTextEl.textContent = item.dataset.name;
+      if (currentFrameworkTextEl) currentFrameworkTextEl.textContent = item.dataset.name;
       closeAllDropdowns();
+      showToast(`Framework aktif: ${state.frameworkName}`);
     });
   });
 
   // Platform Selection
   document.querySelectorAll("#platformMenu .dropdown-item").forEach((item) => {
     item.addEventListener("click", () => {
-      document.querySelectorAll("#platformMenu .dropdown-item").forEach(i => i.classList.remove("active"));
+      document.querySelectorAll("#platformMenu .dropdown-item").forEach((i) => i.classList.remove("active"));
       item.classList.add("active");
       state.platform = item.dataset.platform;
       state.platformName = item.dataset.name;
       state.platformIcon = item.dataset.icon;
-      targetPlatformText.textContent = state.platformName;
-      targetPlatformIcon.textContent = state.platformIcon;
+      if (targetPlatformText) targetPlatformText.textContent = state.platformName;
+      if (targetPlatformIcon) targetPlatformIcon.textContent = state.platformIcon;
       closeAllDropdowns();
 
-      // Update simulator active tab if output exists
-      document.querySelectorAll(".platform-btn").forEach(b => {
+      document.querySelectorAll(".platform-btn").forEach((b) => {
         b.classList.toggle("active", b.dataset.platform === state.platform);
       });
       if (state.currentOutput) {
         updatePlatformPreview(state.platform);
       }
+      showToast(`Platform target: ${state.platformName}`);
     });
   });
 
@@ -275,47 +382,50 @@ document.addEventListener("DOMContentLoaded", () => {
   // Slider Controls
   // ==========================================
   const warmthLabels = ["", "Formal / Dingin", "Objektif / Lugas", "Netral Ramah", "Hangat & Empatis", "Sangat Intim & Merangkul"];
-  const urgencyLabels = ["", "Sangat Santai", "Informatif Halus", "Moderat (Persuasif)", "Tinggi (Callout Kuat)", "Maksimal (FOMO / Urgensi Terbatas)"];
+  const urgencyLabels = ["", "Sangat Santai", "Informatif Halus", "Moderat (Persuasif)", "Tinggi (Callout Kuat)", "Maksimal (FOMO / Penawaran Terbatas)"];
 
   function syncSliderLabels() {
-    state.warmth = parseInt(sliderWarmth.value);
-    state.urgency = parseInt(sliderUrgency.value);
-    warmthValueLabel.textContent = warmthLabels[state.warmth];
-    urgencyValueLabel.textContent = urgencyLabels[state.urgency];
+    if (sliderWarmth) state.warmth = parseInt(sliderWarmth.value);
+    if (sliderUrgency) state.urgency = parseInt(sliderUrgency.value);
+    if (warmthValueLabel) warmthValueLabel.textContent = warmthLabels[state.warmth];
+    if (urgencyValueLabel) urgencyValueLabel.textContent = urgencyLabels[state.urgency];
   }
 
-  sliderWarmth.addEventListener("input", syncSliderLabels);
-  sliderUrgency.addEventListener("input", syncSliderLabels);
+  if (sliderWarmth) sliderWarmth.addEventListener("input", syncSliderLabels);
+  if (sliderUrgency) sliderUrgency.addEventListener("input", syncSliderLabels);
 
   // ==========================================
-  // Input Handling & Presets
+  // Textarea & Quick Idea Prompts
   // ==========================================
   function updateInputCounters() {
+    if (!rawInput) return;
     const text = rawInput.value.trim();
     const chars = text.length;
     const words = text ? text.split(/\s+/).length : 0;
-    inputCharCount.textContent = `${chars} karakter • ${words} kata`;
+    if (inputCharCount) inputCharCount.textContent = `${chars} karakter • ${words} kata`;
   }
 
-  rawInput.addEventListener("input", updateInputCounters);
+  if (rawInput) rawInput.addEventListener("input", updateInputCounters);
 
-  btnClearInput.addEventListener("click", () => {
-    rawInput.value = "";
-    updateInputCounters();
-    rawInput.focus();
-    showToast("Teks bahan mentah dibersihkan.");
-  });
+  if (btnClearInput) {
+    btnClearInput.addEventListener("click", () => {
+      rawInput.value = "";
+      updateInputCounters();
+      rawInput.focus();
+      showToast("Teks dibersihkan.");
+    });
+  }
 
-  // Quick prompt chips
   document.querySelectorAll(".quick-chip").forEach((chip) => {
     chip.addEventListener("click", () => {
       rawInput.value = chip.dataset.text;
       updateInputCounters();
       rawInput.focus();
+      showToast("Topik berhasil dimuat ke editor!");
     });
   });
 
-  // Gallery Preset Cards
+  // Gallery Card Presets
   document.querySelectorAll(".gallery-card").forEach((card) => {
     card.addEventListener("click", () => {
       const preset = card.dataset.preset;
@@ -339,73 +449,65 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Analytics Toggle
-  analyticsToggle.addEventListener("click", () => {
-    state.isAnalyticsSynced = !state.isAnalyticsSynced;
-    if (state.isAnalyticsSynced) {
-      analyticsToggle.innerHTML = `
-        <div class="analytics-pulse"></div>
-        <span class="analytics-label">Google Analytics & Search Index: <strong>Aktif</strong></span>
-        <span class="chip-badge">Auto</span>
-      `;
-      refBadge.style.display = "inline-flex";
-      refBadgeText.textContent = "Google Trends & GA4 Synced";
-      showToast("Sinkronisasi data Google Analytics & Search diaktifkan!");
-    } else {
-      analyticsToggle.innerHTML = `
-        <div class="analytics-pulse" style="background: #999; animation: none;"></div>
-        <span class="analytics-label">Google Analytics: <strong>Manual Mode</strong></span>
-        <span class="chip-badge" style="background:#eee; color:#666;">Off</span>
-      `;
-      refBadgeText.textContent = "Offline Mode";
-      showToast("Mode manual (tanpa live query search)");
-    }
-  });
-
-  // ==========================================
-  // Settings Modal & API Engine
-  // ==========================================
-  btnOpenSettings.addEventListener("click", () => {
-    // Sync current values to UI
-    document.querySelectorAll(".segmented-control .seg-btn").forEach(btn => {
-      btn.classList.toggle("active", btn.dataset.mode === state.aiMode);
+  // Analytics Hub Toggle
+  if (analyticsToggle) {
+    analyticsToggle.addEventListener("click", () => {
+      state.isAnalyticsSynced = !state.isAnalyticsSynced;
+      if (state.isAnalyticsSynced) {
+        analyticsToggle.innerHTML = `
+          <div class="analytics-pulse"></div>
+          <span class="analytics-label">Google Analytics & Search Index: <strong>Aktif</strong></span>
+          <span class="chip-badge">Auto</span>
+        `;
+        if (refBadge) refBadge.style.display = "inline-flex";
+        if (refBadgeText) refBadgeText.textContent = "Google Trends & GA4 Synced";
+        showToast("Sinkronisasi data Google Analytics & Search diaktifkan!");
+      } else {
+        analyticsToggle.innerHTML = `
+          <div class="analytics-pulse" style="background: #999; animation: none;"></div>
+          <span class="analytics-label">Google Analytics: <strong>Manual Mode</strong></span>
+          <span class="chip-badge" style="background:#eee; color:#666;">Off</span>
+        `;
+        if (refBadgeText) refBadgeText.textContent = "Offline Mode";
+        showToast("Mode manual (tanpa query tren)");
+      }
     });
-    geminiKeyGroup.style.display = state.aiMode === "gemini" ? "flex" : "none";
-    geminiApiKeyInput.value = state.geminiApiKey;
-    checkGaAutoSync.checked = state.isAnalyticsSynced;
-    settingsModal.classList.add("show");
-  });
-
-  function closeSettingsModal() {
-    settingsModal.classList.remove("show");
   }
 
-  btnCloseSettings.addEventListener("click", closeSettingsModal);
-  btnCancelSettings.addEventListener("click", closeSettingsModal);
-
-  document.querySelectorAll(".segmented-control .seg-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".segmented-control .seg-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      const mode = btn.dataset.mode;
-      geminiKeyGroup.style.display = mode === "gemini" ? "flex" : "none";
-    });
-  });
-
-  btnToggleKeyVisibility.addEventListener("click", () => {
-    if (geminiApiKeyInput.type === "password") {
-      geminiApiKeyInput.type = "text";
-      btnToggleKeyVisibility.textContent = "Sembunyikan";
-    } else {
-      geminiApiKeyInput.type = "password";
-      btnToggleKeyVisibility.textContent = "Lihat";
+  // ==========================================
+  // Settings Modal & API Key Management
+  // ==========================================
+  function openSettingsModal() {
+    if (geminiKeyGroup) geminiKeyGroup.style.display = "flex";
+    if (geminiApiKeyInput) {
+      geminiApiKeyInput.value = localStorage.getItem("gemini_api_key") || state.geminiApiKey || "";
     }
-  });
+    if (checkGaAutoSync) checkGaAutoSync.checked = state.isAnalyticsSynced;
+    if (settingsModal) settingsModal.classList.add("show");
+  }
 
-  const geminiConnectionFeedback = document.getElementById("geminiConnectionFeedback");
-  const btnTestGeminiKey = document.getElementById("btnTestGeminiKey");
+  function closeSettingsModal() {
+    if (settingsModal) settingsModal.classList.remove("show");
+  }
 
-  // Test Gemini Key Connection with SDK
+  if (btnOpenSettings) btnOpenSettings.addEventListener("click", openSettingsModal);
+  if (btnConnectApiKey) btnConnectApiKey.addEventListener("click", openSettingsModal);
+  if (btnCloseSettings) btnCloseSettings.addEventListener("click", closeSettingsModal);
+  if (btnCancelSettings) btnCancelSettings.addEventListener("click", closeSettingsModal);
+
+  if (btnToggleKeyVisibility && geminiApiKeyInput) {
+    btnToggleKeyVisibility.addEventListener("click", () => {
+      if (geminiApiKeyInput.type === "password") {
+        geminiApiKeyInput.type = "text";
+        btnToggleKeyVisibility.textContent = "Sembunyikan";
+      } else {
+        geminiApiKeyInput.type = "password";
+        btnToggleKeyVisibility.textContent = "Lihat";
+      }
+    });
+  }
+
+  // Test Gemini Key Connection with SDK or direct test
   if (btnTestGeminiKey) {
     btnTestGeminiKey.addEventListener("click", async () => {
       const key = geminiApiKeyInput.value.trim();
@@ -418,30 +520,36 @@ document.addEventListener("DOMContentLoaded", () => {
       btnTestGeminiKey.disabled = true;
 
       try {
-        const ai = new GoogleGenAI({ apiKey: key });
-        await ai.models.generateContent({
-          model: "gemini-2.5-flash",
-          contents: "ping"
-        });
-        showFeedback("✓ Berhasil terhubung ke Google Gemini 2.5 Flash SDK!", true);
+        const GenAI = await getGenAISDK();
+        if (GenAI) {
+          const ai = new GenAI({ apiKey: key });
+          await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: "ping"
+          });
+          showFeedback("✓ Berhasil terhubung ke Google Gemini 2.5 Flash SDK!", true);
+        } else {
+          // Direct REST API verification
+          const testUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
+          const res = await fetch(testUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ contents: [{ parts: [{ text: "ping" }] }] })
+          });
+          const data = await res.json();
+          if (res.ok && data.candidates) {
+            showFeedback("✓ Berhasil terhubung ke Google Gemini API (Key Valid)!", true);
+          } else {
+            throw new Error(data.error?.message || `HTTP ${res.status}`);
+          }
+        }
+
         state.geminiApiKey = key;
         localStorage.setItem("gemini_api_key", key);
         updateApiKeyStatusUI();
       } catch (err) {
-        console.warn("Test with gemini-2.5-flash failed, testing 1.5-flash...", err);
-        try {
-          const ai = new GoogleGenAI({ apiKey: key });
-          await ai.models.generateContent({
-            model: "gemini-1.5-flash",
-            contents: "ping"
-          });
-          showFeedback("✓ Berhasil terhubung ke Google Gemini SDK (Key Valid)!", true);
-          state.geminiApiKey = key;
-          localStorage.setItem("gemini_api_key", key);
-          updateApiKeyStatusUI();
-        } catch (err2) {
-          showFeedback(`✕ Gagal: ${err2.message || "Kunci API tidak valid"}`, false);
-        }
+        console.warn("Test ping error:", err);
+        showFeedback(`✕ Gagal: ${err.message || "Kunci API tidak valid"}`, false);
       } finally {
         btnTestGeminiKey.textContent = "Uji Koneksi";
         btnTestGeminiKey.disabled = false;
@@ -457,159 +565,202 @@ document.addEventListener("DOMContentLoaded", () => {
     geminiConnectionFeedback.style.fontWeight = "600";
   }
 
-  btnSaveSettings.addEventListener("click", () => {
-    state.geminiApiKey = geminiApiKeyInput.value.trim();
-    state.isAnalyticsSynced = checkGaAutoSync.checked;
+  if (btnSaveSettings) {
+    btnSaveSettings.addEventListener("click", () => {
+      const key = geminiApiKeyInput.value.trim();
+      state.geminiApiKey = key;
+      if (checkGaAutoSync) state.isAnalyticsSynced = checkGaAutoSync.checked;
 
-    // Secure local storage save as specified
-    localStorage.setItem("gemini_api_key", state.geminiApiKey);
-    localStorage.setItem("cm_gemini_key", state.geminiApiKey);
+      // Save securely into LocalStorage as specified
+      localStorage.setItem("gemini_api_key", key);
+      localStorage.setItem("cm_gemini_key", key);
 
-    updateApiKeyStatusUI();
-    closeSettingsModal();
-    if (state.geminiApiKey) {
-      showToast("✓ Pengaturan & Google Gemini API Key berhasil tersimpan di browser!");
-    } else {
-      showToast("Pengaturan tersimpan (API Key kosong).");
-    }
-  });
+      updateApiKeyStatusUI();
+      closeSettingsModal();
+
+      if (key) {
+        showToast("✓ Pengaturan & Google Gemini API Key berhasil tersimpan di browser!");
+      } else {
+        showToast("Pengaturan tersimpan (API Key kosong).");
+      }
+    });
+  }
 
   // ==========================================
   // Core Copywriting Generator via Official SDK
   // ==========================================
-  btnGenerate.addEventListener("click", async () => {
-    const raw = rawInput.value.trim();
-    if (!raw) {
-      showToast("Mohon masukkan bahan mentah atau topik konten terlebih dahulu!");
-      rawInput.focus();
-      return;
-    }
-
-    // 1. Verifikasi Keberadaan API Key di LocalStorage
-    const apiKey = localStorage.getItem("gemini_api_key") || state.geminiApiKey;
-    if (!apiKey) {
-      showToast("⚠️ Silakan masukkan Google Gemini API Key Anda terlebih dahulu!");
-      settingsModal.classList.add("show");
-      geminiKeyGroup.style.display = "flex";
-      geminiApiKeyInput.focus();
-      return;
-    }
-
-    // 2. Indikator Visual saat AI Sedang Bekerja
-    btnGenerate.disabled = true;
-    btnGenerateText.textContent = "Sedang meracik konten dengan AI...";
-    btnGenerate.style.opacity = "0.75";
-    btnGenerate.style.cursor = "not-allowed";
-
-    try {
-      // Panggilan SDK Gemini 2.5 Flash
-      const outputData = await generateWithGeminiSDK(raw, apiKey);
-
-      state.currentOutput = outputData;
-      renderOutput(outputData);
-
-      // Auto-save to history
-      saveToHistory(outputData);
-
-      outputSection.style.display = "block";
-      outputSection.scrollIntoView({ behavior: "smooth", block: "start" });
-      showToast("✓ Caption berhasil diracik oleh Gemini 2.5 Flash!");
-    } catch (err) {
-      console.error("Gemini API Error:", err);
-      let userFriendlyMsg = "Terjadi kesalahan saat memproses konten dengan AI.";
-      const errMsg = err.message || "";
-
-      if (errMsg.includes("API_KEY_INVALID") || errMsg.includes("API key not valid")) {
-        userFriendlyMsg = "Kunci API Google Gemini tidak valid. Mohon periksa kembali API Key Anda dari Google AI Studio.";
-      } else if (errMsg.includes("quota") || errMsg.includes("RESOURCE_EXHAUSTED")) {
-        userFriendlyMsg = "Batas kuota gratis Gemini tercapai sementara. Tunggu beberapa saat lalu coba lagi.";
-      } else if (errMsg.includes("Failed to fetch") || errMsg.includes("network")) {
-        userFriendlyMsg = "Koneksi internet bermasalah. Periksa koneksi Anda dan coba lagi.";
-      } else {
-        userFriendlyMsg = `Error: ${errMsg}`;
+  if (btnGenerate) {
+    btnGenerate.addEventListener("click", async () => {
+      const raw = rawInput.value.trim();
+      if (!raw && !state.attachedFile) {
+        showToast("Mohon masukkan bahan mentah atau lampirkan file terlebih dahulu!");
+        rawInput.focus();
+        return;
       }
 
-      showToast(`✕ ${userFriendlyMsg}`);
-    } finally {
-      btnGenerate.disabled = false;
-      btnGenerateText.textContent = "Generate Caption";
-      btnGenerate.style.opacity = "1";
-      btnGenerate.style.cursor = "pointer";
-    }
-  });
+      // 1. Verifikasi Keberadaan API Key di LocalStorage
+      const apiKey = localStorage.getItem("gemini_api_key") || state.geminiApiKey;
+      if (!apiKey) {
+        showToast("⚠️ Silakan masukkan Google Gemini API Key Anda terlebih dahulu!");
+        openSettingsModal();
+        if (geminiApiKeyInput) geminiApiKeyInput.focus();
+        return;
+      }
+
+      // 2. Indikator Visual saat AI Sedang Bekerja (Teks & Disable)
+      btnGenerate.disabled = true;
+      if (btnGenerateText) btnGenerateText.textContent = "Sedang meracik konten dengan AI...";
+      btnGenerate.style.opacity = "0.75";
+      btnGenerate.style.cursor = "not-allowed";
+
+      try {
+        // Panggilan AI dengan model gemini-2.5-flash
+        const outputData = await generateWithGemini(raw, apiKey);
+
+        state.currentOutput = outputData;
+        renderOutput(outputData);
+
+        // Simpan ke riwayat lokal
+        saveToHistory(outputData);
+
+        if (outputSection) {
+          outputSection.style.display = "block";
+          outputSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+        showToast("✓ Caption berhasil diracik oleh Gemini 2.5 Flash!");
+      } catch (err) {
+        console.error("Gemini API Error:", err);
+        let userFriendlyMsg = "Terjadi kesalahan saat memproses konten dengan AI.";
+        const errMsg = err.message || "";
+
+        if (errMsg.includes("API_KEY_INVALID") || errMsg.includes("API key not valid")) {
+          userFriendlyMsg = "Kunci API Google Gemini tidak valid. Mohon periksa kembali API Key Anda dari Google AI Studio.";
+        } else if (errMsg.includes("quota") || errMsg.includes("RESOURCE_EXHAUSTED")) {
+          userFriendlyMsg = "Batas kuota gratis Gemini tercapai sementara. Tunggu beberapa saat lalu coba lagi.";
+        } else if (errMsg.includes("Failed to fetch") || errMsg.includes("network")) {
+          userFriendlyMsg = "Koneksi internet bermasalah. Periksa koneksi Anda dan coba lagi.";
+        } else {
+          userFriendlyMsg = `Error: ${errMsg}`;
+        }
+
+        showToast(`✕ ${userFriendlyMsg}`);
+      } finally {
+        btnGenerate.disabled = false;
+        if (btnGenerateText) btnGenerateText.textContent = "Generate Caption";
+        btnGenerate.style.opacity = "1";
+        btnGenerate.style.cursor = "pointer";
+      }
+    });
+  }
 
   /**
-   * Gemini API Official SDK Integration (@google/genai)
-   * Menggunakan Model gemini-2.5-flash
+   * Gemini API Integration: Official SDK (@google/genai) with model gemini-2.5-flash
    */
-  async function generateWithGeminiSDK(raw, apiKey) {
+  async function generateWithGemini(raw, apiKey) {
+    let contextNote = raw;
+    if (state.attachedFile) {
+      contextNote += `\n[File Lampiran: ${state.attachedFile.name} (${state.attachedFile.type})]`;
+    }
+
+    const frameworkGuides = {
+      AIDA: "Attention (Hook penghenti scroll tajam), Interest (Fakta/pain point menarik), Desire (Manfaat nyata yang didambakan), Action (Ajakan bertindak jelas).",
+      PAS: "Problem (Soroti keluhan/masalah utama), Agitate (Perparah dampak jika masalah dibiarkan), Solution (Tawarkan solusi praktis melalui konten).",
+      BAB: "Before (Kondisi frustrasi masa lalu), After (Kondisi ideal setelah solusi), Bridge (Jembatan solusi/alat yang menghubungkan keduanya).",
+      FAB: "Features (Fitur/fakta teknis), Advantages (Keunggulan dibanding alternatif), Benefits (Keuntungan langsung bagi hidup/bisnis pembaca)."
+    };
+
+    const platformGuides = {
+      instagram: "Format khusus Instagram: Hook tajam di bawah 125 karakter (sebelum fold '...more'), jarak baris bersih dengan emoji terpilih, CTA interaktif (simpan/share/komen), 7-10 hashtag terkurasi.",
+      tiktok: "Format khusus TikTok: Sangat ringkas, punchy, search-optimized untuk algoritma TikTok, kalimat to-the-point, CTA ajak komentar atau tag teman.",
+      youtube: "Format khusus YouTube (Video Description & Shorts): [HOOK] 2 baris awal sangat tajam dan kaya kata kunci pencarian (muncul di hasil pencarian & sebelum tombol Show More). [BODY] Deskripsi SEO-friendly lengkap dengan simulasi Timestamps / Chapters (0:00 - Intro, 0:45 - Inti Materi, 2:15 - Tips Praktis, dst). [CTA] Ajakan Subscribe, Like, dan klik link pendukung di deskripsi. [HASHTAGS] 3-5 hashtag utama + rekomendasi kata kunci penelusuran YouTube.",
+      linkedin: "Format khusus LinkedIn: Sudut pandang profesional B2B/karier, spasi bersih tanpa emoji berlebihan, memancing diskusi bermutu di kolom komentar.",
+      twitter: "Format khusus X / Twitter: Singkat, tajam, padat, di bawah 280 karakter, memancing quote atau retweet."
+    };
+
+    const warmthDescriptions = ["", "Formal & Dingin", "Objektif & Lugas", "Netral Ramah", "Hangat & Empatis", "Sangat Intim & Merangkul"];
+    const urgencyDescriptions = ["", "Sangat Santai", "Informatif Halus", "Moderat (Persuasif)", "Tinggi (Callout Kuat)", "Maksimal (FOMO / Penawaran Terbatas)"];
+
     const prompt = `Anda adalah seorang Digital Marketer, Copywriter, dan Strategis Media Sosial ahli yang beroperasi dengan standar Apple HIG.
 Tugas Anda: Hasilkan caption media sosial dan metadata dengan konversi tinggi berdasarkan input bahan mentah berikut.
 
-Spesifikasi & Konteks:
-- Persona: ${state.personaName} (Kehangatan emosional: ${state.warmth}/5)
+SPESIFIKASI & STRATEGI AKTIF:
+- Persona / Tone of Voice: ${state.personaName}
+- Tingkat Kehangatan Emosi (Warmth): Level ${state.warmth}/5 (${warmthDescriptions[state.warmth]})
+- Tingkat Urgensi CTA: Level ${state.urgency}/5 (${urgencyDescriptions[state.urgency]})
 - Framework Copywriting: ${state.frameworkName}
-- Target Platform: ${state.platformName}
-- Tingkat Urgensi CTA: ${state.urgency}/5
-- Google Analytics & Search Trend Benchmark: 85% audiens menonton video tanpa audio (silent mode), target retensi 3 detik awal 28%-42%.
+  Panduan Framework: ${frameworkGuides[state.framework] || ""}
+- Target Platform Sosial Media: ${state.platformName}
+  Panduan Khusus Platform: ${platformGuides[state.platform] || ""}
+- Benchmark Data Analitik: 85% audiens menonton video tanpa audio (silent mode), target retensi 3 detik awal 28%-42%.
 
 Bahan mentah dari pengguna:
-"${raw}"
+"${contextNote}"
 
-Format output HARUS mengikuti struktur ini secara persis dalam bentuk teks Markdown murni tanpa basa-basi:
+Format output HARUS mengikuti struktur ini secara persis dalam bentuk teks Markdown murni tanpa basa-basi pembuka atau penutup:
 [HOOK]
-(1 kalimat pembuka tajam penghenti scroll pada 3 detik awal, maks 125 karakter)
+(1-2 kalimat pembuka tajam penghenti scroll pada 3 detik awal sesuai platform ${state.platformName}, padat memikat, maks 125 karakter kecuali YouTube 150 karakter)
 
 [BODY]
-(Paragraf singkat, padat, dan terstruktur rapi dengan spasi baris yang bersih dan bernapas sesuai formula ${state.frameworkName})
+(Paragraf singkat, padat, dan terstruktur rapi dengan spasi baris yang bersih dan bernapas sesuai formula ${state.frameworkName} dan panduan platform ${state.platformName})
 
 [CTA]
 (Ajakan bertindak yang jelas, relevan dengan persona dan tingkat urgensi yang dipilih)
 
 [HASHTAGS]
-(7-10 hashtag relevan gabungan core keyword, niche, dan trending)`;
+(Hashtag terkurasi dan teroptimasi algoritma pencarian sesuai platform ${state.platformName})`;
 
     let generatedText = "";
 
-    // 1. Pemanggilan via Official SDK @google/genai
+    // 1. Coba pemanggilan menggunakan Official SDK @google/genai
     try {
-      const ai = new GoogleGenAI({ apiKey: apiKey });
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt
-      });
-      generatedText = response.text || "";
-    } catch (sdkError) {
-      console.warn("Panggilan model gemini-2.5-flash gagal, mencoba fallback ke gemini-1.5-flash...", sdkError);
-      try {
-        const ai = new GoogleGenAI({ apiKey: apiKey });
+      const GenAI = await getGenAISDK();
+      if (GenAI) {
+        const ai = new GenAI({ apiKey: apiKey });
         const response = await ai.models.generateContent({
-          model: "gemini-1.5-flash",
+          model: "gemini-2.5-flash",
           contents: prompt
         });
         generatedText = response.text || "";
-      } catch (sdkFallbackErr) {
-        // Fallback REST endpoint jika modul bundler browser mengalami kendala
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-        const response = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              temperature: 0.7,
-              maxOutputTokens: 1400
-            }
-          })
-        });
+      }
+    } catch (sdkError) {
+      console.warn("Panggilan model gemini-2.5-flash via SDK gagal, mencoba fallback...", sdkError);
+    }
 
-        if (!response.ok) {
-          const errData = await response.json().catch(() => ({}));
-          throw new Error(errData.error?.message || `HTTP ${response.status}`);
+    // 2. Fallback REST API jika SDK modul belum terunduh atau model gemini-2.5-flash meminta fallback
+    if (!generatedText) {
+      const modelsToTry = ["gemini-2.5-flash", "gemini-1.5-flash"];
+      let lastErr = null;
+
+      for (const m of modelsToTry) {
+        try {
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${apiKey}`;
+          const response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: 1400
+              }
+            })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+            if (generatedText) break;
+          } else {
+            const errJson = await response.json().catch(() => ({}));
+            lastErr = new Error(errJson.error?.message || `HTTP ${response.status}`);
+          }
+        } catch (fetchErr) {
+          lastErr = fetchErr;
         }
+      }
 
-        const data = await response.json();
-        generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      if (!generatedText && lastErr) {
+        throw lastErr;
       }
     }
 
@@ -617,7 +768,6 @@ Format output HARUS mengikuti struktur ini secara persis dalam bentuk teks Markd
       throw new Error("Model Gemini tidak mengembalikan respons teks.");
     }
 
-    // Parse blocks ke struktur [HOOK], [BODY], [CTA], [HASHTAGS]
     return parseStrictMarkdown(generatedText, raw);
   }
 
@@ -649,193 +799,35 @@ Format output HARUS mengikuti struktur ini secara persis dalam bentuk teks Markd
     };
   }
 
-  /**
-   * Smart Neural Engine (Local / Offline Copywriting Brain)
-   */
-  function generateStrategicCopy(raw) {
-    let hook = "";
-    let body = "";
-    let cta = "";
-    let hashtags = "";
-
-    const isVideoOrAi = /video|edit|captions|reels|konten|creator|audio|subtitle|kamera/i.test(raw);
-    const isMentalHealth = /cemas|anxiety|overthinking|tenang|psikolog|mental|istirahat|diri|healing|kalem|luka/i.test(raw);
-    const isBusiness = /omset|bisnis|sales|konversi|closing|scale|traffic|klien|b2b/i.test(raw);
-
-    // Warmth & Urgency Influencers
-    const urgencyPhrase = state.urgency >= 4 
-      ? "Penawaran ini hanya berlaku 24 jam sebelum slot ditutup." 
-      : state.urgency === 1 
-      ? "Simpan saja dulu, baca kembali kapan pun kamu sedang butuh jeda." 
-      : "Klik tautan di bio untuk eksplorasi selengkapnya!";
-
-    // 1. Kasual / Bisnis
-    if (state.persona === "kasual_bisnis") {
-      if (state.framework === "AIDA") {
-        hook = isVideoOrAi 
-          ? "Stop buang 3 jam cuma buat motong video dan ketik subtitle manual satu per satu."
-          : "Audiens Anda cuma butuh 1.5 detik buat mutusin lanjut scroll atau baca postingan ini.";
-        body = `Jujur, capek banget kan kalau ide konten udah siap matang, tapi eksekusinya ketunda cuma gara-gara urusan teknis editing yang makan waktu?
-
-Data membuktikan bahwa lebih dari 85% penonton menikmati video media sosial tanpa suara. Tanpa teks dinamis di detik awal, mereka akan langsung skip ke kompetitor Anda.
-
-Inilah kenapa smart creators mulai beralih menggunakan workflow cerdas:
-• Memotong jeda bicara & kata filler ('um', 'ah') secara otomatis.
-• Memasang auto-subtitle dinamis yang bikin mata audiens betah menatap layar.
-• Fitur eye-contact agar tatapan Anda selalu terhubung dengan penonton.
-
-Waktu pengerjaan terpangkas 80%, tapi engagement dan watch-time justru melonjak drastis.`;
-        cta = urgencyPhrase.includes("24 jam") 
-          ? "Slot uji coba gratis hanya dibuka hari ini. Klik link di bio sebelum kuota penuh!" 
-          : "Mau coba rasakan cara bikin video profesional tanpa pusing edit berjam-jam? Klik link di bio untuk coba gratis hari ini!";
-        hashtags = "#ContentCreatorTips #ProductivityHack #AICaptions #VideoMarketing #PertumbuhanBisnis #SmartWorkflow #DigitalMarketingID";
-      } else if (state.framework === "PAS") {
-        hook = "Bikin konten tiap hari tapi views dan konversi masih jalan di tempat?";
-        body = `Masalahnya bukan karena Anda kurang rajin, melainkan karena format penyampaian yang terlalu bertele-tele di 3 detik pertama.
-
-Audiens sekarang nggak punya toleransi buat basa-basi. Saat mereka menonton tanpa suara dan tidak menemukan hook visual yang jelas, algoritma langsung mencatat konten Anda sepi peminat.
-
-Solusinya: gunakan pendekatan terstruktur yang langsung membedah masalah utama audiens dengan visual text yang tajam dan navigasi bersih.`;
-        cta = "Simpan postingan ini biar nggak lupa saat jadwal produksi konten minggu depan!";
-        hashtags = "#MarketingStrategy #ContentDistribution #SocialMediaTips #CreatorEconomy #BisnisDigital";
-      } else { // BAB / FAB
-        hook = "Dulu bikin 1 video butuh setengah hari. Sekarang 15 menit udah langsung tayang.";
-        body = `Sebelumnya: selalu terjebak di meja editing berjam-jam, kehabisan energi cuma buat urusan subtitle dan potong frame.
-
-Sekarang: rekam bahan mentah sekali jalan, biarkan AI merapikan ritme bicara, memasang animasi teks, dan menyelaraskan audio secara presisi.
-
-Jembatannya ada pada otomatisasi workflow cerdas yang fokus pada hasil konversi, bukan drama teknisnya.`;
-        cta = "Tulis 'WORKFLOW' di komentar, dan saya kirimkan panduan lengkap langkah demi langkahnya ke DM Anda!";
-        hashtags = "#EfisiensiBisnis #CreatorTools #OtomasiKonten #VideoEditorAI #BisnisPraktis";
-      }
-    }
-
-    // 2. Psikolog / Ruang Kalem
-    else if (state.persona === "psikolog") {
-      hook = isMentalHealth
-        ? "Tarik napas perlahan... Kamu tidak harus menyelesaikan dan memikirkan semuanya malam ini."
-        : "Kadang, yang kita butuhkan bukanlah jawaban instan, melainkan ruang untuk merasa cukup.";
-      body = `Pernahkah kamu merasa energimu habis bukan karena tubuhmu bekerja terlalu keras, melainkan karena pikiranmu tidak pernah berhenti berlari?
-
-Di dunia yang serba menuntut kita cepat, produktif, dan serba sempurna, kita sering lupa memberi jeda pada diri sendiri. Rasa lelah, cemas, dan overthinking bukanlah bukti kelemahanmu—itu hanyalah sinyal lembut dari dalam diri yang sedang meminta perhatian.
-
-Malam ini, mari beri jeda sejenak:
-• Rasakan telapak kakimu menapak lantai dengan tenang.
-• Rilekskan bahumu yang seharian terasa kaku.
-• Akui bahwa kamu sudah berjuang sebaik yang kamu bisa hari ini.
-
-Ketenangan tidak hadir saat semua masalahmu selesai, melainkan saat kamu memutuskan untuk berhenti menghakimi prosesmu sendiri.`;
-      cta = "Kirimkan pelukan hangat ini ke satu teman yang mungkin sedang merasa kewalahan hari ini. Kamu tidak sendirian.";
-      hashtags = "#RuangKalem #KesehatanMental #SelfCompassion #JedaSejenak #MindfulnessIndonesia #BerdamaiDenganDiri #PsikologiSehariHari";
-    }
-
-    // 3. Profesional Korporat
-    else if (state.persona === "profesional") {
-      hook = "Data menunjukkan 85% audiens mengonsumsi video pendek dalam mode senyap (muted).";
-      body = `Jika strategi komunikasi digital perusahaan Anda masih mengandalkan audio tanpa optimasi visual typography, Anda berisiko kehilangan 70% prospek potensial pada 3 detik pertama.
-
-Berdasarkan audit benchmarking Google Analytics kuartal ini:
-1. Retensi audiens meningkat rata-rata 38% ketika teks dinamis dan hook visual diterapkan secara presisi.
-2. Rasio Click-Through Rate (CTR) kampanye berbayar 2.4x lebih tinggi pada konten dengan pacing yang padat.
-3. Efisiensi biaya produksi turun signifikan saat tim beralih ke workflow otomatisasi.
-
-Dalam lanskap pasar yang kompetitif, kecepatan eksekusi dan ketajaman data adalah fondasi keunggulan kompetitif.`;
-      cta = "Jadwalkan sesi konsultasi strategis bersama tim kami melalui tautan di profil LinkedIn perusahaan.";
-      hashtags = "#CorporateStrategy #DigitalTransformation #B2BMarketing #DataDriven #VideoStrategy #LeadershipExcellence";
-    }
-
-    // 4. Kreatif / Gen-Z
-    else if (state.persona === "kreatif_genz") {
-      hook = "POV: Lu baru sadar selama ini ngabisin 5 jam ngedit video yang bisa beres dalam 5 menit.";
-      body = `Asli, nangis banget kalau inget jaman-jaman ngedit subtitle satu per satu sambil nge-pause frame per frame.
-
-Zaman sekarang kalau masih bikin konten pake cara purba, keburu disalip kreator lain yang sat-set. Algoritma butuh konsistensi, tapi energi kita terbatas.
-
-Kuncinya tuh ada di tool yang lu pake:
-• AI auto-cut nafas lu yang ngos-ngosan pas ngomong.
-• Subtitle estetik yang auto-sync sama ritme suara.
-• Mata lu tetep auto-natap kamera biarpun sebenernya lu lagi lirik contekan di samping.
-
-Kerja cerdas bukan kerja capek, bestie!`;
-      cta = "Coba tag temen lu yang kalau ngedit video satu reels butuh waktu sampe subuh! 😭👇";
-      hashtags = "#LifeHack #ContentCreatorGenZ #AItools #VideoViral #TipsNgonten #KerjaCerdas #FypIndonesia";
-    }
-
-    // 5. Edukator & Mentor
-    else if (state.persona === "edukator") {
-      hook = "3 Kesalahan fatal yang bikin materi edukasi Anda sering di-skip audiens.";
-      body = `Mengajar atau berbagi ilmu di media sosial punya dinamika yang berbeda dengan kelas tatap muka:
-
-1. Basa-basi terlalu panjang: Jangan mulai dengan perkenalan diri, langsung masuk ke problem inti di kalimat pertama.
-2. Paragraf menumpuk: Hindari dinding teks tebal. Beri spasi bernapas di setiap 2 baris kalimat.
-3. Kurang visualisasi: 85% audiens membutuhkan teks panduan di layar agar fokus tetap terjaga.
-
-Saat materi edukasi disusun dengan struktur yang tepat, pemahaman audiens meningkat dan engagement akan tumbuh secara organik.`;
-      cta = "Bagikan postingan ini ke rekan pendidik atau sesama pegiat edukasi untuk saling menginspirasi!";
-      hashtags = "#EdukasiDigital #TipsBelajar #SharingIsCaring #PendidikMasaKini #CreatorEducation #LiterasiDigital";
-    }
-
-    // 6. Direct Promo & Launch (Hard Sale)
-    else {
-      hook = "PENAWARAN TERBATAS: Diskon 50% berakhir tepat pukul 23.59 malam ini!";
-      body = `Jika Anda masih menunda untuk meningkatkan performa konten dan strategi pemasaran digital Anda, ini adalah kesempatan terakhir minggu ini.
-
-Apa yang Anda dapatkan jika mengambil keputusan hari ini:
-• Akses penuh ke seluruh template dan alur kerja berkonversi tinggi.
-• Panduan implementasi step-by-step dari praktisi berpengalaman.
-• Bonus eksklusif senilai Rp 1.500.000 untuk 50 pendaftar pertama.
-
-Setelah kuota terpenuhi atau waktu habis, harga akan otomatis kembali ke tarif normal.`;
-      cta = "Amankan kuota diskon 50% Anda sekarang juga melalui tautan di bio sebelum terlambat!";
-      hashtags = "#PromoSpesial #DiskonTerbatas #FlashSaleIndonesia #PeluangBisnis #InvestasiLeherKeAtas";
-    }
-
-    const rawMarkdown = `[HOOK]\n${hook}\n\n[BODY]\n${body}\n\n[CTA]\n${cta}\n\n[HASHTAGS]\n${hashtags}`;
-
-    return {
-      hook,
-      body,
-      cta,
-      hashtags,
-      rawMarkdown,
-      persona: state.persona,
-      personaName: state.personaName,
-      framework: state.framework,
-      platform: state.platform,
-      rawInputText: raw,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-  }
-
   // ==========================================
   // Render Output & HIG Visuals
   // ==========================================
   function renderOutput(data) {
-    hookTextDisplay.textContent = data.hook;
-    bodyTextDisplay.textContent = data.body;
-    bodyFrameworkDisplay.textContent = `Persona: ${data.personaName} • Framework ${data.framework}`;
-    ctaTextDisplay.textContent = data.cta;
-    hashtagsTextDisplay.textContent = data.hashtags;
-    rawMarkdownDisplay.textContent = data.rawMarkdown;
+    if (hookTextDisplay) hookTextDisplay.textContent = data.hook;
+    if (bodyTextDisplay) bodyTextDisplay.textContent = data.body;
+    if (bodyFrameworkDisplay) bodyFrameworkDisplay.textContent = `Persona: ${data.personaName} • Framework ${data.framework}`;
+    if (ctaTextDisplay) ctaTextDisplay.textContent = data.cta;
+    if (hashtagsTextDisplay) hashtagsTextDisplay.textContent = data.hashtags;
+    if (rawMarkdownDisplay) rawMarkdownDisplay.textContent = data.rawMarkdown;
 
-    // Hook fold character insight
     const hookLen = data.hook.length;
-    hookCharCount.textContent = `${hookLen} karakter`;
+    if (hookCharCount) hookCharCount.textContent = `${hookLen} karakter`;
     const limit = platformLimits[state.platform] || platformLimits.instagram;
 
-    if (hookLen <= limit.hookFold) {
-      hookFoldStatus.textContent = `✓ Aman: terlihat utuh sebelum lipatan '...more' di ${limit.name}`;
-      hookFoldStatus.style.color = "#34c759";
-    } else {
-      hookFoldStatus.textContent = `⚠ Catatan: melebihi ${limit.hookFold} karakter, baris akhir mungkin terpotong fold`;
-      hookFoldStatus.style.color = "#ff9500";
+    if (hookFoldStatus) {
+      if (hookLen <= limit.hookFold) {
+        hookFoldStatus.textContent = `✓ Aman: terlihat utuh sebelum lipatan '...more' di ${limit.name}`;
+        hookFoldStatus.style.color = "#34c759";
+      } else {
+        hookFoldStatus.textContent = `⚠ Catatan: melebihi ${limit.hookFold} karakter, baris akhir mungkin terpotong fold`;
+        hookFoldStatus.style.color = "#ff9500";
+      }
     }
 
-    // Update Platform Simulator
     updatePlatformPreview(state.platform);
   }
 
-  // Simulator Rendering
+  // Platform Simulator Rendering
   function updatePlatformPreview(platform) {
     if (!state.currentOutput) return;
 
@@ -844,57 +836,90 @@ Setelah kuota terpenuhi atau waktu habis, harga akan otomatis kembali ke tarif n
     const fullText = `${hook}\n\n${body}\n\n${cta}\n\n${hashtags}`;
     const totalChars = fullText.length;
 
-    // Meter progress
     const pct = Math.min(100, Math.round((totalChars / limit.maxChars) * 100));
-    meterPlatformName.textContent = `${limit.name} Limit:`;
-    meterNumbers.textContent = `${totalChars} / ${limit.maxChars} karakter (${pct}%)`;
-    meterProgressBar.style.width = `${pct}%`;
-
-    if (pct > 95) {
-      meterProgressBar.style.background = "#ff3b30";
-    } else if (pct > 75) {
-      meterProgressBar.style.background = "#ff9500";
-    } else {
-      meterProgressBar.style.background = "#0071e3";
+    if (meterPlatformName) meterPlatformName.textContent = `${limit.name} Limit:`;
+    if (meterNumbers) meterNumbers.textContent = `${totalChars} / ${limit.maxChars} karakter (${pct}%)`;
+    if (meterProgressBar) {
+      meterProgressBar.style.width = `${pct}%`;
+      if (pct > 95) {
+        meterProgressBar.style.background = "#ff3b30";
+      } else if (pct > 75) {
+        meterProgressBar.style.background = "#ff9500";
+      } else {
+        meterProgressBar.style.background = "#0071e3";
+      }
     }
 
-    mockUserName.textContent = platform === "linkedin" ? "Muhammad Ilyasa • Founder" : "brand_official";
-    mockPlatformSub.textContent = `${limit.name} Post • Sponsored`;
+    if (mockUserName) {
+      if (platform === "youtube") {
+        mockUserName.textContent = "Brand Channel • 142K Subscribers";
+        mockPlatformSub.textContent = "YouTube Video / Shorts • Published";
+      } else if (platform === "linkedin") {
+        mockUserName.textContent = "Muhammad Ilyasa • Founder";
+        mockPlatformSub.textContent = "LinkedIn Post • Thought Leadership";
+      } else {
+        mockUserName.textContent = "brand_official";
+        mockPlatformSub.textContent = `${limit.name} Post • Sponsored`;
+      }
+    }
 
-    if (platform === "instagram") {
-      platformSimBody.innerHTML = `
-        <strong>${hook}</strong><br><br>
-        ${body.replace(/\n\n/g, "<br><br>")}<br><br>
-        👉 ${cta}<br><br>
-        <span style="color: #00376b;">${hashtags}</span>
-      `;
-    } else if (platform === "linkedin") {
-      platformSimBody.innerHTML = `
-        <p style="font-weight: 700; font-size: 14.5px;">${hook}</p><br>
-        <p>${body.replace(/\n\n/g, "</p><br><p>")}</p><br>
-        <p><strong>Langkah berikutnya:</strong> ${cta}</p><br>
-        <span style="color: #0a66c2;">${hashtags}</span>
-      `;
-    } else if (platform === "tiktok") {
-      platformSimBody.innerHTML = `
-        <strong>${hook}</strong> ⚡<br><br>
-        ${body.substring(0, 160)}... <span style="color:#888;">(lihat selengkapnya)</span><br><br>
-        💬 ${cta}<br><br>
-        <span style="color: #ff0050;">${hashtags.split(" ").slice(0, 5).join(" ")}</span>
-      `;
-    } else { // twitter
-      platformSimBody.innerHTML = `
-        ${hook}<br><br>
-        ${body.substring(0, 140)}... 🧵👇<br><br>
-        <span style="color: #1d9bf0;">${hashtags.split(" ").slice(0, 3).join(" ")}</span>
-      `;
+    if (platformSimBody) {
+      if (platform === "instagram") {
+        platformSimBody.innerHTML = `
+          <strong>${hook}</strong><br><br>
+          ${body.replace(/\n\n/g, "<br><br>")}<br><br>
+          👉 ${cta}<br><br>
+          <span style="color: #00376b;">${hashtags}</span>
+        `;
+      } else if (platform === "youtube") {
+        platformSimBody.innerHTML = `
+          <div style="background:#fff5f5; border:1px solid #fed7d7; border-radius:10px; padding:10px 14px; margin-bottom:12px;">
+            <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+              <span style="color:#e53e3e; font-size:12px; font-weight:700;">▶ YOUTUBE DESCRIPTION & SEO</span>
+              <span style="font-size:10px; background:#fff; padding:1px 6px; border-radius:4px; color:#666; border:1px solid #fed7d7;">High CTR</span>
+            </div>
+            <strong style="font-size:14px; color:#111; line-height:1.4;">${hook}</strong>
+          </div>
+          <div style="font-size:13px; line-height:1.6; white-space:pre-wrap; color:#222;">${body.replace(/\n\n/g, "<br><br>")}</div>
+          <div style="margin-top:14px; padding:12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; font-size:11.5px; line-height:1.6;">
+            <strong style="color:#0f172a;">⏱️ TIMESTAMPS / CHAPTERS:</strong><br>
+            0:00 - Introduction & Hook<br>
+            0:45 - Inti Pembahasan Video<br>
+            2:15 - Solusi & Tips Praktis<br>
+            3:40 - Kesimpulan & Rekomendasi<br><br>
+            <strong style="color:#0f172a;">🔔 SUBSCRIBE & RESOURCES:</strong><br>
+            👉 ${cta}<br><br>
+            <span style="color:#065fd4; font-weight:600;">${hashtags} #YouTubeShorts #TutorialID</span>
+          </div>
+        `;
+      } else if (platform === "linkedin") {
+        platformSimBody.innerHTML = `
+          <p style="font-weight: 700; font-size: 14.5px;">${hook}</p><br>
+          <p>${body.replace(/\n\n/g, "</p><br><p>")}</p><br>
+          <p><strong>Langkah berikutnya:</strong> ${cta}</p><br>
+          <span style="color: #0a66c2;">${hashtags}</span>
+        `;
+      } else if (platform === "tiktok") {
+        platformSimBody.innerHTML = `
+          <strong>${hook}</strong> ⚡<br><br>
+          ${body.substring(0, 160)}... <span style="color:#888;">(lihat selengkapnya)</span><br><br>
+          💬 ${cta}<br><br>
+          <span style="color: #ff0050;">${hashtags.split(" ").slice(0, 5).join(" ")}</span>
+        `;
+      } else {
+        platformSimBody.innerHTML = `
+          ${hook}<br><br>
+          ${body.substring(0, 140)}... 🧵👇<br><br>
+          <span style="color: #1d9bf0;">${hashtags.split(" ").slice(0, 3).join(" ")}</span>
+        `;
+      }
     }
   }
 
   // Switch Simulator Buttons
   document.querySelectorAll(".platform-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll(".platform-btn").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".platform-btn").forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
       updatePlatformPreview(btn.dataset.platform);
     });
@@ -903,8 +928,8 @@ Setelah kuota terpenuhi atau waktu habis, harga akan otomatis kembali ke tarif n
   // Tab switching
   document.querySelectorAll(".hig-tab").forEach((tab) => {
     tab.addEventListener("click", () => {
-      document.querySelectorAll(".hig-tab").forEach(t => t.classList.remove("active"));
-      document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll(".hig-tab").forEach((t) => t.classList.remove("active"));
+      document.querySelectorAll(".tab-pane").forEach((p) => p.classList.remove("active"));
       tab.classList.add("active");
 
       const targetPane = document.getElementById(`pane${tab.dataset.tab.charAt(0).toUpperCase() + tab.dataset.tab.slice(1)}`);
@@ -913,7 +938,7 @@ Setelah kuota terpenuhi atau waktu habis, harga akan otomatis kembali ke tarif n
   });
 
   // Mini copy buttons
-  document.querySelectorAll(".mini-copy-btn").forEach(btn => {
+  document.querySelectorAll(".mini-copy-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const target = btn.dataset.target;
       let textToCopy = "";
@@ -931,49 +956,52 @@ Setelah kuota terpenuhi atau waktu habis, harga akan otomatis kembali ke tarif n
   });
 
   // Copy full markdown
-  btnCopyMarkdown.addEventListener("click", () => {
-    if (!state.currentOutput) return;
-    navigator.clipboard.writeText(state.currentOutput.rawMarkdown).then(() => {
-      copyBtnLabel.textContent = "Tersalin!";
-      btnCopyMarkdown.style.background = "#34c759";
-      showToast("Seluruh caption Markdown tersalin ke clipboard!");
-      setTimeout(() => {
-        copyBtnLabel.textContent = "Salin Markdown";
-        btnCopyMarkdown.style.background = "#1d1d1f";
-      }, 2000);
+  if (btnCopyMarkdown) {
+    btnCopyMarkdown.addEventListener("click", () => {
+      if (!state.currentOutput) return;
+      navigator.clipboard.writeText(state.currentOutput.rawMarkdown).then(() => {
+        if (copyBtnLabel) copyBtnLabel.textContent = "Tersalin!";
+        btnCopyMarkdown.style.background = "#34c759";
+        showToast("Seluruh caption Markdown tersalin ke clipboard!");
+        setTimeout(() => {
+          if (copyBtnLabel) copyBtnLabel.textContent = "Salin Markdown";
+          btnCopyMarkdown.style.background = "#1d1d1f";
+        }, 2000);
+      });
     });
-  });
+  }
 
   // ==========================================
   // History & Draft Management
   // ==========================================
   function saveToHistory(item) {
-    // Avoid exact duplicate at the top
-    if (state.history.length > 0 && state.history[0].hook === item.hook) {
-      return;
-    }
+    if (state.history.length > 0 && state.history[0].hook === item.hook) return;
     state.history.unshift(item);
     if (state.history.length > 40) state.history.pop();
     localStorage.setItem("cm_history_drafts", JSON.stringify(state.history));
     updateHistoryUI();
   }
 
-  btnSaveDraft.addEventListener("click", () => {
-    if (!state.currentOutput) return;
-    saveToHistory(state.currentOutput);
-    showToast("Draft berhasil disimpan ke koleksi riwayat!");
-  });
+  if (btnSaveDraft) {
+    btnSaveDraft.addEventListener("click", () => {
+      if (!state.currentOutput) return;
+      saveToHistory(state.currentOutput);
+      showToast("Draft berhasil disimpan ke koleksi riwayat!");
+    });
+  }
 
   function updateHistoryUI() {
-    historyCountBadge.textContent = state.history.length;
+    if (historyCountBadge) historyCountBadge.textContent = state.history.length;
+    if (!historyCardsContainer) return;
+
     if (state.history.length === 0) {
-      emptyHistoryState.style.display = "block";
+      if (emptyHistoryState) emptyHistoryState.style.display = "block";
       historyCardsContainer.innerHTML = "";
-      historyCardsContainer.appendChild(emptyHistoryState);
+      if (emptyHistoryState) historyCardsContainer.appendChild(emptyHistoryState);
       return;
     }
 
-    emptyHistoryState.style.display = "none";
+    if (emptyHistoryState) emptyHistoryState.style.display = "none";
     historyCardsContainer.innerHTML = "";
 
     state.history.forEach((item, index) => {
@@ -997,22 +1025,23 @@ Setelah kuota terpenuhi atau waktu habis, harga akan otomatis kembali ke tarif n
       historyCardsContainer.appendChild(card);
     });
 
-    // History event listeners
-    historyCardsContainer.querySelectorAll(".btn-load").forEach(btn => {
+    historyCardsContainer.querySelectorAll(".btn-load").forEach((btn) => {
       btn.addEventListener("click", () => {
         const idx = parseInt(btn.dataset.index);
         const item = state.history[idx];
         if (item) {
           state.currentOutput = item;
           renderOutput(item);
-          outputSection.style.display = "block";
-          outputSection.scrollIntoView({ behavior: "smooth" });
-          showToast("Draft berhasil dimuat ke editor!");
+          if (outputSection) {
+            outputSection.style.display = "block";
+            outputSection.scrollIntoView({ behavior: "smooth" });
+          }
+          showToast("Draft dimuat ke editor!");
         }
       });
     });
 
-    historyCardsContainer.querySelectorAll(".btn-copy-h").forEach(btn => {
+    historyCardsContainer.querySelectorAll(".btn-copy-h").forEach((btn) => {
       btn.addEventListener("click", () => {
         const idx = parseInt(btn.dataset.index);
         const item = state.history[idx];
@@ -1024,7 +1053,7 @@ Setelah kuota terpenuhi atau waktu habis, harga akan otomatis kembali ke tarif n
       });
     });
 
-    historyCardsContainer.querySelectorAll(".btn-del").forEach(btn => {
+    historyCardsContainer.querySelectorAll(".btn-del").forEach((btn) => {
       btn.addEventListener("click", () => {
         const idx = parseInt(btn.dataset.index);
         state.history.splice(idx, 1);
@@ -1035,43 +1064,46 @@ Setelah kuota terpenuhi atau waktu habis, harga akan otomatis kembali ke tarif n
     });
   }
 
-  // Export All History to Markdown file
-  btnExportAll.addEventListener("click", () => {
-    if (state.history.length === 0) {
-      showToast("Belum ada draft tersimpan untuk diekspor!");
-      return;
-    }
+  // Export All History to Markdown
+  if (btnExportAll) {
+    btnExportAll.addEventListener("click", () => {
+      if (state.history.length === 0) {
+        showToast("Belum ada draft tersimpan untuk diekspor!");
+        return;
+      }
 
-    let mdContent = `# Koleksi Draft Caption Maker AI\nTanggal Ekspor: ${new Date().toLocaleDateString()}\nTotal Draft: ${state.history.length}\n\n---\n\n`;
+      let mdContent = `# Koleksi Draft Caption Maker AI\nTanggal: ${new Date().toLocaleDateString()}\nTotal: ${state.history.length}\n\n---\n\n`;
+      state.history.forEach((draft, i) => {
+        mdContent += `## Draft #${i + 1} - [${draft.personaName || draft.persona}] (${draft.timestamp || ""})\n`;
+        mdContent += `Framework: ${draft.framework}\n\n${draft.rawMarkdown}\n\n---\n\n`;
+      });
 
-    state.history.forEach((draft, i) => {
-      mdContent += `## Draft #${i + 1} - [${draft.personaName || draft.persona}] (${draft.timestamp || ""})\n`;
-      mdContent += `Framework: ${draft.framework}\n\n`;
-      mdContent += `${draft.rawMarkdown}\n\n---\n\n`;
+      const blob = new Blob([mdContent], { type: "text/markdown;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `caption_drafts_${new Date().toISOString().slice(0, 10)}.md`;
+      link.click();
+      URL.revokeObjectURL(url);
+      showToast("Seluruh riwayat berhasil diunduh dalam file Markdown!");
     });
+  }
 
-    const blob = new Blob([mdContent], { type: "text/markdown;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `caption_drafts_${new Date().toISOString().slice(0, 10)}.md`;
-    link.click();
-    URL.revokeObjectURL(url);
-    showToast("Seluruh riwayat berhasil diunduh dalam file Markdown!");
-  });
-
-  btnClearHistory.addEventListener("click", () => {
-    if (state.history.length === 0) return;
-    if (confirm("Apakah Anda yakin ingin menghapus seluruh riwayat draft?")) {
-      state.history = [];
-      localStorage.removeItem("cm_history_drafts");
-      updateHistoryUI();
-      showToast("Seluruh riwayat draft berhasil dibersihkan.");
-    }
-  });
+  if (btnClearHistory) {
+    btnClearHistory.addEventListener("click", () => {
+      if (state.history.length === 0) return;
+      if (confirm("Apakah Anda yakin ingin menghapus seluruh riwayat draft?")) {
+        state.history = [];
+        localStorage.removeItem("cm_history_drafts");
+        updateHistoryUI();
+        showToast("Seluruh riwayat draft dibersihkan.");
+      }
+    });
+  }
 
   // Toast Function
   function showToast(msg) {
+    if (!higToast) return;
     higToast.textContent = msg;
     higToast.classList.add("show");
     setTimeout(() => {
@@ -1079,5 +1111,12 @@ Setelah kuota terpenuhi atau waktu habis, harga akan otomatis kembali ke tarif n
     }, 2800);
   }
 
-  console.log("Caption Maker Pro v2.5 loaded with Apple HIG, Gemini AI API support & History Manager.");
-});
+  console.log("Caption Maker AI Studio fully initialized with active event listeners & file upload support!");
+}
+
+// Ensure execution whether DOM is already loaded or still loading
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initializeCaptionMaker);
+} else {
+  initializeCaptionMaker();
+}
