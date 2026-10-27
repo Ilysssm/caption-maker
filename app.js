@@ -66,7 +66,7 @@ function initApp() {
   // --------------------------------------------------------------------------
   const state = {
     activeView: "studio",
-    activeAiProvider: localStorage.getItem("active_ai_provider") || "gemini",
+    activeAiProvider: localStorage.getItem("active_ai_provider") || "groq",
     geminiApiKey: localStorage.getItem("gemini_api_key") || defaultKeys.gemini,
     groqApiKey: localStorage.getItem("groq_api_key") || defaultKeys.groq,
     deepseekApiKey: localStorage.getItem("deepseek_api_key") || defaultKeys.deepseek,
@@ -342,12 +342,12 @@ function initApp() {
   // --------------------------------------------------------------------------
   function syncEngineStatusBadge() {
     const providerNames = {
-      gemini: "Gemini 3.8 Flash",
       groq: "Groq Llama 3.3",
-      deepseek: "DeepSeek Chat"
+      deepseek: "DeepSeek Chat",
+      gemini: "Gemini 3.8 Flash"
     };
-    const activeProvider = state.activeAiProvider || "gemini";
-    const activeName = providerNames[activeProvider] || "Multi-AI Engine";
+    const activeProvider = state.activeAiProvider || "groq";
+    const activeName = providerNames[activeProvider] || "Groq Llama 3.3";
 
     let activeKey = "";
     if (activeProvider === "gemini") activeKey = state.geminiApiKey;
@@ -987,13 +987,13 @@ function initApp() {
   }
 
   async function executeWithAutoFallback(promptText, attachedFile, onProgress) {
-    const primary = state.activeAiProvider || "gemini";
-    const allProviders = ["gemini", "groq", "deepseek"];
+    const primary = state.activeAiProvider || "groq";
+    const allProviders = ["groq", "deepseek", "gemini"];
     const chain = [primary, ...allProviders.filter(p => p !== primary)];
     const providerNames = {
-      gemini: "Google Gemini 3.8 Flash",
       groq: "Groq Llama 3.3",
-      deepseek: "DeepSeek Chat"
+      deepseek: "DeepSeek Chat",
+      gemini: "Google Gemini 3.8 Flash"
     };
 
     let lastError = null;
@@ -1789,7 +1789,7 @@ Berikan pemetaan analisis tren dalam format tag yang presisi:
   updateDraftsBadge();
   renderDraftsHistory();
 
-  console.log(`Caption Maker AI Studio ready with ${getGeminiModel()}.`);
+  console.log("Caption Maker AI Studio ready with Groq Llama 3.3 as Primary AI & Multi-AI Auto-Fallback.");
 }
 
 // Safety DOM Listener

@@ -159,10 +159,10 @@
             <span id="textSeoSync">Social SEO & Intent: Aktif [AUTO]</span>
           </button>
 
-          <!-- Gemini Engine Status Badge -->
+          <!-- Multi-AI Engine Status Badge (Groq Cloud Primary) -->
           <div class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 text-[11px] font-medium text-emerald-800 dark:text-emerald-300 shadow-sm cursor-pointer" id="badgeEngineStatus" title="Klik untuk Pengaturan API Key">
             <span class="w-2 h-2 rounded-full bg-appleGreen animate-pulse" id="dotEngineStatus"></span>
-            <span id="textEngineStatus">AI: Gemini 3.8 Flash Aktif</span>
+            <span id="textEngineStatus">AI: Groq Llama 3.3 Aktif</span>
           </div>
 
           <!-- Night / Light Mode Toggle Button -->
@@ -212,7 +212,7 @@
         <div class="text-center max-w-3xl mx-auto space-y-3">
           <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/80 dark:bg-[#1a1a20]/80 border border-black/[0.08] dark:border-white/[0.1] text-xs font-medium text-neutral-600 dark:text-neutral-300 shadow-sm backdrop-blur-md">
             <span class="w-2 h-2 rounded-full bg-appleGreen animate-pulse"></span>
-            <span>Gemini 3.8 Flash & Strategic Copywriting Studio</span>
+            <span>Groq Llama 3.3 & Strategic Copywriting Studio</span>
           </div>
           <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[#111] dark:text-white">
             Creative Copywriting & Content Architecture.
@@ -881,13 +881,13 @@
               Pilih Penyedia AI Utama:
             </label>
             <div class="grid grid-cols-3 gap-2" id="groupProviderSelector">
-              <button type="button" class="provider-radio-btn active p-2.5 rounded-xl border border-appleBlue bg-sky-50/80 dark:bg-sky-950/40 text-left transition-all" data-provider="gemini" id="btnProviderGemini">
+              <button type="button" class="provider-radio-btn active p-2.5 rounded-xl border border-appleBlue bg-sky-50/80 dark:bg-sky-950/40 text-left transition-all" data-provider="groq" id="btnProviderGroq">
+                <span class="block text-xs font-bold text-[#111] dark:text-white">Groq Cloud (Utama)</span>
+                <span class="block text-[10px] text-amber-500 font-medium">Llama 3.3 (Fast)</span>
+              </button>
+              <button type="button" class="provider-radio-btn p-2.5 rounded-xl border border-black/[0.1] dark:border-white/[0.1] bg-white dark:bg-[#141418] text-left transition-all hover:border-black/[0.2]" data-provider="gemini" id="btnProviderGemini">
                 <span class="block text-xs font-bold text-[#111] dark:text-white">Google Gemini</span>
                 <span class="block text-[10px] text-appleBlue font-medium">gemini-3.8-flash</span>
-              </button>
-              <button type="button" class="provider-radio-btn p-2.5 rounded-xl border border-black/[0.1] dark:border-white/[0.1] bg-white dark:bg-[#141418] text-left transition-all hover:border-black/[0.2]" data-provider="groq" id="btnProviderGroq">
-                <span class="block text-xs font-bold text-[#111] dark:text-white">Groq Cloud</span>
-                <span class="block text-[10px] text-amber-500 font-medium">Llama 3.3 (Fast)</span>
               </button>
               <button type="button" class="provider-radio-btn p-2.5 rounded-xl border border-black/[0.1] dark:border-white/[0.1] bg-white dark:bg-[#141418] text-left transition-all hover:border-black/[0.2]" data-provider="deepseek" id="btnProviderDeepseek">
                 <span class="block text-xs font-bold text-[#111] dark:text-white">DeepSeek</span>
@@ -905,31 +905,31 @@
               </button>
             </div>
 
-            <!-- Gemini Key Input -->
+            <!-- Groq Key Input (Primary) -->
             <div class="space-y-1">
               <div class="flex items-center justify-between text-[11px]">
-                <span class="font-semibold text-neutral-600 dark:text-neutral-400">Google Gemini API Key:</span>
+                <span class="font-semibold text-neutral-600 dark:text-neutral-400">Groq API Key (Llama 3.3 - Mesin Utama):</span>
                 <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">Prioritas 1</span>
-              </div>
-              <input type="text" id="inputSettingGeminiKey" placeholder="Kunci Gemini AI..." class="w-full p-2.5 rounded-xl border border-black/[0.12] dark:border-white/[0.12] bg-white dark:bg-[#121216] text-xs font-mono text-[#111] dark:text-white outline-none focus:border-appleBlue">
-            </div>
-
-            <!-- Groq Key Input -->
-            <div class="space-y-1">
-              <div class="flex items-center justify-between text-[11px]">
-                <span class="font-semibold text-neutral-600 dark:text-neutral-400">Groq API Key (Fallback Llama 3.3):</span>
-                <span class="text-[10px] text-amber-600 dark:text-amber-400 font-medium">Cadangan 1</span>
               </div>
               <input type="text" id="inputSettingGroqKey" placeholder="gsk_..." class="w-full p-2.5 rounded-xl border border-black/[0.12] dark:border-white/[0.12] bg-white dark:bg-[#121216] text-xs font-mono text-[#111] dark:text-white outline-none focus:border-appleBlue">
             </div>
 
-            <!-- DeepSeek Key Input -->
+            <!-- DeepSeek Key Input (Fallback 1) -->
             <div class="space-y-1">
               <div class="flex items-center justify-between text-[11px]">
-                <span class="font-semibold text-neutral-600 dark:text-neutral-400">DeepSeek API Key (Fallback Chat):</span>
-                <span class="text-[10px] text-purple-600 dark:text-purple-400 font-medium">Cadangan 2</span>
+                <span class="font-semibold text-neutral-600 dark:text-neutral-400">DeepSeek API Key (deepseek-chat):</span>
+                <span class="text-[10px] text-purple-600 dark:text-purple-400 font-medium">Cadangan 1</span>
               </div>
               <input type="text" id="inputSettingDeepSeekKey" placeholder="sk-..." class="w-full p-2.5 rounded-xl border border-black/[0.12] dark:border-white/[0.12] bg-white dark:bg-[#121216] text-xs font-mono text-[#111] dark:text-white outline-none focus:border-appleBlue">
+            </div>
+
+            <!-- Gemini Key Input (Fallback 2) -->
+            <div class="space-y-1">
+              <div class="flex items-center justify-between text-[11px]">
+                <span class="font-semibold text-neutral-600 dark:text-neutral-400">Google Gemini API Key (gemini-3.8-flash):</span>
+                <span class="text-[10px] text-sky-600 dark:text-sky-400 font-medium">Cadangan 2</span>
+              </div>
+              <input type="text" id="inputSettingGeminiKey" placeholder="Kunci Gemini AI..." class="w-full p-2.5 rounded-xl border border-black/[0.12] dark:border-white/[0.12] bg-white dark:bg-[#121216] text-xs font-mono text-[#111] dark:text-white outline-none focus:border-appleBlue">
             </div>
 
             <div class="flex items-center justify-between pt-1">
