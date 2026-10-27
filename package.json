@@ -1,0 +1,22 @@
+{
+  "name": "caption-maker-ai",
+  "version": "2.0.0",
+  "description": "High-converting social media caption generator styled with Apple HIG and captions.ai aesthetics",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "caption-maker",
+    "apple-hig",
+    "social-media",
+    "copywriting",
+    "captions-ai",
+    "aida",
+    "pas",
+    "gemini-ai"
+  ],
+  "author": "Antigravity Expert Digital Marketer",
+  "license": "MIT"
+}

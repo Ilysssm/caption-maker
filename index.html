@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Caption Maker AI — Apple HIG Social Copywriting & Analytics Studio</title>
+  
+  <!-- SEO & Open Graph Meta Tags -->
+  <meta name="description" content="AI social media copywriting studio with Apple Human Interface Guidelines and captions.ai aesthetics. Generates high-converting Hook, Body, CTA, and Hashtags.">
+  <meta property="og:title" content="Caption Maker AI — High-Converting Social Media Copywriting">
+  <meta property="og:description" content="AI that writes like a high-converting strategist would. Built with Apple HIG standards.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="icon.svg">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- PWA & Apple Web App Meta -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <meta name="theme-color" content="#fbfbfd">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Caption Maker">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Ambient Atmospheric Mesh Glow (Captions.ai style) -->
+  <div class="ambient-glow glow-peach"></div>
+  <div class="ambient-glow glow-blue"></div>
+
+  <!-- Apple HIG Navigation Bar -->
+  <header class="apple-header">
+    <div class="nav-container">
+      <div class="brand" id="brandLogo">
+        <div class="brand-logo">
+          <span class="bar bar-1"></span>
+          <span class="bar bar-2"></span>
+          <span class="bar bar-3"></span>
+        </div>
+        <span class="brand-name">captions<span class="brand-ai">.ai</span></span>
+      </div>
+
+      <nav class="nav-links">
+        <a href="#studio" class="nav-link active">Studio</a>
+        <a href="#history" class="nav-link" id="navHistoryBtn">
+          Riwayat Draft <span class="badge-count" id="historyCountBadge">0</span>
+        </a>
+        <a href="#analytics" class="nav-link" id="navAnalyticsBtn">Analytics Hub</a>
+      </nav>
+
+      <div class="nav-actions">
+        <!-- Settings button (AI Key & Options) -->
+        <button class="pill-btn nav-btn" id="btnOpenSettings" title="Pengaturan AI Engine & API Key">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span id="activeEngineLabel">AI Engine</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Hero Area -->
+  <main class="main-content" id="studio">
+    <section class="hero-section">
+      <div class="hero-badge-pill">
+        <span class="dot-live"></span>
+        <span>Google Analytics 4 & Search Intent Integrated</span>
+      </div>
+
+      <h1 class="hero-title">AI that writes like a high-converting strategist would.</h1>
+      <p class="hero-subtitle">Hasilkan caption media sosial dengan standar Apple HIG: Hook penghenti scroll, Body bernapas, CTA tajam, dan kurasi Hashtags berbasis data analitik.</p>
+      
+      <!-- Persona & Tone Pill Selector (Captions.ai Dropdown style) -->
+      <div class="selector-pills-row">
+        <!-- Persona Dropdown -->
+        <div class="hig-pill-select-wrapper">
+          <label class="hig-label">Tone & Persona</label>
+          <div class="hig-pill-dropdown" id="personaDropdownTrigger">
+            <span class="pill-icon" id="currentPersonaIcon">💼</span>
+            <span class="pill-text" id="currentPersonaText">Kasual / Bisnis</span>
+            <svg class="pill-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+          <!-- Dropdown Options -->
+          <div class="hig-dropdown-menu" id="personaMenu">
+            <div class="dropdown-item active" data-persona="kasual_bisnis" data-icon="💼" data-name="Kasual / Bisnis">
+              <span class="item-icon">💼</span>
+              <div class="item-text">
+                <strong>Kasual / Bisnis</strong>
+                <small>Hangat, profesional, persuasif & mudah dipahami</small>
+              </div>
+            </div>
+            <div class="dropdown-item" data-persona="psikolog" data-icon="🌿" data-name="Psikolog / Ruang Kalem">
+              <span class="item-icon">🌿</span>
+              <div class="item-text">
+                <strong>Psikolog / Ruang Kalem</strong>
+                <small>Empatis, menenangkan, mindful & tanpa penghakiman</small>
+              </div>
+            </div>
+            <div class="dropdown-item" data-persona="profesional" data-icon="👔" data-name="Profesional Korporat">
+              <span class="item-icon">👔</span>
+              <div class="item-text">
+                <strong>Profesional Korporat</strong>
+                <small>Kredibel, data-driven, tajam & berwibawa</small>
+              </div>
+            </div>
+            <div class="dropdown-item" data-persona="kreatif_genz" data-icon="⚡" data-name="Kreatif / Gen-Z">
+              <span class="item-icon">⚡</span>
+              <div class="item-text">
+                <strong>Kreatif & Viral</strong>
+                <small>Relatable, cepat, punchy & relevan dengan tren</small>
+              </div>
+            </div>
+            <div class="dropdown-item" data-persona="edukator" data-icon="🎓" data-name="Edukator & Mentor">
+              <span class="item-icon">🎓</span>
+              <div class="item-text">
+                <strong>Edukator & Mentor</strong>
+                <small>Struktur step-by-step, actionable & mudah dipraktikkan</small>
+              </div>
+            </div>
+            <div class="dropdown-item" data-persona="hard_sale" data-icon="🛒" data-name="Direct Promo & Launch">
+              <span class="item-icon">🛒</span>
+              <div class="item-text">
+                <strong>Direct Promo & Launch</strong>
+                <small>Tinggi urgensi, penawaran menarik & dorongan closing cepat</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Copywriting Framework Dropdown -->
+        <div class="hig-pill-select-wrapper">
+          <label class="hig-label">Copywriting Framework</label>
+          <div class="hig-pill-dropdown" id="frameworkDropdownTrigger">
+            <span class="pill-icon">📐</span>
+            <span class="pill-text" id="currentFrameworkText">Formula: AIDA</span>
+            <svg class="pill-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+          <div class="hig-dropdown-menu" id="frameworkMenu">
+            <div class="dropdown-item active" data-framework="AIDA" data-name="Formula: AIDA">
+              <div class="item-text">
+                <strong>AIDA</strong>
+                <small>Attention → Interest → Desire → Action</small>
+              </div>
+            </div>
+            <div class="dropdown-item" data-framework="PAS" data-name="Formula: PAS">
+              <div class="item-text">
+                <strong>PAS</strong>
+                <small>Problem → Agitate → Solution</small>
+              </div>
+            </div>
+            <div class="dropdown-item" data-framework="BAB" data-name="Formula: BAB">
+              <div class="item-text">
+                <strong>BAB</strong>
+                <small>Before → After → Bridge</small>
+              </div>
+            </div>
+            <div class="dropdown-item" data-framework="FAB" data-name="Formula: FAB">
+              <div class="item-text">
+                <strong>FAB</strong>
+                <small>Features → Advantages → Benefits</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Target Platform Selector -->
+        <div class="hig-pill-select-wrapper">
+          <label class="hig-label">Target Platform</label>
+          <div class="hig-pill-dropdown" id="platformDropdownTrigger">
+            <span class="pill-icon" id="targetPlatformIcon">📸</span>
+            <span class="pill-text" id="targetPlatformText">Instagram (Reels/Feed)</span>
+            <svg class="pill-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+          <div class="hig-dropdown-menu" id="platformMenu">
+            <div class="dropdown-item active" data-platform="instagram" data-icon="📸" data-name="Instagram (Reels/Feed)">
+              <span class="item-icon">📸</span>
+              <div class="item-text">
+                <strong>Instagram</strong>
+                <small>Maks 2.200 karakter • Hook 125 karakter sebelum '...more'</small>
+              </div>
+            </div>
+            <div class="dropdown-item" data-platform="tiktok" data-icon="🎵" data-name="TikTok Video">
+              <span class="item-icon">🎵</span>
+              <div class="item-text">
+                <strong>TikTok</strong>
+                <small>Ringkas, cepat dibaca, search-optimized caption</small>
+              </div>
+            </div>
+            <div class="dropdown-item" data-platform="linkedin" data-icon="💼" data-name="LinkedIn Post">
+              <span class="item-icon">💼</span>
+              <div class="item-text">
+                <strong>LinkedIn</strong>
+                <small>Maks 3.000 karakter • Pendekatan B2B & thought leadership</small>
+              </div>
+            </div>
+            <div class="dropdown-item" data-platform="twitter" data-icon="🐦" data-name="X / Twitter Thread">
+              <span class="item-icon">🐦</span>
+              <div class="item-text">
+                <strong>X / Twitter</strong>
+                <small>Maks 280 karakter • Punchy, padat, dan to-the-point</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Google Analytics & Web Search Reference Toggle -->
+        <div class="analytics-live-chip" id="analyticsToggle" title="Otomatis mengakses referensi tren Google & Analytics">
+          <div class="analytics-pulse"></div>
+          <span class="analytics-label">Google Analytics & Search Index: <strong>Aktif</strong></span>
+          <span class="chip-badge">Auto</span>
+        </div>
+      </div>
+
+      <!-- Granular Tone Sliders (HIG Segmented Controls) -->
+      <div class="tone-sliders-panel">
+        <div class="slider-control-group">
+          <div class="slider-header">
+            <span>Tingkat Kehangatan Emosional (Warmth)</span>
+            <span class="slider-val-badge" id="warmthValueLabel">Hangat & Empatis</span>
+          </div>
+          <input type="range" min="1" max="5" value="4" class="hig-range-slider" id="sliderWarmth">
+          <div class="slider-labels">
+            <span>Formal / Dingin</span>
+            <span>Netral</span>
+            <span>Sangat Hangat & Intim</span>
+          </div>
+        </div>
+
+        <div class="slider-control-group">
+          <div class="slider-header">
+            <span>Tingkat Urgensi CTA (Call To Action)</span>
+            <span class="slider-val-badge" id="urgencyValueLabel">Moderat (Persuasif)</span>
+          </div>
+          <input type="range" min="1" max="5" value="3" class="hig-range-slider" id="sliderUrgency">
+          <div class="slider-labels">
+            <span>Santai / Edukatif</span>
+            <span>Persuasif</span>
+            <span>Tinggi (FOMO / Penawaran Terbatas)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Interaction Card (Captions.ai Dashed Dropzone Style) -->
+      <div class="card-container">
+        <div class="captions-card">
+          <!-- Dashed Input Area -->
+          <div class="dropzone-area" id="dropzoneBox">
+            <div class="dropzone-center-elements" id="dropzoneElements">
+              <div class="floating-mockup-cards">
+                <div class="mockup-card left-card">
+                  <div class="mockup-shimmer"></div>
+                  <span class="mock-tag">HOOK</span>
+                </div>
+                <div class="mockup-card center-card">
+                  <div class="mockup-plus">+</div>
+                </div>
+                <div class="mockup-card right-card">
+                  <div class="mockup-shimmer"></div>
+                  <span class="mock-tag">CTA</span>
+                </div>
+              </div>
+              <p class="dropzone-instructions">Ketik bahan mentah / ide konten atau paste deskripsi produk</p>
+              <span class="dropzone-sub">AI akan menyusun Hook, Body, CTA & Hashtag bervalidasi data analitik</span>
+            </div>
+
+            <textarea 
+              id="rawInput" 
+              class="hig-textarea" 
+              placeholder="Tuliskan bahan mentah di sini... Contoh: 'Fitur baru captions.ai yang bisa cut video otomatis, hapus filler words (um, ah), bikin eye contact ke kamera, dan subtitle estetik untuk reels bisnis digital.'"
+              rows="4"
+            ></textarea>
+
+            <!-- Character and Word Counter -->
+            <div class="input-meta-bar">
+              <span class="counter-text" id="inputCharCount">0 karakter • 0 kata</span>
+              <button class="clear-input-btn" id="btnClearInput" title="Bersihkan input">Hapus teks</button>
+            </div>
+
+            <!-- Preset Quick Prompts -->
+            <div class="quick-chips">
+              <span class="chip-label">Quick Ideas:</span>
+              <button class="quick-chip" data-text="Aplikasi AI video editor otomatis untuk konten edukasi dan promosi bisnis digital (cut video instan, hapus filler words, pasang dynamic subtitles)">🎬 AI Video Editor</button>
+              <button class="quick-chip" data-text="Tips mengatasi rasa lelah mental, overthinking sebelum tidur di malam hari, dan belajar melepaskan ekspektasi yang menekan diri sendiri">🌿 Overthinking & Healing</button>
+              <button class="quick-chip" data-text="Strategi melipatgandakan omset toko online dengan email marketing automation dan analitik konversi GA4">📈 Skalasi Omset Bisnis</button>
+              <button class="quick-chip" data-text="Promo flash sale 24 jam diskon 50% untuk kursus copywriting dan content creation masterclass">⚡ Flash Sale Promo</button>
+            </div>
+          </div>
+
+          <!-- Bottom Card Controls Toolbar -->
+          <div class="card-footer-toolbar">
+            <div class="toolbar-left">
+              <button class="icon-btn" id="btnAttach" title="Lampirkan referensi gambar/video">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+              </button>
+
+              <div class="preset-pill">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <span>Prism Strategy Pro</span>
+              </div>
+
+              <!-- Search references badge -->
+              <div class="ref-badge" id="refBadge">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <span id="refBadgeText">Google Trends & GA4 Synced</span>
+              </div>
+            </div>
+
+            <div class="toolbar-right">
+              <button class="create-btn" id="btnGenerate">
+                <span id="btnGenerateText">Generate Caption</span>
+                <svg class="btn-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Search & Analytics References Panel -->
+      <section class="analytics-drawer-card" id="analytics">
+        <div class="drawer-header">
+          <div class="drawer-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <span>Live Data Reference Hub: Google Analytics & Search Engine Index</span>
+          </div>
+          <span class="refresh-indicator">● Data Terverifikasi Real-Time</span>
+        </div>
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <span class="metric-label">3-Second Hook Retention Benchmark</span>
+            <span class="metric-value" id="statHookRetention">34.8%</span>
+            <span class="metric-desc">Target thumb-stopping rate video vertikal (kategori Top 10%)</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Silent Viewers Caption Imperative</span>
+            <span class="metric-value">85.4%</span>
+            <span class="metric-desc">Pengguna menonton tanpa audio; hook visual teks menentukan drop-off</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Readability & Cognitive Ease</span>
+            <span class="metric-value">Grade 7-8</span>
+            <span class="metric-desc">Standar HIG: Jelas, padat, minim friksi kognitif pembaca</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Estimated Conversion Rate (CTR)</span>
+            <span class="metric-value" id="statConversionRate">4.2%</span>
+            <span class="metric-desc">Proyeksi rasio klik CTA berdasarkan struktur copywriting aktif</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Output Section: Strict Markdown & Visual HIG Preview -->
+      <section class="output-section" id="outputSection" style="display: none;">
+        <div class="output-card-wrapper">
+          <div class="output-card-header">
+            <div class="tabs-hig">
+              <button class="hig-tab active" data-tab="formatted">Structured HIG View</button>
+              <button class="hig-tab" data-tab="platform">Social Simulator</button>
+              <button class="hig-tab" data-tab="raw">Strict Markdown</button>
+            </div>
+
+            <div class="output-actions">
+              <button class="action-pill-btn" id="btnSaveDraft" title="Simpan draft ini ke riwayat">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+                <span>Simpan Draft</span>
+              </button>
+              <button class="copy-pill-btn" id="btnCopyMarkdown">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                <span id="copyBtnLabel">Salin Markdown</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Tab 1: Formatted HIG Blocks -->
+          <div class="tab-pane active" id="paneFormatted">
+            <div class="structured-block hook-block">
+              <div class="block-badge hook-badge">
+                <span class="badge-tag">[HOOK]</span>
+                <span class="badge-sub">Baris Pertama • Penghenti Scroll • 3 Detik Awal</span>
+                <button class="mini-copy-btn" data-target="hook" title="Salin Hook saja">Salin</button>
+              </div>
+              <div class="block-content hook-content" id="hookTextDisplay"></div>
+              <div class="block-insight" id="hookCharInsight">
+                <span id="hookCharCount">0 karakter</span> — <span id="hookFoldStatus">Aman sebelum lipatan '...more'</span>
+              </div>
+            </div>
+
+            <div class="structured-block body-block">
+              <div class="block-badge body-badge">
+                <span class="badge-tag">[BODY]</span>
+                <span class="badge-sub" id="bodyFrameworkDisplay">Framework AIDA • Spasi Bersih & Bernapas</span>
+                <button class="mini-copy-btn" data-target="body" title="Salin Body saja">Salin</button>
+              </div>
+              <div class="block-content body-content" id="bodyTextDisplay"></div>
+            </div>
+
+            <div class="structured-block cta-block">
+              <div class="block-badge cta-badge">
+                <span class="badge-tag">[CTA]</span>
+                <span class="badge-sub">Ajakan Bertindak Tertarget & Relevan</span>
+                <button class="mini-copy-btn" data-target="cta" title="Salin CTA saja">Salin</button>
+              </div>
+              <div class="block-content cta-content" id="ctaTextDisplay"></div>
+            </div>
+
+            <div class="structured-block hashtags-block">
+              <div class="block-badge hashtags-badge">
+                <span class="badge-tag">[HASHTAGS]</span>
+                <span class="badge-sub">Kombinasi Niche + Trending + Core Keywords</span>
+                <button class="mini-copy-btn" data-target="hashtags" title="Salin Hashtags saja">Salin</button>
+              </div>
+              <div class="block-content hashtags-content" id="hashtagsTextDisplay"></div>
+            </div>
+          </div>
+
+          <!-- Tab 2: Social Platform Simulator -->
+          <div class="tab-pane" id="panePlatform">
+            <div class="platform-simulator-container">
+              <div class="platform-switcher">
+                <button class="platform-btn active" data-platform="instagram">Instagram</button>
+                <button class="platform-btn" data-platform="tiktok">TikTok</button>
+                <button class="platform-btn" data-platform="linkedin">LinkedIn</button>
+                <button class="platform-btn" data-platform="twitter">X / Twitter</button>
+              </div>
+
+              <!-- Interactive Device Frame -->
+              <div class="mock-device-preview" id="mockDeviceFrame">
+                <div class="device-header">
+                  <div class="mock-avatar" id="mockAvatarIcon">CM</div>
+                  <div class="mock-user-meta">
+                    <strong id="mockUserName">brand_official</strong>
+                    <small id="mockPlatformSub">Instagram Feed • Sponsored</small>
+                  </div>
+                </div>
+                <div class="device-caption-body" id="platformSimBody"></div>
+                <div class="device-footer-actions" id="deviceFooterActions">
+                  <div class="action-icons">
+                    <span>❤️ 1,248</span>
+                    <span>💬 184</span>
+                    <span>↗️ 340</span>
+                  </div>
+                  <span class="post-time">2 hours ago</span>
+                </div>
+              </div>
+
+              <!-- Character constraint meter -->
+              <div class="platform-limit-meter">
+                <div class="meter-info">
+                  <span id="meterPlatformName">Instagram Limit:</span>
+                  <span id="meterNumbers">0 / 2200 karakter</span>
+                </div>
+                <div class="meter-track">
+                  <div class="meter-bar" id="meterProgressBar" style="width: 15%;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 3: Strict Markdown Raw Code View -->
+          <div class="tab-pane" id="paneRaw">
+            <div class="markdown-preview-box">
+              <pre><code id="rawMarkdownDisplay"></code></pre>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- History & Saved Drafts Section -->
+      <section class="history-section" id="history">
+        <div class="history-header">
+          <div>
+            <h3 class="gallery-title">Riwayat & Koleksi Draft Caption</h3>
+            <p class="history-desc">Semua caption yang pernah Anda buat tersimpan otomatis di memori lokal Mac Anda.</p>
+          </div>
+          <div class="history-actions">
+            <button class="pill-btn-sm" id="btnExportAll">Ekspor Semua (.md)</button>
+            <button class="pill-btn-sm btn-danger" id="btnClearHistory">Hapus Riwayat</button>
+          </div>
+        </div>
+
+        <div class="history-cards-container" id="historyCardsContainer">
+          <div class="empty-history-state" id="emptyHistoryState">
+            <p>Belum ada draft tersimpan. Generate caption pertama Anda di atas!</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Persona Presets Gallery -->
+      <section class="gallery-section">
+        <h3 class="gallery-title">Persona Presets & Benchmark Konversi</h3>
+        <div class="gallery-cards-grid">
+          <div class="gallery-card" data-preset="kasual_bisnis">
+            <div class="gallery-card-preview bg-soft-orange">
+              <span class="gallery-badge">Kasual / Bisnis</span>
+              <h4>AIDA for Digital Products</h4>
+            </div>
+            <div class="gallery-card-info">
+              <span>Avg. Engagement: <strong>+34%</strong></span>
+              <p>Membahas problem bisnis dengan bahasa santai tapi menghasilkan direct booking.</p>
+            </div>
+          </div>
+
+          <div class="gallery-card" data-preset="psikolog">
+            <div class="gallery-card-preview bg-soft-sage">
+              <span class="gallery-badge">Ruang Kalem</span>
+              <h4>Mindful Empathy Copy</h4>
+            </div>
+            <div class="gallery-card-info">
+              <span>Save & Share Rate: <strong>+48%</strong></span>
+              <p>Menghadirkan rasa divalidasi, tenang, dan ruang aman tanpa hard-selling.</p>
+            </div>
+          </div>
+
+          <div class="gallery-card" data-preset="profesional">
+            <div class="gallery-card-preview bg-soft-blue">
+              <span class="gallery-badge">Profesional</span>
+              <h4>Data-Driven Authority</h4>
+            </div>
+            <div class="gallery-card-info">
+              <span>B2B Inbound Inquiries: <strong>+29%</strong></span>
+              <p>Mengedepankan metrik, ROI, dan efisiensi untuk eksekutif & founder.</p>
+            </div>
+          </div>
+
+          <div class="gallery-card" data-preset="kreatif_genz">
+            <div class="gallery-card-preview bg-soft-purple">
+              <span class="gallery-badge">Kreatif / Viral</span>
+              <h4>Punchy Hook & Trend</h4>
+            </div>
+            <div class="gallery-card-info">
+              <span>3s Scroll-Stop Rate: <strong>41.8%</strong></span>
+              <p>Meme logic, relatable pain points, dan bahasa gaul yang tetap etis.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <!-- Apple HIG Modal: AI Engine & API Configuration -->
+  <div class="hig-modal-backdrop" id="settingsModal">
+    <div class="hig-modal-window">
+      <div class="modal-header">
+        <div class="modal-title-row">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <h3>Pengaturan AI Engine & Integrasi API</h3>
+        </div>
+        <button class="modal-close-btn" id="btnCloseSettings">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="setting-item">
+          <label class="setting-label">Pilih Mode Pemrosesan AI</label>
+          <div class="segmented-control">
+            <button class="seg-btn active" data-mode="neural">Smart Neural Engine (Offline / Cepat)</button>
+            <button class="seg-btn" data-mode="gemini">Google Gemini AI (Cloud Live)</button>
+          </div>
+          <small class="setting-hint">Mode Smart Neural bekerja seketika tanpa kuota API. Mode Gemini Cloud memberikan variasi kosakata tak terbatas langsung dari model bahasa Google.</small>
+        </div>
+
+        <div class="setting-item" id="geminiKeyGroup" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label class="setting-label">Google Gemini API Key</label>
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" style="font-size: 11px; color: var(--accent-blue); text-decoration: none; font-weight: 600;">Dapatkan Key Gratis ↗</a>
+          </div>
+          <div class="input-with-action">
+            <input type="password" id="geminiApiKeyInput" class="hig-input" placeholder="Masukkan API Key (AIzaSy...)">
+            <button class="pill-btn-sm" id="btnToggleKeyVisibility">Lihat</button>
+            <button class="pill-btn-sm btn-primary" id="btnTestGeminiKey">Uji Koneksi</button>
+          </div>
+          <div id="geminiConnectionFeedback" style="font-size: 11.5px; margin-top: 4px; display: none;"></div>
+          <small class="setting-hint">Kunci Anda disimpan secara aman hanya di LocalStorage browser perangkat Anda sendiri dan tidak pernah dikirim ke server luar.</small>
+        </div>
+
+        <div class="setting-item">
+          <label class="setting-label">Google Analytics 4 & Search Trends API Connector</label>
+          <div class="toggle-row">
+            <span>Otomatis menyuntikkan data benchmark retensi 3 detik & rasio 85% silent viewers</span>
+            <input type="checkbox" id="checkGaAutoSync" checked class="hig-toggle">
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="pill-btn-sm" id="btnCancelSettings">Batal</button>
+        <button class="pill-btn-sm btn-primary" id="btnSaveSettings">Simpan Pengaturan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Apple HIG Minimalist Footer -->
+  <footer class="apple-footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <button class="privacy-btn">Privacy choices</button>
+        <span class="copyright">Designed strictly following Apple Human Interface Guidelines (HIG). Reference: captions.ai</span>
+      </div>
+      <div class="footer-right">
+        <span>GA4 Benchmarks & Neural Copywriting Engine Active</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Notification for Haptic Feedback -->
+  <div class="hig-toast" id="higToast">Tersalin ke clipboard dengan rapi!</div>
+
+  <script src="app.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch(err => console.log("SW reg failed", err));
+      });
+    }
+  </script>
+</body>
+</html>
