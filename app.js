@@ -1358,11 +1358,12 @@ function initApp() {
       }
     ];
 
-    // Coba model 70B terlebih dahulu, jika kuota TPM tercapai, alihkan ke model 8B Instant
-    const modelsToTry = [getGroqModel(), "llama-3.1-8b-instant"];
+    // Coba model 70B terlebih dahulu. Jika terkena limit TPM / antrean, alihkan ke model llama3-8b-8192 atau mixtral-8x7b-32768
+    const modelsToTry = [getGroqModel(), "llama3-8b-8192", "mixtral-8x7b-32768"];
     let lastGroqErr = null;
 
-    for (const model of modelsToTry) {
+    for (let i = 0; i < modelsToTry.length; i++) {
+      const model = modelsToTry[i];
       try {
         const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
           method: "POST",
@@ -1381,8 +1382,9 @@ function initApp() {
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}));
           const errMsg = errData.error?.message || `Groq API HTTP ${res.status}`;
-          if (model !== "llama-3.1-8b-instant" && (errMsg.includes("TPM") || errMsg.includes("rate_limit_exceeded") || errMsg.includes("429"))) {
-            console.warn(`[Groq] Model ${model} limit TPM, mencoba model cepat llama-3.1-8b-instant...`);
+          // Jika ada model alternatif dan error terkait rate limit TPM atau model availability, coba model berikutnya
+          if (i < modelsToTry.length - 1 && (errMsg.includes("TPM") || errMsg.includes("rate_limit") || errMsg.includes("429") || errMsg.includes("does not exist") || errMsg.includes("not found"))) {
+            console.warn(`[Groq] Model ${model} terkendala (${errMsg}), beralih otomatis ke model alternatif ${modelsToTry[i+1]}...`);
             continue;
           }
           throw new Error(errMsg);
@@ -1423,7 +1425,7 @@ function initApp() {
       max_tokens: 3500
     });
 
-    // 1. Coba fetch langsung
+    // 1. Coba fetch langsung ke DeepSeek API
     try {
       const res = await fetch("https://api.deepseek.com/chat/completions", {
         method: "POST",
@@ -1443,31 +1445,10 @@ function initApp() {
         throw new Error(errData.error?.message || `DeepSeek HTTP ${res.status}`);
       }
     } catch (directErr) {
-      console.warn("DeepSeek direct browser fetch blocked/failed, trying CORS proxy fallback...", directErr.message);
-
-      // 2. Fallback via CORS proxy jika diblokir kebijakan browser
-      try {
-        const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent("https://api.deepseek.com/chat/completions");
-        const proxyRes = await fetch(proxyUrl, {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${key}`,
-            "Content-Type": "application/json"
-          },
-          body: bodyPayload
-        });
-
-        if (proxyRes.ok) {
-          const proxyData = await proxyRes.json();
-          const proxyContent = proxyData.choices?.[0]?.message?.content;
-          if (proxyContent) return proxyContent;
-        } else {
-          const errData = await proxyRes.json().catch(() => ({}));
-          throw new Error(errData.error?.message || `DeepSeek Proxy HTTP ${proxyRes.status}`);
-        }
-      } catch (proxyErr) {
-        throw new Error(`DeepSeek terkendala (CORS Browser / API): ${proxyErr.message || directErr.message}`);
+      if (directErr.message.includes("Failed to fetch") || directErr.message.includes("CORS") || directErr.message.includes("NetworkError")) {
+        throw new Error("Server DeepSeek membatasi akses langsung dari browser (CORS). Disarankan menggunakan Groq Cloud yang mendukung browser secara resmi.");
       }
+      throw directErr;
     }
 
     throw new Error("Respon kosong diterima dari DeepSeek API.");
