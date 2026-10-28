@@ -74,6 +74,7 @@ function initApp() {
     isSeoSyncActive: localStorage.getItem("cm_seo_sync_active") !== "false",
     isAdminAuthenticated: localStorage.getItem("cm_admin_authenticated") === "true" || sessionStorage.getItem("cm_admin_authenticated") === "true",
     activeAnalyticsSubtab: "live-trends",
+    rateLimitTimerInterval: null,
 
     // Dual Modes: "strategic" (Mode A) vs "human" (Mode B)
     activeMode: "strategic",
@@ -173,6 +174,11 @@ function initApp() {
   const btnProviderGroq = document.getElementById("btnProviderGroq");
   const btnProviderDeepseek = document.getElementById("btnProviderDeepseek");
   const btnTestApiKey = document.getElementById("btnTestApiKey");
+  const btnTestAllProviders = document.getElementById("btnTestAllProviders");
+  const boxDiagnosticsResults = document.getElementById("boxDiagnosticsResults");
+  const diagResultGroq = document.getElementById("diagResultGroq");
+  const diagResultDeepSeek = document.getElementById("diagResultDeepSeek");
+  const diagResultGemini = document.getElementById("diagResultGemini");
   const textApiKeyFeedback = document.getElementById("textApiKeyFeedback");
   const inputSettingGaId = document.getElementById("inputSettingGaId");
 
@@ -209,6 +215,25 @@ function initApp() {
   const embedGoogleTrendsContainer = document.getElementById("embedGoogleTrendsContainer");
   const containerSearchSuggestions = document.getElementById("containerSearchSuggestions");
   const listSearchSuggestions = document.getElementById("listSearchSuggestions");
+
+  // Daily Quota & Live Countdown Elements
+  const badgeQuotaStatus = document.getElementById("badgeQuotaStatus");
+  const dotQuotaStatus = document.getElementById("dotQuotaStatus");
+  const textQuotaStatus = document.getElementById("textQuotaStatus");
+
+  const bannerStudioQuota = document.getElementById("bannerStudioQuota");
+  const titleStudioQuota = document.getElementById("titleStudioQuota");
+  const timerStudioCountdown = document.getElementById("timerStudioCountdown");
+  const descStudioQuota = document.getElementById("descStudioQuota");
+
+  const bannerTrendQuota = document.getElementById("bannerTrendQuota");
+  const titleTrendQuota = document.getElementById("titleTrendQuota");
+  const timerTrendCountdown = document.getElementById("timerTrendCountdown");
+  const descTrendQuota = document.getElementById("descTrendQuota");
+
+  const boxAdminCooldownControls = document.getElementById("boxAdminCooldownControls");
+  const textAdminCooldownRemaining = document.getElementById("textAdminCooldownRemaining");
+  const btnAdminResetCooldown = document.getElementById("btnAdminResetCooldown");
 
   // Mode Selector Buttons
   const btnModeStrategic = document.getElementById("btnModeStrategic");
@@ -371,6 +396,227 @@ function initApp() {
     if (badgeHistoryCount) badgeHistoryCount.textContent = count;
     if (badgeHistoryCountMobile) badgeHistoryCountMobile.textContent = count;
     if (analyticsDraftsCount) analyticsDraftsCount.textContent = count;
+  }
+
+  // --------------------------------------------------------------------------
+  // DAILY QUOTA TRACKER & LIVE COUNTDOWN TIMER ENGINE
+  // --------------------------------------------------------------------------
+  function getTodayDateString() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  function getDailyUsageCount() {
+    const today = getTodayDateString();
+    const storedDate = localStorage.getItem("cm_ai_daily_date");
+    if (storedDate !== today) {
+      localStorage.setItem("cm_ai_daily_date", today);
+      localStorage.setItem("cm_ai_daily_usage", "0");
+      return 0;
+    }
+    return parseInt(localStorage.getItem("cm_ai_daily_usage") || "0", 10);
+  }
+
+  function incrementDailyUsage() {
+    const today = getTodayDateString();
+    const current = getDailyUsageCount() + 1;
+    localStorage.setItem("cm_ai_daily_date", today);
+    localStorage.setItem("cm_ai_daily_usage", current.toString());
+    syncQuotaDisplay();
+  }
+
+  function formatRemainingTime(ms) {
+    if (ms <= 0) return "00:00:00";
+    const totalSeconds = Math.floor(ms / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    const pad = (n) => n.toString().padStart(2, "0");
+    if (hours > 0) {
+      return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+    }
+    return `00:${pad(minutes)}:${pad(seconds)}`;
+  }
+
+  function parseRetryDelayMs(errorMessage = "") {
+    // 1. Google Gemini pattern: "Please retry in 3h55m48.141275842s" or "Please retry in 45s"
+    const geminiMatch = errorMessage.match(/retry in\s*(?:(\d+)h)?(?:(\d+)m)?(?:([\d.]+)s)?/i);
+    if (geminiMatch && (geminiMatch[1] || geminiMatch[2] || geminiMatch[3])) {
+      const h = parseInt(geminiMatch[1] || "0", 10);
+      const m = parseInt(geminiMatch[2] || "0", 10);
+      const s = Math.ceil(parseFloat(geminiMatch[3] || "0"));
+      const totalMs = (h * 3600 + m * 60 + s) * 1000;
+      if (totalMs > 0) return totalMs;
+    }
+
+    // 2. Groq / OpenAI pattern: "try again in 14.5s" or "retry after 60 seconds"
+    const secondsMatch = errorMessage.match(/(?:again in|retry after|wait)\s*([\d.]+)\s*(?:s|sec|seconds|detik)/i);
+    if (secondsMatch) {
+      const s = Math.ceil(parseFloat(secondsMatch[1]));
+      return s * 1000;
+    }
+
+    // 3. Default fallback for generic 429
+    return 60 * 1000; // 60 seconds
+  }
+
+  function syncQuotaDisplay() {
+    const activeCooldown = localStorage.getItem("cm_rate_limit_reset");
+    const now = Date.now();
+
+    if (activeCooldown && parseInt(activeCooldown, 10) > now) {
+      const remaining = parseInt(activeCooldown, 10) - now;
+      const timeStr = formatRemainingTime(remaining);
+
+      if (badgeQuotaStatus && dotQuotaStatus && textQuotaStatus) {
+        dotQuotaStatus.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
+        textQuotaStatus.textContent = `⏳ Cooldown: ${timeStr}`;
+        badgeQuotaStatus.className = "hidden lg:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 text-[11px] font-medium text-amber-800 dark:text-amber-300 shadow-xs cursor-pointer select-none transition-all";
+      }
+      return;
+    }
+
+    const usage = getDailyUsageCount();
+    const limit = 20;
+
+    if (badgeQuotaStatus && dotQuotaStatus && textQuotaStatus) {
+      if (usage >= limit) {
+        dotQuotaStatus.className = "w-2 h-2 rounded-full bg-rose-500 animate-pulse";
+        textQuotaStatus.textContent = `Kuota AI: ${usage}/${limit} (Habis)`;
+        badgeQuotaStatus.className = "hidden lg:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-950/60 border border-rose-300 dark:border-rose-800 text-[11px] font-medium text-rose-800 dark:text-rose-300 shadow-xs cursor-pointer select-none transition-all";
+      } else if (usage >= 16) {
+        dotQuotaStatus.className = "w-2 h-2 rounded-full bg-amber-500";
+        textQuotaStatus.textContent = `Kuota AI: ${usage}/${limit} (Sisa ${limit - usage})`;
+        badgeQuotaStatus.className = "hidden lg:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 text-[11px] font-medium text-amber-800 dark:text-amber-300 shadow-xs cursor-pointer select-none transition-all";
+      } else {
+        dotQuotaStatus.className = "w-2 h-2 rounded-full bg-emerald-500";
+        textQuotaStatus.textContent = `Kuota AI: ${usage}/${limit}`;
+        badgeQuotaStatus.className = "hidden lg:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-neutral-800/80 border border-black/[0.08] dark:border-white/[0.1] text-[11px] font-medium text-neutral-700 dark:text-neutral-300 shadow-xs cursor-pointer select-none transition-all";
+      }
+    }
+  }
+
+  function startLiveCountdown(resetTimestamp) {
+    if (state.rateLimitTimerInterval) {
+      clearInterval(state.rateLimitTimerInterval);
+      state.rateLimitTimerInterval = null;
+    }
+
+    function tick() {
+      const now = Date.now();
+      const remaining = resetTimestamp - now;
+
+      if (remaining <= 0) {
+        // Cooldown Finished!
+        resetRateLimitCooldown(false);
+        showToast("🎉 Masa jeda selesai! Sistem AI siap digunakan kembali.");
+        return;
+      }
+
+      const timeStr = formatRemainingTime(remaining);
+
+      // 1. Update Header Badge
+      if (badgeQuotaStatus && dotQuotaStatus && textQuotaStatus) {
+        dotQuotaStatus.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
+        textQuotaStatus.textContent = `⏳ Cooldown: ${timeStr}`;
+        badgeQuotaStatus.className = "hidden lg:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 text-[11px] font-medium text-amber-800 dark:text-amber-300 shadow-xs cursor-pointer select-none transition-all";
+      }
+
+      // 2. Update Studio Warning Banner & Button
+      if (bannerStudioQuota && timerStudioCountdown) {
+        bannerStudioQuota.classList.remove("hidden");
+        timerStudioCountdown.textContent = timeStr;
+      }
+      if (btnGenerateCaption && textGenerateBtn) {
+        btnGenerateCaption.disabled = true;
+        btnGenerateCaption.classList.add("opacity-60", "cursor-not-allowed");
+        textGenerateBtn.textContent = `⏳ Tunggu (${timeStr})`;
+      }
+
+      // 3. Update Trend Warning Banner & Button
+      if (bannerTrendQuota && timerTrendCountdown) {
+        bannerTrendQuota.classList.remove("hidden");
+        timerTrendCountdown.textContent = timeStr;
+      }
+      if (btnAnalyzeTrend && textAnalyzeTrendBtn) {
+        btnAnalyzeTrend.disabled = true;
+        btnAnalyzeTrend.classList.add("opacity-60", "cursor-not-allowed");
+        textAnalyzeTrendBtn.textContent = `⏳ Tunggu (${timeStr})`;
+      }
+
+      // 4. Update Admin Settings Cooldown Info
+      if (boxAdminCooldownControls && textAdminCooldownRemaining) {
+        boxAdminCooldownControls.classList.remove("hidden");
+        textAdminCooldownRemaining.textContent = timeStr;
+      }
+    }
+
+    tick();
+    state.rateLimitTimerInterval = setInterval(tick, 1000);
+  }
+
+  function resetRateLimitCooldown(isManualAdminReset = true) {
+    if (state.rateLimitTimerInterval) {
+      clearInterval(state.rateLimitTimerInterval);
+      state.rateLimitTimerInterval = null;
+    }
+
+    localStorage.removeItem("cm_rate_limit_reset");
+
+    // Hide banners
+    bannerStudioQuota?.classList.add("hidden");
+    bannerTrendQuota?.classList.add("hidden");
+    boxAdminCooldownControls?.classList.add("hidden");
+
+    // Re-enable Studio Generate Button
+    if (btnGenerateCaption && textGenerateBtn) {
+      btnGenerateCaption.disabled = false;
+      btnGenerateCaption.classList.remove("opacity-60", "cursor-not-allowed");
+      textGenerateBtn.textContent = "Generate Sekarang";
+    }
+
+    // Re-enable Trend Analyze Button
+    if (btnAnalyzeTrend && textAnalyzeTrendBtn) {
+      btnAnalyzeTrend.disabled = false;
+      btnAnalyzeTrend.classList.remove("opacity-60", "cursor-not-allowed");
+      textAnalyzeTrendBtn.textContent = "Analisis Tren";
+    }
+
+    syncQuotaDisplay();
+
+    if (isManualAdminReset) {
+      showToast("✅ Waktu jeda berhasil di-reset oleh Pengelola!");
+    }
+  }
+
+  function triggerRateLimitCooldown(errorMessage = "") {
+    const delayMs = parseRetryDelayMs(errorMessage);
+    const resetTimestamp = Date.now() + delayMs;
+
+    localStorage.setItem("cm_rate_limit_reset", resetTimestamp.toString());
+
+    // Auto-save emergency draft to protect user work (Requirement A5)
+    if (inputRawCaption && inputRawCaption.value.trim().length > 0) {
+      localStorage.setItem("cm_emergency_draft", inputRawCaption.value.trim());
+      showToast("💾 Teks draf Anda telah diamankan otomatis ke penyimpanan lokal.");
+    }
+
+    startLiveCountdown(resetTimestamp);
+  }
+
+  if (btnAdminResetCooldown) {
+    btnAdminResetCooldown.addEventListener("click", () => resetRateLimitCooldown(true));
+  }
+
+  if (badgeQuotaStatus) {
+    badgeQuotaStatus.addEventListener("click", () => {
+      const activeCooldown = localStorage.getItem("cm_rate_limit_reset");
+      if (activeCooldown && parseInt(activeCooldown, 10) > Date.now()) {
+        const remaining = parseInt(activeCooldown, 10) - Date.now();
+        showToast(`⏳ Waktu jeda aktif: tersisa ${formatRemainingTime(remaining)}.`);
+      } else {
+        showToast(`📊 Pemakaian kuota AI hari ini: ${getDailyUsageCount()}/20 permintaan.`);
+      }
+    });
   }
 
   // --------------------------------------------------------------------------
@@ -751,6 +997,56 @@ function initApp() {
     });
   }
 
+  // Test All AI Providers Simultaneously for Deep Diagnostics
+  if (btnTestAllProviders) {
+    btnTestAllProviders.addEventListener("click", async () => {
+      btnTestAllProviders.disabled = true;
+      btnTestAllProviders.textContent = "Mendiagnosis...";
+      if (boxDiagnosticsResults) boxDiagnosticsResults.classList.remove("hidden");
+
+      const defs = getDefaultKeys();
+      const groqKey = inputSettingGroqKey?.value.trim() || state.groqApiKey || defs.groq;
+      const deepseekKey = inputSettingDeepSeekKey?.value.trim() || state.deepseekApiKey || defs.deepseek;
+      const geminiKey = inputSettingGeminiKey?.value.trim() || state.geminiApiKey || defs.gemini;
+
+      // 1. Test Groq
+      if (diagResultGroq) {
+        diagResultGroq.innerHTML = "⏳ Groq: Menghubungi server...";
+        try {
+          await executeGroq("Ping test", null, groqKey);
+          diagResultGroq.innerHTML = "<span class='text-emerald-500 font-bold'>🟢 Groq Cloud:</span> Terhubung normal (Llama 3.3 / 8B ready)";
+        } catch (err) {
+          diagResultGroq.innerHTML = `<span class='text-rose-500 font-bold'>🔴 Groq Cloud:</span> ${err.message}`;
+        }
+      }
+
+      // 2. Test DeepSeek
+      if (diagResultDeepSeek) {
+        diagResultDeepSeek.innerHTML = "⏳ DeepSeek: Menghubungi server...";
+        try {
+          await executeDeepSeek("Ping test", null, deepseekKey);
+          diagResultDeepSeek.innerHTML = "<span class='text-emerald-500 font-bold'>🟢 DeepSeek:</span> Terhubung normal";
+        } catch (err) {
+          diagResultDeepSeek.innerHTML = `<span class='text-rose-500 font-bold'>🔴 DeepSeek:</span> ${err.message}`;
+        }
+      }
+
+      // 3. Test Gemini
+      if (diagResultGemini) {
+        diagResultGemini.innerHTML = "⏳ Gemini: Menghubungi server...";
+        try {
+          await executeGemini("Ping test", null, geminiKey);
+          diagResultGemini.innerHTML = "<span class='text-emerald-500 font-bold'>🟢 Google Gemini:</span> Terhubung normal (gemini-3.8-flash ready)";
+        } catch (err) {
+          diagResultGemini.innerHTML = `<span class='text-rose-500 font-bold'>🔴 Google Gemini:</span> ${err.message}`;
+        }
+      }
+
+      btnTestAllProviders.disabled = false;
+      btnTestAllProviders.textContent = "🔍 Diagnostik Semua AI";
+    });
+  }
+
   // Save Settings
   if (btnSaveAllSettings) {
     btnSaveAllSettings.addEventListener("click", () => {
@@ -776,6 +1072,7 @@ function initApp() {
       }
 
       syncEngineStatusBadge();
+      resetRateLimitCooldown(false);
       closeSettingsModal();
       showToast("Pengaturan Multi-AI & Google Analytics berhasil disimpan!");
     });
@@ -1048,7 +1345,6 @@ function initApp() {
 
   async function executeGroq(promptText, attachedFile, customKey = null) {
     const key = customKey || state.groqApiKey || getDefaultKeys().groq;
-    const model = getGroqModel();
     if (!key) throw new Error("Kunci Groq API belum terkonfigurasi.");
 
     const messages = [
@@ -1062,29 +1358,46 @@ function initApp() {
       }
     ];
 
-    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${key}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: model,
-        messages: messages,
-        temperature: 0.7,
-        max_tokens: 3500
-      })
-    });
+    // Coba model 70B terlebih dahulu, jika kuota TPM tercapai, alihkan ke model 8B Instant
+    const modelsToTry = [getGroqModel(), "llama-3.1-8b-instant"];
+    let lastGroqErr = null;
 
-    if (!res.ok) {
-      const errData = await res.json().catch(() => ({}));
-      throw new Error(errData.error?.message || `Groq API HTTP ${res.status}`);
+    for (const model of modelsToTry) {
+      try {
+        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${key}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: messages,
+            temperature: 0.7,
+            max_tokens: 3500
+          })
+        });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          const errMsg = errData.error?.message || `Groq API HTTP ${res.status}`;
+          if (model !== "llama-3.1-8b-instant" && (errMsg.includes("TPM") || errMsg.includes("rate_limit_exceeded") || errMsg.includes("429"))) {
+            console.warn(`[Groq] Model ${model} limit TPM, mencoba model cepat llama-3.1-8b-instant...`);
+            continue;
+          }
+          throw new Error(errMsg);
+        }
+
+        const data = await res.json();
+        const content = data.choices?.[0]?.message?.content;
+        if (!content) throw new Error("Respon kosong diterima dari Groq API.");
+        return content;
+      } catch (err) {
+        lastGroqErr = err;
+      }
     }
 
-    const data = await res.json();
-    const content = data.choices?.[0]?.message?.content;
-    if (!content) throw new Error("Respon kosong diterima dari Groq API.");
-    return content;
+    throw lastGroqErr || new Error("Gagal menghubungi Groq API.");
   }
 
   async function executeDeepSeek(promptText, attachedFile, customKey = null) {
@@ -1103,29 +1416,61 @@ function initApp() {
       }
     ];
 
-    const res = await fetch("https://api.deepseek.com/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${key}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: model,
-        messages: messages,
-        temperature: 0.7,
-        max_tokens: 3500
-      })
+    const bodyPayload = JSON.stringify({
+      model: model,
+      messages: messages,
+      temperature: 0.7,
+      max_tokens: 3500
     });
 
-    if (!res.ok) {
-      const errData = await res.json().catch(() => ({}));
-      throw new Error(errData.error?.message || `DeepSeek API HTTP ${res.status}`);
+    // 1. Coba fetch langsung
+    try {
+      const res = await fetch("https://api.deepseek.com/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${key}`,
+          "Content-Type": "application/json"
+        },
+        body: bodyPayload
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const content = data.choices?.[0]?.message?.content;
+        if (content) return content;
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error?.message || `DeepSeek HTTP ${res.status}`);
+      }
+    } catch (directErr) {
+      console.warn("DeepSeek direct browser fetch blocked/failed, trying CORS proxy fallback...", directErr.message);
+
+      // 2. Fallback via CORS proxy jika diblokir kebijakan browser
+      try {
+        const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent("https://api.deepseek.com/chat/completions");
+        const proxyRes = await fetch(proxyUrl, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${key}`,
+            "Content-Type": "application/json"
+          },
+          body: bodyPayload
+        });
+
+        if (proxyRes.ok) {
+          const proxyData = await proxyRes.json();
+          const proxyContent = proxyData.choices?.[0]?.message?.content;
+          if (proxyContent) return proxyContent;
+        } else {
+          const errData = await proxyRes.json().catch(() => ({}));
+          throw new Error(errData.error?.message || `DeepSeek Proxy HTTP ${proxyRes.status}`);
+        }
+      } catch (proxyErr) {
+        throw new Error(`DeepSeek terkendala (CORS Browser / API): ${proxyErr.message || directErr.message}`);
+      }
     }
 
-    const data = await res.json();
-    const content = data.choices?.[0]?.message?.content;
-    if (!content) throw new Error("Respon kosong diterima dari DeepSeek API.");
-    return content;
+    throw new Error("Respon kosong diterima dari DeepSeek API.");
   }
 
   async function executeWithAutoFallback(promptText, attachedFile, onProgress) {
@@ -1133,12 +1478,12 @@ function initApp() {
     const allProviders = ["groq", "deepseek", "gemini"];
     const chain = [primary, ...allProviders.filter(p => p !== primary)];
     const providerNames = {
-      groq: "Groq Llama 3.3",
+      groq: "Groq Cloud (Llama 3.3)",
       deepseek: "DeepSeek Chat",
       gemini: "Google Gemini 3.8 Flash"
     };
 
-    let lastError = null;
+    const providerErrors = {};
 
     for (let i = 0; i < chain.length; i++) {
       const provider = chain[i];
@@ -1159,6 +1504,7 @@ function initApp() {
         }
 
         if (result && result.trim().length > 0) {
+          incrementDailyUsage();
           return {
             text: result,
             usedProvider: provider,
@@ -1167,12 +1513,28 @@ function initApp() {
           };
         }
       } catch (err) {
+        providerErrors[provider] = err.message || "Gagal";
         console.warn(`[Auto-Fallback] Engine ${provider} terkendala (${err.message}). Mengalihkan ke cadangan berikutnya...`);
-        lastError = err;
       }
     }
 
-    throw lastError || new Error("Seluruh mesin AI mengalami gangguan. Silakan periksa koneksi internet Anda.");
+    // Bangun rincian error transparan untuk pengguna
+    const errDetails = Object.entries(providerErrors)
+      .map(([p, msg]) => `${providerNames[p] || p}: ${msg.length > 70 ? msg.slice(0, 70) + '...' : msg}`)
+      .join(" • ");
+
+    const allErrText = Object.values(providerErrors).join(" ");
+    const isRateLimit = allErrText.includes("429") ||
+      allErrText.toLowerCase().includes("quota") ||
+      allErrText.toLowerCase().includes("limit exceeded") ||
+      allErrText.toLowerCase().includes("retry in") ||
+      allErrText.toLowerCase().includes("exhausted");
+
+    if (isRateLimit) {
+      triggerRateLimitCooldown(allErrText);
+    }
+
+    throw new Error(`Seluruh mesin AI terkendala: ${errDetails}`);
   }
 
   // --------------------------------------------------------------------------
@@ -2261,6 +2623,25 @@ Berikan pemetaan analisis tren dalam format tag yang presisi:
   updateDraftsBadge();
   renderDraftsHistory();
   fetchLiveGoogleTrends(); // Pre-load live trends ID silently
+
+  // Check rate limit cooldown on boot
+  const activeCooldown = localStorage.getItem("cm_rate_limit_reset");
+  if (activeCooldown && parseInt(activeCooldown, 10) > Date.now()) {
+    startLiveCountdown(parseInt(activeCooldown, 10));
+  } else {
+    syncQuotaDisplay();
+  }
+
+  // Restore emergency draft if input is empty (Requirement A5)
+  if (inputRawCaption && !inputRawCaption.value.trim()) {
+    const savedEmergency = localStorage.getItem("cm_emergency_draft");
+    if (savedEmergency) {
+      inputRawCaption.value = savedEmergency;
+      if (labelCharCounter) {
+        labelCharCounter.textContent = `${savedEmergency.length.toLocaleString("id-ID")} karakter`;
+      }
+    }
+  }
 
   console.log("Caption Maker by Ruang Kalem ready with Groq Llama 3.3 as Primary AI & Google Trends Intelligence.");
 }

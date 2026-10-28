@@ -172,6 +172,12 @@
             <span id="textSeoSync">Social SEO & Intent: Aktif [AUTO]</span>
           </button>
 
+          <!-- Daily Quota Tracker & Live Countdown Badge -->
+          <div class="hidden lg:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-neutral-800/80 border border-black/[0.08] dark:border-white/[0.1] text-[11px] font-medium text-neutral-700 dark:text-neutral-300 shadow-xs cursor-pointer select-none transition-all" id="badgeQuotaStatus" title="Status Kuota AI Harian & Waktu Tunggu">
+            <span class="w-2 h-2 rounded-full bg-emerald-500" id="dotQuotaStatus"></span>
+            <span id="textQuotaStatus">Kuota AI: 0/20</span>
+          </div>
+
           <!-- Multi-AI Engine Status Badge (Groq Cloud Primary) -->
           <div class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 text-[11px] font-medium text-emerald-800 dark:text-emerald-300 shadow-sm cursor-pointer" id="badgeEngineStatus" title="Klik untuk Pengaturan API Key">
             <span class="w-2 h-2 rounded-full bg-appleGreen animate-pulse" id="dotEngineStatus"></span>
@@ -566,6 +572,20 @@
             </div>
           </div>
 
+          <!-- Rate Limit & Cooldown Live Warning Banner in Studio -->
+          <div id="bannerStudioQuota" class="hidden p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3 text-xs animate-scaleUp">
+            <span class="text-xl shrink-0 mt-0.5">⏳</span>
+            <div class="space-y-1 flex-1">
+              <div class="flex items-center justify-between">
+                <strong class="text-amber-800 dark:text-amber-300 font-bold" id="titleStudioQuota">Batas Kuota AI Tercapai</strong>
+                <span class="font-mono font-bold text-amber-800 dark:text-amber-300 text-xs px-2.5 py-0.5 rounded-md bg-amber-200/60 dark:bg-amber-950/80 border border-amber-400/40" id="timerStudioCountdown">00:00:00</span>
+              </div>
+              <p class="text-[11.5px] text-neutral-600 dark:text-neutral-400 leading-relaxed" id="descStudioQuota">
+                Batas kuota harian server AI telah tercapai. Tombol akan otomatis aktif kembali saat waktu jeda selesai. Draf teks Anda telah diamankan otomatis secara lokal.
+              </p>
+            </div>
+          </div>
+
           <!-- Bottom Action Bar -->
           <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
             <div class="flex items-center gap-2">
@@ -841,6 +861,21 @@
             
             <!-- Topic Research Input Box -->
             <div class="bg-white dark:bg-[#16161a] border border-black/[0.09] dark:border-white/[0.1] rounded-3xl p-6 shadow-md space-y-4">
+              
+              <!-- Rate Limit Warning Banner in Explorer -->
+              <div id="bannerTrendQuota" class="hidden p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3 text-xs animate-scaleUp">
+                <span class="text-xl shrink-0 mt-0.5">⏳</span>
+                <div class="space-y-1 flex-1">
+                  <div class="flex items-center justify-between">
+                    <strong class="text-amber-800 dark:text-amber-300 font-bold" id="titleTrendQuota">Batas Kuota AI Tercapai</strong>
+                    <span class="font-mono font-bold text-amber-800 dark:text-amber-300 text-xs px-2.5 py-0.5 rounded-md bg-amber-200/60 dark:bg-amber-950/80 border border-amber-400/40" id="timerTrendCountdown">00:00:00</span>
+                  </div>
+                  <p class="text-[11.5px] text-neutral-600 dark:text-neutral-400 leading-relaxed" id="descTrendQuota">
+                    Analisis AI sedang dalam masa jeda kuota. Grafik resmi Google Trends dan topik viral harian di bawah tetap dapat digunakan normal tanpa batasan.
+                  </p>
+                </div>
+              </div>
+
               <div class="space-y-1.5">
                 <label class="text-xs font-semibold text-neutral-700 dark:text-neutral-300">Ketik Topik, Produk, atau Niche yang Ingin Diteliti di Google Trends:</label>
                 <div class="flex gap-2">
@@ -1126,11 +1161,24 @@
               <input type="text" id="inputSettingGeminiKey" placeholder="Kunci Gemini AI..." class="w-full p-2.5 rounded-xl border border-black/[0.12] dark:border-white/[0.12] bg-white dark:bg-[#121216] text-xs font-mono text-[#111] dark:text-white outline-none focus:border-appleBlue">
             </div>
 
-            <div class="flex items-center justify-between pt-1">
-              <button id="btnTestApiKey" class="px-3.5 py-1.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-xs font-semibold text-neutral-800 dark:text-neutral-200 transition-all flex items-center gap-1.5">
-                <span>⚡</span> Uji Kunci Aktif
-              </button>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1">
+              <div class="flex items-center gap-2">
+                <button id="btnTestApiKey" class="px-3 py-1.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-xs font-semibold text-neutral-800 dark:text-neutral-200 transition-all flex items-center gap-1.5 shadow-xs">
+                  <span>⚡</span> Uji Kunci Aktif
+                </button>
+                <button id="btnTestAllProviders" class="px-3 py-1.5 rounded-xl bg-teal-50 dark:bg-teal-950/60 hover:bg-teal-100 dark:hover:bg-teal-900/60 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-800 text-xs font-semibold transition-all flex items-center gap-1.5 shadow-xs">
+                  <span>🔍</span> Diagnostik Semua AI
+                </button>
+              </div>
               <span id="textApiKeyFeedback" class="text-[11px] font-semibold hidden"></span>
+            </div>
+
+            <!-- Diagnostics Results Box -->
+            <div id="boxDiagnosticsResults" class="hidden p-3 rounded-2xl bg-neutral-50 dark:bg-[#111115] border border-black/[0.08] dark:border-white/[0.1] text-xs space-y-1.5">
+              <strong class="text-[11px] font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wide block">Hasil Diagnostik Mandiri:</strong>
+              <div id="diagResultGroq" class="text-[11.5px] text-neutral-600 dark:text-neutral-400">⏳ Groq: Menunggu...</div>
+              <div id="diagResultDeepSeek" class="text-[11.5px] text-neutral-600 dark:text-neutral-400">⏳ DeepSeek: Menunggu...</div>
+              <div id="diagResultGemini" class="text-[11.5px] text-neutral-600 dark:text-neutral-400">⏳ Gemini: Menunggu...</div>
             </div>
           </div>
 
@@ -1163,6 +1211,16 @@
                 </button>
               </div>
               <span id="textChangePinFeedback" class="text-[10px] font-semibold hidden"></span>
+            </div>
+
+            <!-- Admin Cooldown Bypass Control -->
+            <div id="boxAdminCooldownControls" class="hidden flex items-center justify-between pt-1 border-t border-teal-200/50 dark:border-teal-800/30 text-[11px]">
+              <span class="text-amber-700 dark:text-amber-400 font-semibold flex items-center gap-1">
+                <span>⏳</span> Waktu Tunggu Aktif: <span id="textAdminCooldownRemaining" class="font-mono">00:00:00</span>
+              </span>
+              <button type="button" id="btnAdminResetCooldown" class="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-[10.5px] font-bold transition-all shadow-xs">
+                Reset Waktu Tunggu Sekarang
+              </button>
             </div>
           </div>
         </div>
