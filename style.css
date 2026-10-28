@@ -284,6 +284,26 @@ input[type="range"]::-moz-range-thumb {
   color: #ffffff;
 }
 
+/* Shake Animation for Admin PIN Gate */
+@keyframes shakeAnimation {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+
+.shake-animation {
+  animation: shakeAnimation 0.4s ease-in-out !important;
+}
+
+/* Google Trends Live Feed Card Hover */
+.trend-card-hover {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+}
+
+.trend-card-hover:hover {
+  transform: translateY(-2px);
+}
+
 /* Line Clamp Utilities */
 .line-clamp-2 {
   display: -webkit-box;
