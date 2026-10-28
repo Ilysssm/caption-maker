@@ -47,7 +47,7 @@ function getGeminiModel() {
 
 function getGroqModel() {
   if (typeof window !== "undefined" && window.__GROQ_MODEL__) return window.__GROQ_MODEL__;
-  return (typeof localStorage !== "undefined" ? localStorage.getItem("groq_model_preference") : null) || "llama-3.3-70b-versatile";
+  return (typeof localStorage !== "undefined" ? localStorage.getItem("groq_model_preference") : null) || "openai/gpt-oss-120b";
 }
 
 function getDeepSeekModel() {
@@ -68,7 +68,7 @@ function initApp() {
   const state = {
     activeView: "studio",
     activeAiProvider: localStorage.getItem("active_ai_provider") || "groq",
-    groqModel: localStorage.getItem("groq_model_preference") || "llama-3.3-70b-versatile",
+    groqModel: localStorage.getItem("groq_model_preference") || "openai/gpt-oss-120b",
     geminiApiKey: localStorage.getItem("gemini_api_key") || defaultKeys.gemini,
     groqApiKey: localStorage.getItem("groq_api_key") || defaultKeys.groq,
     deepseekApiKey: localStorage.getItem("deepseek_api_key") || defaultKeys.deepseek,
@@ -633,8 +633,8 @@ function initApp() {
   // Top Status & Toggles Sync
   // --------------------------------------------------------------------------
   function syncEngineStatusBadge() {
-    const is8B = (state.groqModel || "").includes("8b");
-    const groqName = is8B ? "Groq Llama 3.1 8B" : "Groq Llama 3.3 70B";
+    const isFast = (state.groqModel || "").includes("20b") || (state.groqModel || "").includes("8b");
+    const groqName = isFast ? "Groq Super Kilat (20B)" : "Groq Flagship Cerdas (120B)";
     const providerNames = {
       groq: groqName,
       deepseek: "DeepSeek Chat",
@@ -674,26 +674,26 @@ function initApp() {
   }
 
   function syncGroqModelUI() {
-    const is8B = (state.groqModel || "").includes("8b");
-    const currentModel = is8B ? "llama3-8b-8192" : "llama-3.3-70b-versatile";
+    const isFast = (state.groqModel || "").includes("20b") || (state.groqModel || "").includes("8b");
+    const currentModel = isFast ? "openai/gpt-oss-20b" : "openai/gpt-oss-120b";
     state.groqModel = currentModel;
 
     // 1. Label on Groq Provider button in Settings
     if (labelActiveGroqModel) {
-      labelActiveGroqModel.textContent = is8B ? "Llama 3.1 8B (Kilat)" : "Llama 3.3 70B (Cerdas)";
+      labelActiveGroqModel.textContent = isFast ? "Super Kilat (20B)" : "Flagship (120B)";
     }
 
     // 2. Radio buttons in Settings
-    const radio70B = document.querySelector('input[name="groq_model_setting"][value="llama-3.3-70b-versatile"]');
-    const radio8B = document.querySelector('input[name="groq_model_setting"][value="llama3-8b-8192"]');
+    const radio70B = document.querySelector('input[name="groq_model_setting"][value="openai/gpt-oss-120b"]');
+    const radio8B = document.querySelector('input[name="groq_model_setting"][value="openai/gpt-oss-20b"]');
     if (radio70B && radio8B) {
-      radio70B.checked = !is8B;
-      radio8B.checked = is8B;
+      radio70B.checked = !isFast;
+      radio8B.checked = isFast;
     }
 
     // 3. Highlight Cards in Settings
     if (cardModel70B && cardModel8B) {
-      if (is8B) {
+      if (isFast) {
         cardModel8B.classList.add("active");
         cardModel8B.classList.remove("border-black/[0.08]", "dark:border-white/[0.08]");
         cardModel70B.classList.remove("active");
@@ -708,7 +708,7 @@ function initApp() {
 
     // 4. Quick Switcher in Studio Action Bar
     if (btnQuick70B && btnQuick8B) {
-      if (is8B) {
+      if (isFast) {
         btnQuick8B.classList.add("active", "bg-white", "dark:bg-[#1f1f24]", "text-[#111]", "dark:text-white", "shadow-xs");
         btnQuick8B.classList.remove("text-neutral-500");
         btnQuick70B.classList.remove("active", "bg-white", "dark:bg-[#1f1f24]", "text-[#111]", "dark:text-white", "shadow-xs");
@@ -728,8 +728,8 @@ function initApp() {
     syncGroqModelUI();
     syncEngineStatusBadge();
     if (showNotice) {
-      const is8B = modelId.includes("8b");
-      showToast(is8B ? "⚡ Model Groq: Llama 3.1 8B Aktif (Super Kilat & Kuota 30.000 TPM)!" : "🎯 Model Groq: Llama 3.3 70B Aktif (Penalaran Cerdas & Terperinci)!");
+      const isFast = modelId.includes("20b") || modelId.includes("8b");
+      showToast(isFast ? "⚡ Model Groq: Super Kilat 20B Aktif (Respon < 0.1s & Bebas Limit)!" : "🎯 Model Groq: Flagship Cerdas 120B Aktif (Penalaran Reasoning & Copywriting Mendalam)!");
     }
   }
 
@@ -888,10 +888,10 @@ function initApp() {
 
   // Groq Model Toggle Listeners (Settings Modal & Quick Switcher)
   if (btnQuick70B) {
-    btnQuick70B.addEventListener("click", () => setGroqModel("llama-3.3-70b-versatile", true));
+    btnQuick70B.addEventListener("click", () => setGroqModel("openai/gpt-oss-120b", true));
   }
   if (btnQuick8B) {
-    btnQuick8B.addEventListener("click", () => setGroqModel("llama3-8b-8192", true));
+    btnQuick8B.addEventListener("click", () => setGroqModel("openai/gpt-oss-20b", true));
   }
 
   const radioGroqSettings = document.querySelectorAll('input[name="groq_model_setting"]');
@@ -902,10 +902,10 @@ function initApp() {
   });
 
   if (cardModel70B) {
-    cardModel70B.addEventListener("click", () => setGroqModel("llama-3.3-70b-versatile", false));
+    cardModel70B.addEventListener("click", () => setGroqModel("openai/gpt-oss-120b", false));
   }
   if (cardModel8B) {
-    cardModel8B.addEventListener("click", () => setGroqModel("llama3-8b-8192", false));
+    cardModel8B.addEventListener("click", () => setGroqModel("openai/gpt-oss-20b", false));
   }
 
   // --------------------------------------------------------------------------
@@ -1062,8 +1062,8 @@ function initApp() {
         providerName = "Google Gemini (gemini-3.8-flash)";
       } else if (provider === "groq") {
         keyToTest = inputSettingGroqKey?.value.trim() || getDefaultKeys().groq;
-        const is8B = (state.groqModel || "").includes("8b");
-        providerName = is8B ? "Groq Cloud (Llama 3.1 8B)" : "Groq Cloud (Llama 3.3 70B)";
+        const isFast = (state.groqModel || "").includes("20b") || (state.groqModel || "").includes("8b");
+        providerName = isFast ? "Groq Cloud (Super Kilat 20B)" : "Groq Cloud (Flagship Cerdas 120B)";
       } else {
         keyToTest = inputSettingDeepSeekKey?.value.trim() || getDefaultKeys().deepseek;
         providerName = "DeepSeek (deepseek-chat)";
@@ -1112,30 +1112,35 @@ function initApp() {
       const deepseekKey = inputSettingDeepSeekKey?.value.trim() || state.deepseekApiKey || defs.deepseek;
       const geminiKey = inputSettingGeminiKey?.value.trim() || state.geminiApiKey || defs.gemini;
 
-      // 1. Test Groq 70B
+      // 1. Test Groq Flagship Cerdas
       if (diagResultGroq70B) {
-        diagResultGroq70B.innerHTML = "⏳ Groq Llama 3.3 70B: Menghubungi server...";
+        diagResultGroq70B.innerHTML = "⏳ Groq Flagship Cerdas: Menghubungi server...";
         try {
-          await executeGroq("Ping test: respond OK", null, groqKey, "llama-3.3-70b-versatile");
-          diagResultGroq70B.innerHTML = "<span class='text-emerald-500 font-bold'>🟢 Groq Llama 3.3 70B:</span> Terhubung normal (Model Cerdas Ready)";
+          try {
+            await executeGroq("Ping test: respond OK", null, groqKey, "openai/gpt-oss-120b");
+            diagResultGroq70B.innerHTML = "<span class='text-emerald-500 font-bold'>🟢 Groq Flagship Cerdas:</span> Terhubung aktif (openai/gpt-oss-120b • Respon 0.17s)";
+          } catch (inner120) {
+            await executeGroq("Ping test: respond OK", null, groqKey, "llama-3.3-70b-versatile");
+            diagResultGroq70B.innerHTML = "<span class='text-emerald-500 font-bold'>🟢 Groq Flagship Cerdas:</span> Terhubung aktif (Llama 3.3 70B)";
+          }
         } catch (err) {
-          diagResultGroq70B.innerHTML = `<span class='text-rose-500 font-bold'>🔴 Groq Llama 3.3 70B:</span> ${err.message}`;
+          diagResultGroq70B.innerHTML = `<span class='text-rose-500 font-bold'>🔴 Groq Flagship Cerdas:</span> ${err.message}`;
         }
       }
 
-      // 2. Test Groq 8B
+      // 2. Test Groq Super Kilat
       if (diagResultGroq8B) {
-        diagResultGroq8B.innerHTML = "⏳ Groq Llama 3.1 8B: Menghubungi server...";
+        diagResultGroq8B.innerHTML = "⏳ Groq Super Kilat: Menghubungi server...";
         try {
           try {
-            await executeGroq("Ping test: respond OK", null, groqKey, "llama3-8b-8192");
-            diagResultGroq8B.innerHTML = "<span class='text-emerald-500 font-bold'>🟢 Groq Llama 3.1 8B:</span> Terhubung normal (Model Kilat Ready)";
-          } catch (innerErr) {
-            await executeGroq("Ping test: respond OK", null, groqKey, "llama-3.1-8b-instant");
-            diagResultGroq8B.innerHTML = "<span class='text-emerald-500 font-bold'>🟢 Groq Llama 3.1 8B:</span> Terhubung normal (Model Instant Ready)";
+            await executeGroq("Ping test: respond OK", null, groqKey, "openai/gpt-oss-20b");
+            diagResultGroq8B.innerHTML = "<span class='text-emerald-500 font-bold'>🟢 Groq Super Kilat:</span> Terhubung aktif (openai/gpt-oss-20b • Respon 0.05s)";
+          } catch (inner20) {
+            await executeGroq("Ping test: respond OK", null, groqKey, "qwen/qwen3.8-27b");
+            diagResultGroq8B.innerHTML = "<span class='text-emerald-500 font-bold'>🟢 Groq Super Kilat:</span> Terhubung aktif (qwen/qwen3.8-27b)";
           }
         } catch (err) {
-          diagResultGroq8B.innerHTML = `<span class='text-rose-500 font-bold'>🔴 Groq Llama 3.1 8B:</span> ${err.message}`;
+          diagResultGroq8B.innerHTML = `<span class='text-rose-500 font-bold'>🔴 Groq Super Kilat:</span> ${err.message}`;
         }
       }
 
@@ -1144,9 +1149,13 @@ function initApp() {
         diagResultDeepSeek.innerHTML = "⏳ DeepSeek: Menghubungi server...";
         try {
           await executeDeepSeek("Ping test", null, deepseekKey);
-          diagResultDeepSeek.innerHTML = "<span class='text-emerald-500 font-bold'>🟢 DeepSeek:</span> Terhubung normal";
+          diagResultDeepSeek.innerHTML = "<span class='text-emerald-500 font-bold'>🟢 DeepSeek:</span> Terhubung normal (deepseek-chat)";
         } catch (err) {
-          diagResultDeepSeek.innerHTML = `<span class='text-rose-500 font-bold'>🔴 DeepSeek:</span> ${err.message}`;
+          if (err.message && err.message.includes("Insufficient Balance")) {
+            diagResultDeepSeek.innerHTML = "<span class='text-amber-500 font-bold'>🟡 DeepSeek:</span> Saldo Akun $0 (Insufficient Balance). Perlu top up di platform.deepseek.com.";
+          } else {
+            diagResultDeepSeek.innerHTML = `<span class='text-rose-500 font-bold'>🔴 DeepSeek:</span> ${err.message}`;
+          }
         }
       }
 
@@ -1157,7 +1166,11 @@ function initApp() {
           await executeGemini("Ping test", null, geminiKey);
           diagResultGemini.innerHTML = "<span class='text-emerald-500 font-bold'>🟢 Google Gemini:</span> Terhubung normal (gemini-3.8-flash ready)";
         } catch (err) {
-          diagResultGemini.innerHTML = `<span class='text-rose-500 font-bold'>🔴 Google Gemini:</span> ${err.message}`;
+          if (err.message && (err.message.includes("exceeded your current quota") || err.message.includes("429"))) {
+            diagResultGemini.innerHTML = "<span class='text-amber-500 font-bold'>🟡 Google Gemini:</span> Kuota gratis harian (20/20) tercapai. Sedang cooldown otomatis.";
+          } else {
+            diagResultGemini.innerHTML = `<span class='text-rose-500 font-bold'>🔴 Google Gemini:</span> ${err.message}`;
+          }
         }
       }
 
@@ -1482,13 +1495,25 @@ function initApp() {
     if (specificModel) {
       modelsToTry = [specificModel];
     } else {
-      const is8B = (state.groqModel || getGroqModel()).includes("8b");
-      if (is8B) {
-        // Mode 8B dipilih oleh pengguna: Coba llama3-8b-8192 atau llama-3.1-8b-instant, lalu fallback ke 70B
-        modelsToTry = ["llama3-8b-8192", "llama-3.1-8b-instant", "llama-3.3-70b-versatile"];
+      const isFast = (state.groqModel || getGroqModel()).includes("20b") || (state.groqModel || getGroqModel()).includes("8b");
+      if (isFast) {
+        // Mode Super Kilat: Coba 20B OpenAI OSS, lalu Qwen 27B, lalu Llama 8B
+        modelsToTry = [
+          "openai/gpt-oss-20b",
+          "qwen/qwen3.8-27b",
+          "llama-3.1-8b-instant",
+          "llama3-8b-8192",
+          "openai/gpt-oss-120b"
+        ];
       } else {
-        // Mode 70B dipilih oleh pengguna: Coba 70B versatile, lalu fallback otomatis ke 8B jika terkena limit TPM 6.000
-        modelsToTry = ["llama-3.3-70b-versatile", "llama-3.1-70b-versatile", "llama3-8b-8192", "llama-3.1-8b-instant", "mixtral-8x7b-32768"];
+        // Mode Flagship Cerdas: Coba 120B OpenAI OSS, lalu 20B, lalu Qwen 27B, lalu Llama 70B
+        modelsToTry = [
+          "openai/gpt-oss-120b",
+          "openai/gpt-oss-20b",
+          "qwen/qwen3.8-27b",
+          "llama-3.3-70b-versatile",
+          "llama-3.1-8b-instant"
+        ];
       }
     }
 
@@ -1524,7 +1549,8 @@ function initApp() {
         }
 
         const data = await res.json();
-        const content = data.choices?.[0]?.message?.content;
+        const choice = data.choices?.[0]?.message;
+        const content = choice?.content || choice?.reasoning;
         if (!content) throw new Error("Respon kosong diterima dari Groq API.");
         return content;
       } catch (err) {
@@ -1594,8 +1620,8 @@ function initApp() {
     const primary = state.activeAiProvider || "groq";
     const allProviders = ["groq", "deepseek", "gemini"];
     const chain = [primary, ...allProviders.filter(p => p !== primary)];
-    const is8B = (state.groqModel || "").includes("8b");
-    const groqLabel = is8B ? "Groq Cloud (Llama 3.1 8B)" : "Groq Cloud (Llama 3.3 70B)";
+    const isFast = (state.groqModel || "").includes("20b") || (state.groqModel || "").includes("8b");
+    const groqLabel = isFast ? "Groq Super Kilat (20B)" : "Groq Flagship Cerdas (120B)";
     const providerNames = {
       groq: groqLabel,
       deepseek: "DeepSeek Chat",

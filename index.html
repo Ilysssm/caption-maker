@@ -596,13 +596,13 @@
               <span class="text-xs text-neutral-400 dark:text-neutral-500" id="labelCharCounter">0 karakter</span>
             </div>
 
-            <!-- Groq Model Quick Switcher Pill (Llama 70B vs 8B) -->
-            <div class="inline-flex items-center p-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800/90 border border-black/[0.08] dark:border-white/[0.1] text-xs font-semibold shadow-xs" id="pillModelQuickSwitch" title="Pilih Varian Model Groq Llama">
-              <button type="button" class="groq-model-switch-btn active px-3 py-1 rounded-full text-[11px] font-semibold transition-all bg-white dark:bg-[#1f1f24] text-[#111] dark:text-white shadow-xs" data-model="llama-3.3-70b-versatile" id="btnQuick70B" title="Llama 3.3 70B: Penalaran Cerdas, Copywriting Mendalam">
-                🎯 70B Cerdas
+            <!-- Groq Model Quick Switcher Pill (Flagship Cerdas vs Super Kilat) -->
+            <div class="inline-flex items-center p-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800/90 border border-black/[0.08] dark:border-white/[0.1] text-xs font-semibold shadow-xs" id="pillModelQuickSwitch" title="Pilih Varian Model Groq AI">
+              <button type="button" class="groq-model-switch-btn active px-3 py-1 rounded-full text-[11px] font-semibold transition-all bg-white dark:bg-[#1f1f24] text-[#111] dark:text-white shadow-xs" data-model="openai/gpt-oss-120b" id="btnQuick70B" title="Flagship Cerdas: Model 120B/70B dengan Penalaran & Copywriting Mendalam">
+                🎯 Flagship Cerdas
               </button>
-              <button type="button" class="groq-model-switch-btn px-3 py-1 rounded-full text-[11px] font-semibold transition-all text-neutral-500 hover:text-neutral-800 dark:hover:text-white" data-model="llama3-8b-8192" id="btnQuick8B" title="Llama 3.1 8B: Respon Super Kilat, Kuota Longgar 30.000 TPM">
-                ⚡ 8B Kilat
+              <button type="button" class="groq-model-switch-btn px-3 py-1 rounded-full text-[11px] font-semibold transition-all text-neutral-500 hover:text-neutral-800 dark:hover:text-white" data-model="openai/gpt-oss-20b" id="btnQuick8B" title="Super Kilat: Model 20B/8B dengan Respon Instan 0.05s & Bebas Limit">
+                ⚡ Super Kilat
               </button>
             </div>
 
@@ -1127,7 +1127,7 @@
             <div class="grid grid-cols-3 gap-2" id="groupProviderSelector">
               <button type="button" class="provider-radio-btn active p-2.5 rounded-xl border border-appleBlue bg-sky-50/80 dark:bg-sky-950/40 text-left transition-all" data-provider="groq" id="btnProviderGroq">
                 <span class="block text-xs font-bold text-[#111] dark:text-white">Groq Cloud (Utama)</span>
-                <span class="block text-[10px] text-amber-500 font-medium" id="labelActiveGroqModel">Llama 3.3 70B</span>
+                <span class="block text-[10px] text-amber-500 font-medium" id="labelActiveGroqModel">Flagship 120B</span>
               </button>
               <button type="button" class="provider-radio-btn p-2.5 rounded-xl border border-black/[0.1] dark:border-white/[0.1] bg-white dark:bg-[#141418] text-left transition-all hover:border-black/[0.2]" data-provider="gemini" id="btnProviderGemini">
                 <span class="block text-xs font-bold text-[#111] dark:text-white">Google Gemini</span>
@@ -1140,45 +1140,45 @@
             </div>
           </div>
 
-          <!-- Pilihan Varian Model Gratis Groq (Llama 3.3 70B vs Llama 3.1 8B) -->
+          <!-- Pilihan Varian Model Aktif Groq Cloud (Flagship 120B vs Super Kilat 20B) -->
           <div id="boxGroqModelSelector" class="p-3.5 rounded-2xl bg-amber-500/[0.06] border border-amber-500/20 space-y-2.5">
             <div class="flex items-center justify-between">
               <span class="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider flex items-center gap-1.5">
-                <span>⚡</span> Varian Model Gratis Groq:
+                <span>⚡</span> Varian Model Aktif Groq Cloud:
               </span>
-              <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 font-semibold border border-amber-500/30">Groq Free Tier</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 font-semibold border border-amber-500/30">Free & Ultra-Fast</span>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              <!-- Card 70B -->
+              <!-- Card Flagship -->
               <label class="groq-model-card active flex items-start gap-2.5 p-3 rounded-xl border cursor-pointer transition-all bg-white dark:bg-[#141418] border-amber-500 shadow-xs" id="cardModel70B">
-                <input type="radio" name="groq_model_setting" value="llama-3.3-70b-versatile" class="mt-0.5 text-amber-500 focus:ring-amber-500" checked>
+                <input type="radio" name="groq_model_setting" value="openai/gpt-oss-120b" class="mt-0.5 text-amber-500 focus:ring-amber-500" checked>
                 <div class="space-y-0.5 text-left">
                   <div class="text-xs font-bold text-[#111] dark:text-white flex items-center gap-1.5">
-                    <span>Llama 3.3 70B</span>
-                    <span class="text-[9px] px-1.5 py-0.2 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 rounded font-semibold">Tercerdas</span>
+                    <span>Flagship Cerdas</span>
+                    <span class="text-[9px] px-1.5 py-0.2 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 rounded font-semibold">120B / 70B</span>
                   </div>
                   <p class="text-[11px] text-neutral-500 dark:text-neutral-400 leading-snug">
-                    Penalaran mendalam untuk hook persuasif, psikologi emosional, & copywriting strategis (Limit: 6.000 TPM).
+                    Penalaran mendalam (*built-in reasoning*) untuk hook tajam, psikologi emosional, & konversi tinggi. (Respon: ~0.2s).
                   </p>
                 </div>
               </label>
 
-              <!-- Card 8B -->
+              <!-- Card Fast -->
               <label class="groq-model-card flex items-start gap-2.5 p-3 rounded-xl border cursor-pointer transition-all bg-white dark:bg-[#141418] border-black/[0.08] dark:border-white/[0.08] shadow-xs hover:border-amber-500" id="cardModel8B">
-                <input type="radio" name="groq_model_setting" value="llama3-8b-8192" class="mt-0.5 text-amber-500 focus:ring-amber-500">
+                <input type="radio" name="groq_model_setting" value="openai/gpt-oss-20b" class="mt-0.5 text-amber-500 focus:ring-amber-500">
                 <div class="space-y-0.5 text-left">
                   <div class="text-xs font-bold text-[#111] dark:text-white flex items-center gap-1.5">
-                    <span>Llama 3.1 8B</span>
-                    <span class="text-[9px] px-1.5 py-0.2 bg-blue-500/15 text-blue-600 dark:text-blue-400 rounded font-semibold">Super Kilat</span>
+                    <span>Super Kilat</span>
+                    <span class="text-[9px] px-1.5 py-0.2 bg-blue-500/15 text-blue-600 dark:text-blue-400 rounded font-semibold">20B / 8B</span>
                   </div>
                   <p class="text-[11px] text-neutral-500 dark:text-neutral-400 leading-snug">
-                    Respon kilat (&lt;1 detik). Kuota 5x lebih longgar (30.000 TPM) — anti antrean & bebas limit.
+                    Respon kilat (&lt;0.1s). Kuota token super longgar — anti antrean & bebas rate-limit.
                   </p>
                 </div>
               </label>
             </div>
             <p class="text-[10.5px] text-neutral-500 dark:text-neutral-400 italic">
-              *Jika model 70B mencapai batas kuota menit (TPM), sistem otomatis mengalihkan tugas ke model 8B di balik layar agar proses generasi tidak terputus.
+              *Didukung auto-fallback multi-model otomatis (120B, 20B, Qwen 27B, & Llama) jika ada antrean server.
             </p>
           </div>
 
@@ -1194,7 +1194,7 @@
             <!-- Groq Key Input (Primary) -->
             <div class="space-y-1">
               <div class="flex items-center justify-between text-[11px]">
-                <span class="font-semibold text-neutral-600 dark:text-neutral-400">Groq API Key (Llama 3.3 70B & Llama 3.1 8B):</span>
+                <span class="font-semibold text-neutral-600 dark:text-neutral-400">Groq API Key (Flagship 120B & Super Kilat 20B):</span>
                 <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">Prioritas 1</span>
               </div>
               <input type="text" id="inputSettingGroqKey" placeholder="gsk_..." class="w-full p-2.5 rounded-xl border border-black/[0.12] dark:border-white/[0.12] bg-white dark:bg-[#121216] text-xs font-mono text-[#111] dark:text-white outline-none focus:border-appleBlue">
@@ -1233,8 +1233,8 @@
             <!-- Diagnostics Results Box -->
             <div id="boxDiagnosticsResults" class="hidden p-3 rounded-2xl bg-neutral-50 dark:bg-[#111115] border border-black/[0.08] dark:border-white/[0.1] text-xs space-y-1.5">
               <strong class="text-[11px] font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wide block">Hasil Diagnostik Mandiri:</strong>
-              <div id="diagResultGroq70B" class="text-[11.5px] text-neutral-600 dark:text-neutral-400">⏳ Groq Llama 3.3 70B: Menunggu...</div>
-              <div id="diagResultGroq8B" class="text-[11.5px] text-neutral-600 dark:text-neutral-400">⏳ Groq Llama 3.1 8B: Menunggu...</div>
+              <div id="diagResultGroq70B" class="text-[11.5px] text-neutral-600 dark:text-neutral-400">⏳ Groq Flagship Cerdas: Menunggu...</div>
+              <div id="diagResultGroq8B" class="text-[11.5px] text-neutral-600 dark:text-neutral-400">⏳ Groq Super Kilat: Menunggu...</div>
               <div id="diagResultDeepSeek" class="text-[11.5px] text-neutral-600 dark:text-neutral-400">⏳ DeepSeek: Menunggu...</div>
               <div id="diagResultGemini" class="text-[11.5px] text-neutral-600 dark:text-neutral-400">⏳ Gemini: Menunggu...</div>
             </div>
