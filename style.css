@@ -312,3 +312,24 @@ input[type="range"]::-moz-range-thumb {
   overflow: hidden;
 }
 
+/* Groq Model Selector Cards & Quick Switch */
+.groq-model-card {
+  transition: all 0.2s ease;
+}
+
+.groq-model-card.active {
+  border-color: #f59e0b !important;
+  background-color: rgba(245, 158, 11, 0.08) !important;
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.4);
+}
+
+.groq-model-switch-btn {
+  user-select: none;
+  cursor: pointer;
+}
+
+.groq-model-switch-btn.active {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+

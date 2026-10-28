@@ -46,7 +46,8 @@ function getGeminiModel() {
 }
 
 function getGroqModel() {
-  return (typeof window !== "undefined" && window.__GROQ_MODEL__) ? window.__GROQ_MODEL__ : "llama-3.3-70b-versatile";
+  if (typeof window !== "undefined" && window.__GROQ_MODEL__) return window.__GROQ_MODEL__;
+  return (typeof localStorage !== "undefined" ? localStorage.getItem("groq_model_preference") : null) || "llama-3.3-70b-versatile";
 }
 
 function getDeepSeekModel() {
@@ -67,6 +68,7 @@ function initApp() {
   const state = {
     activeView: "studio",
     activeAiProvider: localStorage.getItem("active_ai_provider") || "groq",
+    groqModel: localStorage.getItem("groq_model_preference") || "llama-3.3-70b-versatile",
     geminiApiKey: localStorage.getItem("gemini_api_key") || defaultKeys.gemini,
     groqApiKey: localStorage.getItem("groq_api_key") || defaultKeys.groq,
     deepseekApiKey: localStorage.getItem("deepseek_api_key") || defaultKeys.deepseek,
@@ -176,11 +178,19 @@ function initApp() {
   const btnTestApiKey = document.getElementById("btnTestApiKey");
   const btnTestAllProviders = document.getElementById("btnTestAllProviders");
   const boxDiagnosticsResults = document.getElementById("boxDiagnosticsResults");
-  const diagResultGroq = document.getElementById("diagResultGroq");
+  const diagResultGroq70B = document.getElementById("diagResultGroq70B");
+  const diagResultGroq8B = document.getElementById("diagResultGroq8B");
   const diagResultDeepSeek = document.getElementById("diagResultDeepSeek");
   const diagResultGemini = document.getElementById("diagResultGemini");
   const textApiKeyFeedback = document.getElementById("textApiKeyFeedback");
   const inputSettingGaId = document.getElementById("inputSettingGaId");
+  const labelActiveGroqModel = document.getElementById("labelActiveGroqModel");
+  const boxGroqModelSelector = document.getElementById("boxGroqModelSelector");
+  const cardModel70B = document.getElementById("cardModel70B");
+  const cardModel8B = document.getElementById("cardModel8B");
+  const btnQuick70B = document.getElementById("btnQuick70B");
+  const btnQuick8B = document.getElementById("btnQuick8B");
+  const badgeOutputEngine = document.getElementById("badgeOutputEngine");
 
   // Admin Security Gate Elements
   const modalAdminAuth = document.getElementById("modalAdminAuth");
@@ -623,13 +633,15 @@ function initApp() {
   // Top Status & Toggles Sync
   // --------------------------------------------------------------------------
   function syncEngineStatusBadge() {
+    const is8B = (state.groqModel || "").includes("8b");
+    const groqName = is8B ? "Groq Llama 3.1 8B" : "Groq Llama 3.3 70B";
     const providerNames = {
-      groq: "Groq Llama 3.3",
+      groq: groqName,
       deepseek: "DeepSeek Chat",
       gemini: "Gemini 3.8 Flash"
     };
     const activeProvider = state.activeAiProvider || "groq";
-    const activeName = providerNames[activeProvider] || "Groq Llama 3.3";
+    const activeName = providerNames[activeProvider] || groqName;
 
     let activeKey = "";
     if (activeProvider === "gemini") activeKey = state.geminiApiKey;
@@ -658,6 +670,66 @@ function initApp() {
         textSeoSync.textContent = "Social SEO & Intent: Nonaktif";
         btnToggleSeoSync.className = "hidden xl:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 border border-black/[0.08] dark:border-white/[0.1] text-[11px] font-semibold text-neutral-600 dark:text-neutral-300 transition-all shadow-sm hover:border-black/[0.15]";
       }
+    }
+  }
+
+  function syncGroqModelUI() {
+    const is8B = (state.groqModel || "").includes("8b");
+    const currentModel = is8B ? "llama3-8b-8192" : "llama-3.3-70b-versatile";
+    state.groqModel = currentModel;
+
+    // 1. Label on Groq Provider button in Settings
+    if (labelActiveGroqModel) {
+      labelActiveGroqModel.textContent = is8B ? "Llama 3.1 8B (Kilat)" : "Llama 3.3 70B (Cerdas)";
+    }
+
+    // 2. Radio buttons in Settings
+    const radio70B = document.querySelector('input[name="groq_model_setting"][value="llama-3.3-70b-versatile"]');
+    const radio8B = document.querySelector('input[name="groq_model_setting"][value="llama3-8b-8192"]');
+    if (radio70B && radio8B) {
+      radio70B.checked = !is8B;
+      radio8B.checked = is8B;
+    }
+
+    // 3. Highlight Cards in Settings
+    if (cardModel70B && cardModel8B) {
+      if (is8B) {
+        cardModel8B.classList.add("active");
+        cardModel8B.classList.remove("border-black/[0.08]", "dark:border-white/[0.08]");
+        cardModel70B.classList.remove("active");
+        cardModel70B.classList.add("border-black/[0.08]", "dark:border-white/[0.08]");
+      } else {
+        cardModel70B.classList.add("active");
+        cardModel70B.classList.remove("border-black/[0.08]", "dark:border-white/[0.08]");
+        cardModel8B.classList.remove("active");
+        cardModel8B.classList.add("border-black/[0.08]", "dark:border-white/[0.08]");
+      }
+    }
+
+    // 4. Quick Switcher in Studio Action Bar
+    if (btnQuick70B && btnQuick8B) {
+      if (is8B) {
+        btnQuick8B.classList.add("active", "bg-white", "dark:bg-[#1f1f24]", "text-[#111]", "dark:text-white", "shadow-xs");
+        btnQuick8B.classList.remove("text-neutral-500");
+        btnQuick70B.classList.remove("active", "bg-white", "dark:bg-[#1f1f24]", "text-[#111]", "dark:text-white", "shadow-xs");
+        btnQuick70B.classList.add("text-neutral-500");
+      } else {
+        btnQuick70B.classList.add("active", "bg-white", "dark:bg-[#1f1f24]", "text-[#111]", "dark:text-white", "shadow-xs");
+        btnQuick70B.classList.remove("text-neutral-500");
+        btnQuick8B.classList.remove("active", "bg-white", "dark:bg-[#1f1f24]", "text-[#111]", "dark:text-white", "shadow-xs");
+        btnQuick8B.classList.add("text-neutral-500");
+      }
+    }
+  }
+
+  function setGroqModel(modelId, showNotice = false) {
+    state.groqModel = modelId;
+    localStorage.setItem("groq_model_preference", modelId);
+    syncGroqModelUI();
+    syncEngineStatusBadge();
+    if (showNotice) {
+      const is8B = modelId.includes("8b");
+      showToast(is8B ? "⚡ Model Groq: Llama 3.1 8B Aktif (Super Kilat & Kuota 30.000 TPM)!" : "🎯 Model Groq: Llama 3.3 70B Aktif (Penalaran Cerdas & Terperinci)!");
     }
   }
 
@@ -800,12 +872,41 @@ function initApp() {
         btn.classList.add("border-black/[0.1]", "dark:border-white/[0.1]", "bg-white", "dark:bg-[#141418]");
       }
     });
+    if (boxGroqModelSelector) {
+      if (providerKey === "groq") {
+        boxGroqModelSelector.classList.remove("hidden");
+      } else {
+        boxGroqModelSelector.classList.add("hidden");
+      }
+    }
     syncEngineStatusBadge();
   }
 
   if (btnProviderGemini) btnProviderGemini.addEventListener("click", () => selectAiProvider("gemini"));
   if (btnProviderGroq) btnProviderGroq.addEventListener("click", () => selectAiProvider("groq"));
   if (btnProviderDeepseek) btnProviderDeepseek.addEventListener("click", () => selectAiProvider("deepseek"));
+
+  // Groq Model Toggle Listeners (Settings Modal & Quick Switcher)
+  if (btnQuick70B) {
+    btnQuick70B.addEventListener("click", () => setGroqModel("llama-3.3-70b-versatile", true));
+  }
+  if (btnQuick8B) {
+    btnQuick8B.addEventListener("click", () => setGroqModel("llama3-8b-8192", true));
+  }
+
+  const radioGroqSettings = document.querySelectorAll('input[name="groq_model_setting"]');
+  radioGroqSettings.forEach(r => {
+    r.addEventListener("change", (e) => {
+      setGroqModel(e.target.value, false);
+    });
+  });
+
+  if (cardModel70B) {
+    cardModel70B.addEventListener("click", () => setGroqModel("llama-3.3-70b-versatile", false));
+  }
+  if (cardModel8B) {
+    cardModel8B.addEventListener("click", () => setGroqModel("llama3-8b-8192", false));
+  }
 
   // --------------------------------------------------------------------------
   // Admin Security Gate (Akses Khusus Pengelola Ruang Kalem)
@@ -921,6 +1022,7 @@ function initApp() {
     if (inputSettingDeepSeekKey) inputSettingDeepSeekKey.value = state.deepseekApiKey || defs.deepseek;
     inputSettingGaId.value = state.gaMeasurementId || "";
     selectAiProvider(state.activeAiProvider);
+    syncGroqModelUI();
     textApiKeyFeedback.classList.add("hidden");
     if (textChangePinFeedback) textChangePinFeedback.classList.add("hidden");
     modalSettings.classList.remove("hidden");
@@ -960,7 +1062,8 @@ function initApp() {
         providerName = "Google Gemini (gemini-3.8-flash)";
       } else if (provider === "groq") {
         keyToTest = inputSettingGroqKey?.value.trim() || getDefaultKeys().groq;
-        providerName = "Groq Cloud (llama-3.3-70b-versatile)";
+        const is8B = (state.groqModel || "").includes("8b");
+        providerName = is8B ? "Groq Cloud (Llama 3.1 8B)" : "Groq Cloud (Llama 3.3 70B)";
       } else {
         keyToTest = inputSettingDeepSeekKey?.value.trim() || getDefaultKeys().deepseek;
         providerName = "DeepSeek (deepseek-chat)";
@@ -1009,18 +1112,34 @@ function initApp() {
       const deepseekKey = inputSettingDeepSeekKey?.value.trim() || state.deepseekApiKey || defs.deepseek;
       const geminiKey = inputSettingGeminiKey?.value.trim() || state.geminiApiKey || defs.gemini;
 
-      // 1. Test Groq
-      if (diagResultGroq) {
-        diagResultGroq.innerHTML = "⏳ Groq: Menghubungi server...";
+      // 1. Test Groq 70B
+      if (diagResultGroq70B) {
+        diagResultGroq70B.innerHTML = "⏳ Groq Llama 3.3 70B: Menghubungi server...";
         try {
-          await executeGroq("Ping test", null, groqKey);
-          diagResultGroq.innerHTML = "<span class='text-emerald-500 font-bold'>🟢 Groq Cloud:</span> Terhubung normal (Llama 3.3 / 8B ready)";
+          await executeGroq("Ping test: respond OK", null, groqKey, "llama-3.3-70b-versatile");
+          diagResultGroq70B.innerHTML = "<span class='text-emerald-500 font-bold'>🟢 Groq Llama 3.3 70B:</span> Terhubung normal (Model Cerdas Ready)";
         } catch (err) {
-          diagResultGroq.innerHTML = `<span class='text-rose-500 font-bold'>🔴 Groq Cloud:</span> ${err.message}`;
+          diagResultGroq70B.innerHTML = `<span class='text-rose-500 font-bold'>🔴 Groq Llama 3.3 70B:</span> ${err.message}`;
         }
       }
 
-      // 2. Test DeepSeek
+      // 2. Test Groq 8B
+      if (diagResultGroq8B) {
+        diagResultGroq8B.innerHTML = "⏳ Groq Llama 3.1 8B: Menghubungi server...";
+        try {
+          try {
+            await executeGroq("Ping test: respond OK", null, groqKey, "llama3-8b-8192");
+            diagResultGroq8B.innerHTML = "<span class='text-emerald-500 font-bold'>🟢 Groq Llama 3.1 8B:</span> Terhubung normal (Model Kilat Ready)";
+          } catch (innerErr) {
+            await executeGroq("Ping test: respond OK", null, groqKey, "llama-3.1-8b-instant");
+            diagResultGroq8B.innerHTML = "<span class='text-emerald-500 font-bold'>🟢 Groq Llama 3.1 8B:</span> Terhubung normal (Model Instant Ready)";
+          }
+        } catch (err) {
+          diagResultGroq8B.innerHTML = `<span class='text-rose-500 font-bold'>🔴 Groq Llama 3.1 8B:</span> ${err.message}`;
+        }
+      }
+
+      // 3. Test DeepSeek
       if (diagResultDeepSeek) {
         diagResultDeepSeek.innerHTML = "⏳ DeepSeek: Menghubungi server...";
         try {
@@ -1031,7 +1150,7 @@ function initApp() {
         }
       }
 
-      // 3. Test Gemini
+      // 4. Test Gemini
       if (diagResultGemini) {
         diagResultGemini.innerHTML = "⏳ Gemini: Menghubungi server...";
         try {
@@ -1065,6 +1184,7 @@ function initApp() {
       localStorage.setItem("groq_api_key", newGroq);
       localStorage.setItem("deepseek_api_key", newDeepSeek);
       localStorage.setItem("active_ai_provider", state.activeAiProvider);
+      localStorage.setItem("groq_model_preference", state.groqModel);
       localStorage.setItem("ga_measurement_id", newGaId);
 
       if (typeof window.gtag === "function" && newGaId.startsWith("G-") && newGaId !== "G-XXXXXXXXXX") {
@@ -1343,7 +1463,7 @@ function initApp() {
     return txt;
   }
 
-  async function executeGroq(promptText, attachedFile, customKey = null) {
+  async function executeGroq(promptText, attachedFile, customKey = null, specificModel = null) {
     const key = customKey || state.groqApiKey || getDefaultKeys().groq;
     if (!key) throw new Error("Kunci Groq API belum terkonfigurasi.");
 
@@ -1358,8 +1478,20 @@ function initApp() {
       }
     ];
 
-    // Coba model 70B terlebih dahulu. Jika terkena limit TPM / antrean, alihkan ke model llama3-8b-8192 atau mixtral-8x7b-32768
-    const modelsToTry = [getGroqModel(), "llama3-8b-8192", "mixtral-8x7b-32768"];
+    let modelsToTry = [];
+    if (specificModel) {
+      modelsToTry = [specificModel];
+    } else {
+      const is8B = (state.groqModel || getGroqModel()).includes("8b");
+      if (is8B) {
+        // Mode 8B dipilih oleh pengguna: Coba llama3-8b-8192 atau llama-3.1-8b-instant, lalu fallback ke 70B
+        modelsToTry = ["llama3-8b-8192", "llama-3.1-8b-instant", "llama-3.3-70b-versatile"];
+      } else {
+        // Mode 70B dipilih oleh pengguna: Coba 70B versatile, lalu fallback otomatis ke 8B jika terkena limit TPM 6.000
+        modelsToTry = ["llama-3.3-70b-versatile", "llama-3.1-70b-versatile", "llama3-8b-8192", "llama-3.1-8b-instant", "mixtral-8x7b-32768"];
+      }
+    }
+
     let lastGroqErr = null;
 
     for (let i = 0; i < modelsToTry.length; i++) {
@@ -1383,7 +1515,8 @@ function initApp() {
           const errData = await res.json().catch(() => ({}));
           const errMsg = errData.error?.message || `Groq API HTTP ${res.status}`;
           // Jika ada model alternatif dan error terkait rate limit TPM atau model availability, coba model berikutnya
-          if (i < modelsToTry.length - 1 && (errMsg.includes("TPM") || errMsg.includes("rate_limit") || errMsg.includes("429") || errMsg.includes("does not exist") || errMsg.includes("not found"))) {
+          const isRecoverable = (errMsg.includes("TPM") || errMsg.includes("rate_limit") || errMsg.includes("429") || errMsg.includes("does not exist") || errMsg.includes("not found") || res.status === 404 || res.status === 429);
+          if (i < modelsToTry.length - 1 && isRecoverable) {
             console.warn(`[Groq] Model ${model} terkendala (${errMsg}), beralih otomatis ke model alternatif ${modelsToTry[i+1]}...`);
             continue;
           }
@@ -1396,6 +1529,9 @@ function initApp() {
         return content;
       } catch (err) {
         lastGroqErr = err;
+        if (i < modelsToTry.length - 1 && (err.message.includes("does not exist") || err.message.includes("not found") || err.message.includes("TPM") || err.message.includes("429"))) {
+          continue;
+        }
       }
     }
 
@@ -1458,8 +1594,10 @@ function initApp() {
     const primary = state.activeAiProvider || "groq";
     const allProviders = ["groq", "deepseek", "gemini"];
     const chain = [primary, ...allProviders.filter(p => p !== primary)];
+    const is8B = (state.groqModel || "").includes("8b");
+    const groqLabel = is8B ? "Groq Cloud (Llama 3.1 8B)" : "Groq Cloud (Llama 3.3 70B)";
     const providerNames = {
-      groq: "Groq Cloud (Llama 3.3)",
+      groq: groqLabel,
       deepseek: "DeepSeek Chat",
       gemini: "Google Gemini 3.8 Flash"
     };
@@ -1704,8 +1842,11 @@ ${state.attachedFile?.textContent ? `\n\nISI LAMPIRAN DOKUMEN:\n${state.attached
           const modeTitle = state.activeMode === "strategic"
             ? "🎯 Mode A: Strategic Copywriting"
             : "🌿 Mode B: Human-Professional Caption";
-          const fallbackTag = execution.isFallback ? " • [Auto-Fallback Aktif]" : "";
-          badgeGeneratedMode.textContent = `${modeTitle} • Disusun oleh: ${execution.providerName}${fallbackTag}`;
+          badgeGeneratedMode.textContent = modeTitle;
+        }
+        if (badgeOutputEngine) {
+          const fallbackTag = execution.isFallback ? " [Cadangan]" : "";
+          badgeOutputEngine.textContent = `⚡ ${execution.providerName}${fallbackTag}`;
         }
         if (badgeTimestamp) {
           badgeTimestamp.textContent = new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
@@ -1720,7 +1861,7 @@ ${state.attachedFile?.textContent ? `\n\nISI LAMPIRAN DOKUMEN:\n${state.attached
         sectionOutput.scrollIntoView({ behavior: "smooth", block: "start" });
 
         // Save to Draft History Automatically
-        saveGeneratedDraft(parsed, rawText);
+        saveGeneratedDraft(parsed, rawText, execution.providerName);
 
         trackEvent("generate_caption", {
           mode: state.activeMode,
@@ -1958,8 +2099,9 @@ ${state.attachedFile?.textContent ? `\n\nISI LAMPIRAN DOKUMEN:\n${state.attached
   // --------------------------------------------------------------------------
   // RIWAYAT DRAFT (HISTORY MANAGEMENT & LOCALSTORAGE)
   // --------------------------------------------------------------------------
-  function saveGeneratedDraft(parsed, rawIdea) {
+  function saveGeneratedDraft(parsed, rawIdea, usedProviderName = "") {
     const modeLabel = state.activeMode === "strategic" ? "Strategic Copywriting" : "Human Caption";
+    const defaultGroqName = (state.groqModel || "").includes("8b") ? "Groq Llama 3.1 8B" : "Groq Llama 3.3 70B";
     const newDraft = {
       id: `draft_${Date.now()}`,
       timestamp: new Date().toISOString(),
@@ -1972,6 +2114,7 @@ ${state.attachedFile?.textContent ? `\n\nISI LAMPIRAN DOKUMEN:\n${state.attached
       ctaObjectiveName: state.ctaObjectiveName,
       platform: state.platform,
       platformName: state.platformName,
+      provider: usedProviderName || defaultGroqName,
       rawIdea: rawIdea || parsed.hook,
       hook: parsed.hook,
       body: parsed.body,
@@ -2020,6 +2163,7 @@ ${state.attachedFile?.textContent ? `\n\nISI LAMPIRAN DOKUMEN:\n${state.attached
             <span class="px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-900/40 text-sky-800 dark:text-sky-300 font-semibold text-[10px]">
               ${escapeHtml(draft.frameworkName || "Formula AIDA")}
             </span>
+            ${draft.provider ? `<span class="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 font-semibold text-[10px] border border-amber-500/20">${escapeHtml(draft.provider)}</span>` : ""}
             <span class="text-[11px] text-neutral-400 font-mono">${dateFormatted}</span>
             <span class="text-[11px] text-neutral-500 dark:text-neutral-400 hidden sm:inline">• ${escapeHtml(draft.audienceName || "")}</span>
           </div>
@@ -2600,6 +2744,7 @@ Berikan pemetaan analisis tren dalam format tag yang presisi:
   // --------------------------------------------------------------------------
   // Initial Boot Sequence
   // --------------------------------------------------------------------------
+  syncGroqModelUI();
   syncEngineStatusBadge();
   updateDraftsBadge();
   renderDraftsHistory();
