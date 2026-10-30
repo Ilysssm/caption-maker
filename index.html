@@ -965,33 +965,66 @@
                 </div>
               </div>
 
-              <!-- 3. Target Audiens Spesifik & Format Luaran -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-                <div class="space-y-1.5">
+              <!-- 3. Target Audiens Spesifik & Opsi Preset -->
+              <div class="space-y-2 pt-1">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                   <label class="text-xs font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider block">
                     3. Target Audiens Spesifik:
                   </label>
-                  <input type="text" id="inputNarrativeAudience" value="Pekerja muda usia 22-35 tahun yang sedang mengalami burnout dan overthinking" class="w-full p-3 rounded-xl border border-black/[0.12] dark:border-white/[0.12] bg-white dark:bg-[#111115] text-xs sm:text-sm text-[#111] dark:text-white outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 placeholder:text-neutral-400">
+                  <span class="text-[10.5px] text-neutral-400">Pilih cepat salah satu profil di bawah, atau tulis sendiri:</span>
                 </div>
+                <input type="text" id="inputNarrativeAudience" value="Pekerja muda usia 22-35 tahun yang sedang mengalami burnout, beban kerja, dan rasa bersalah saat istirahat" class="w-full p-3 rounded-xl border border-black/[0.12] dark:border-white/[0.12] bg-white dark:bg-[#111115] text-xs sm:text-sm text-[#111] dark:text-white outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 placeholder:text-neutral-400">
+                
+                <!-- Pilihan Cepat Kategori Audiens Komunitas Ruang Kalem -->
+                <div class="flex items-center gap-1.5 flex-wrap pt-0.5 text-[11px]" id="groupAudiencePresets">
+                  <button type="button" class="btn-audience-preset active px-2.5 py-1 rounded-lg border border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 font-medium transition-all" data-audience="Pekerja muda usia 22-35 tahun yang sedang mengalami burnout, beban kerja, dan rasa bersalah saat istirahat">
+                    💼 Pekerja Muda (Burnout)
+                  </button>
+                  <button type="button" class="btn-audience-preset px-2.5 py-1 rounded-lg border border-black/[0.08] dark:border-white/[0.1] bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:border-emerald-400 transition-all font-medium" data-audience="Mahasiswa dan fresh graduate usia 18-24 tahun yang cemas akan masa depan, skripsi, dan krisis identitas">
+                    🎓 Mahasiswa & Fresh Grad
+                  </button>
+                  <button type="button" class="btn-audience-preset px-2.5 py-1 rounded-lg border border-black/[0.08] dark:border-white/[0.1] bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:border-emerald-400 transition-all font-medium" data-audience="Generasi sandwich usia 25-40 tahun yang memikul beban finansial ganda menafkahi orang tua sekaligus anak">
+                    👨‍👩‍👧 Generasi Sandwich
+                  </button>
+                  <button type="button" class="btn-audience-preset px-2.5 py-1 rounded-lg border border-black/[0.08] dark:border-white/[0.1] bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:border-emerald-400 transition-all font-medium" data-audience="Ibu rumah tangga dan working mom yang memikul invisible labor, kelelahan domestik, dan mom guilt">
+                    🤱 Ibu Rumah Tangga / Working Mom
+                  </button>
+                  <button type="button" class="btn-audience-preset px-2.5 py-1 rounded-lg border border-black/[0.08] dark:border-white/[0.1] bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:border-emerald-400 transition-all font-medium" data-audience="Individu tipe people pleaser yang selalu sungkan, takut mengecewakan orang lain, dan sulit bilang tidak">
+                    🤝 People Pleaser & Sungkanan
+                  </button>
+                  <button type="button" class="btn-audience-preset px-2.5 py-1 rounded-lg border border-black/[0.08] dark:border-white/[0.1] bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:border-emerald-400 transition-all font-medium" data-audience="Pekerja lepas, kreator konten, dan seniman mandiri yang mengalami imposter syndrome dan jam kerja kabur">
+                    🎨 Freelancer & Kreator
+                  </button>
+                  <button type="button" class="btn-audience-preset px-2.5 py-1 rounded-lg border border-black/[0.08] dark:border-white/[0.1] bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:border-emerald-400 transition-all font-medium" data-audience="Pelajar remaja usia 15-20 tahun yang tertekan ekspektasi keluarga, akademik, dan perbandingan media sosial">
+                    🎒 Remaja & Pelajar Gen Z
+                  </button>
+                  <button type="button" class="btn-audience-preset px-2.5 py-1 rounded-lg border border-black/[0.08] dark:border-white/[0.1] bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:border-emerald-400 transition-all font-medium" data-audience="Siapa saja yang merasa kehilangan arah, terjebak overthinking malam hari, dan membutuhkan ruang jeda bernapas">
+                    ☕ Siapapun yang Lelah Batin
+                  </button>
+                  <button type="button" class="btn-audience-preset px-2.5 py-1 rounded-lg border border-black/[0.08] dark:border-white/[0.1] bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:border-emerald-400 transition-all font-medium" data-audience="Individu yang sedang berduka atau terluka batin akibat patah hati, perpisahan relasi, dan rasa hampa">
+                    💔 Patah Hati & Duka Relasi
+                  </button>
+                </div>
+              </div>
 
-                <div class="space-y-1.5">
-                  <label class="text-xs font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider block">
-                    4. Format Naskah Luaran (Bab 7):
-                  </label>
-                  <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5" id="groupResearchFormats">
-                    <button type="button" class="btn-research-format active p-2.5 rounded-xl border text-center text-xs font-semibold border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 transition-all" data-format="carousel_5_7">
-                      📱 Carousel (5-7 Slide)
-                    </button>
-                    <button type="button" class="btn-research-format p-2.5 rounded-xl border text-center text-xs font-semibold border-black/[0.08] dark:border-white/[0.1] bg-white dark:bg-[#1a1a20] text-neutral-600 dark:text-neutral-400 hover:border-emerald-400 transition-all" data-format="reels_60s">
-                      🎬 Reels (60s Skrip)
-                    </button>
-                    <button type="button" class="btn-research-format p-2.5 rounded-xl border text-center text-xs font-semibold border-black/[0.08] dark:border-white/[0.1] bg-white dark:bg-[#1a1a20] text-neutral-600 dark:text-neutral-400 hover:border-emerald-400 transition-all" data-format="long_narrative">
-                      📜 Narasi Panjang (Sebab-Akibat)
-                    </button>
-                    <button type="button" class="btn-research-format p-2.5 rounded-xl border text-center text-xs font-semibold border-black/[0.08] dark:border-white/[0.1] bg-white dark:bg-[#1a1a20] text-neutral-600 dark:text-neutral-400 hover:border-emerald-400 transition-all" data-format="brief_lengkap">
-                      📑 Lembar Lengkap
-                    </button>
-                  </div>
+              <!-- 4. Format Naskah Luaran (Bab 7) -->
+              <div class="space-y-1.5 pt-1">
+                <label class="text-xs font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider block">
+                  4. Format Naskah Luaran (Bab 7):
+                </label>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" id="groupResearchFormats">
+                  <button type="button" class="btn-research-format active p-2.5 rounded-xl border text-center text-xs font-semibold border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 transition-all" data-format="carousel_5_7">
+                    📱 Carousel (5-7 Slide)
+                  </button>
+                  <button type="button" class="btn-research-format p-2.5 rounded-xl border text-center text-xs font-semibold border-black/[0.08] dark:border-white/[0.1] bg-white dark:bg-[#1a1a20] text-neutral-600 dark:text-neutral-400 hover:border-emerald-400 transition-all" data-format="reels_60s">
+                    🎬 Reels (60s Skrip)
+                  </button>
+                  <button type="button" class="btn-research-format p-2.5 rounded-xl border text-center text-xs font-semibold border-black/[0.08] dark:border-white/[0.1] bg-white dark:bg-[#1a1a20] text-neutral-600 dark:text-neutral-400 hover:border-emerald-400 transition-all" data-format="long_narrative">
+                    📜 Narasi Panjang (Sebab-Akibat)
+                  </button>
+                  <button type="button" class="btn-research-format p-2.5 rounded-xl border text-center text-xs font-semibold border-black/[0.08] dark:border-white/[0.1] bg-white dark:bg-[#1a1a20] text-neutral-600 dark:text-neutral-400 hover:border-emerald-400 transition-all" data-format="brief_lengkap">
+                    📑 Lembar Lengkap
+                  </button>
                 </div>
               </div>
 

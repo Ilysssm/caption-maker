@@ -244,6 +244,7 @@ function initApp() {
   const inputNarrativeTopic = document.getElementById("inputNarrativeTopic");
   const btnQuickNarrativeTopics = document.querySelectorAll(".btn-quick-narrative-topic");
   const inputNarrativeAudience = document.getElementById("inputNarrativeAudience");
+  const btnAudiencePresets = document.querySelectorAll(".btn-audience-preset");
   const btnResearchFormats = document.querySelectorAll(".btn-research-format");
   const btnGenerateNarrativeResearch = document.getElementById("btnGenerateNarrativeResearch");
   const textGenerateNarrativeBtn = document.getElementById("textGenerateNarrativeBtn");
@@ -939,13 +940,21 @@ function initApp() {
       /penting untuk (diingat|dipahami|kita sadari|kita catat) bahwa\s*/gi,
       /sebagai kesimpulan,?\s*/gi,
       /mari kita (selami|telaah|bedah|bahas)(\s*bersama)?,?\s*/gi,
-      /sebuah pengingat lembut( untuk kita)?,?\s*/gi
+      /sebuah pengingat lembut( untuk kita)?,?\s*/gi,
+      /di kota(-kota)? besar (di )?indonesia,?\s*(pekerja muda seringkali terjebak dalam budaya ["“']?hustle["”']?( yang menuntut mereka bekerja lebih lama demi reputasi)?[,.]?\s*)?/gi,
+      /pekerja muda seringkali terjebak dalam budaya ["“']?hustle["”']?( yang menuntut mereka bekerja lebih lama demi reputasi)?[,.]?\s*/gi,
+      /ketika beban kerja menumpuk,?\s*(\?\s*hasilnya\.\.?)?\s*/gi,
+      /dalam masyarakat kita (hari|saat) ini,?\s*/gi
     ];
     roboticCliches.forEach(regex => {
       cleaned = cleaned.replace(regex, "");
     });
 
-    return cleaned.trim();
+    cleaned = cleaned.trim();
+    if (cleaned.length > 0) {
+      cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+    }
+    return cleaned;
   }
 
   if (checkHumaniseActive) {
@@ -2541,6 +2550,38 @@ ${state.attachedFile?.textContent ? `\n\nISI LAMPIRAN DOKUMEN:\n${state.attached
     });
   });
 
+  // Quick Audience Preset Chips
+  btnAudiencePresets.forEach(btn => {
+    btn.addEventListener("click", () => {
+      btnAudiencePresets.forEach(b => {
+        b.classList.remove("active", "border-emerald-500", "bg-emerald-50", "dark:bg-emerald-950/40", "text-emerald-800", "dark:text-emerald-300");
+        b.classList.add("border-black/[0.08]", "dark:border-white/[0.1]", "bg-neutral-100", "dark:bg-neutral-800", "text-neutral-700", "dark:text-neutral-300");
+      });
+      btn.classList.add("active", "border-emerald-500", "bg-emerald-50", "dark:bg-emerald-950/40", "text-emerald-800", "dark:text-emerald-300");
+      btn.classList.remove("border-black/[0.08]", "dark:border-white/[0.1]", "bg-neutral-100", "dark:bg-neutral-800", "text-neutral-700", "dark:text-neutral-300");
+
+      if (inputNarrativeAudience && btn.dataset.audience) {
+        inputNarrativeAudience.value = btn.dataset.audience;
+        showToast(`Target audiens disetel ke: ${btn.textContent.trim().split("\n")[0]}`);
+      }
+    });
+  });
+
+  if (inputNarrativeAudience) {
+    inputNarrativeAudience.addEventListener("input", () => {
+      const curVal = inputNarrativeAudience.value.trim();
+      btnAudiencePresets.forEach(b => {
+        if (b.dataset.audience === curVal) {
+          b.classList.add("active", "border-emerald-500", "bg-emerald-50", "dark:bg-emerald-950/40", "text-emerald-800", "dark:text-emerald-300");
+          b.classList.remove("border-black/[0.08]", "dark:border-white/[0.1]", "bg-neutral-100", "dark:bg-neutral-800", "text-neutral-700", "dark:text-neutral-300");
+        } else {
+          b.classList.remove("active", "border-emerald-500", "bg-emerald-50", "dark:bg-emerald-950/40", "text-emerald-800", "dark:text-emerald-300");
+          b.classList.add("border-black/[0.08]", "dark:border-white/[0.1]", "bg-neutral-100", "dark:bg-neutral-800", "text-neutral-700", "dark:text-neutral-300");
+        }
+      });
+    });
+  }
+
   // Format Selector Buttons
   btnResearchFormats.forEach(btn => {
     btn.addEventListener("click", () => {
@@ -2658,18 +2699,38 @@ ATURAN PATOKAN MODUL 2 RUANG KALEM (WAJIB DIPATUHI SECARA KETAT):
 
 6. PRINSIP LOKALISASI KONTEKS SOSIO-BUDAYA INDONESIA (BEBAS LOST IN TRANSLATION):
 ${state.isLocalizationActive ? `
-   - WAJIB LOKALISASI PENUH: Jika teori, studi empiris, atau jurnal psikologi yang Anda rujuk berasal dari literatur internasional berbahasa Inggris (seperti riset APA, The Lancet Psychiatry, Harvard Health, WHO Global Report), Anda WAJIB menerjemahkan dan mengontekstualisasikannya secara luwes ke dalam dinamika sosial budaya Indonesia.
-   - DILARANG menggunakan terjemahan harfiah kata-per-kata yang kaku atau terasa seperti teks mesin asing.
-   - Kaitkan dengan konteks nyata masyarakat Indonesia: rasa sungkan, budaya ewuh pakewuh, ekspektasi keluarga besar/orang tua, beban sandwich generation, dinamika pertemanan/tongkrongan, dan budaya kerja keras (hustle culture kota besar lokal).
+   - WAJIB LOKALISASI PENUH & ANTI-ROBOT: Jika teori, studi empiris, atau jurnal psikologi yang Anda rujuk berasal dari literatur internasional berbahasa Inggris (seperti riset APA, The Lancet Psychiatry, Harvard Health, WHO Global Report), Anda WAJIB menerjemahkan dan menyadurnya secara luwes ke dalam realitas sosial budaya Indonesia yang relevan bagi target audiens: "${audience}".
+   - DILARANG menggunakan terjemahan harfiah kata-per-kata yang kaku atau terasa seperti artikel mesin terjemahan asing.
+   - Sesuaikan nuansa budaya secara tepat dengan target audiens "${audience}":
+     * Jika audiens mahasiswa/fresh grad: realitas skripsi, rasa tertinggal melihat linimasa teman sebaya, ekspektasi orang tua, atau kecemasan finansial pemula.
+     * Jika audiens generasi sandwich: kewajiban moral merawat orang tua, biaya hidup keluarga kecil, dan tabu untuk mengeluh lelah di hadapan keluarga.
+     * Jika audiens ibu rumah tangga/working mom: beban kerja domestik tanpa henti (invisible labor), mom guilt saat ingin istirahat, dan minimnya ruang bernapas pribadi.
+     * Jika audiens people pleaser: budaya sungkan, takut dikira sombong/tidak ramah, serta rasa bersalah mendalam saat berkata "tidak".
+     * Jika audiens pekerja muda: dinamika kantor, lembur tak kasat mata, dan rasa bersalah saat hari libur.
+     * Jika audiens umum/lainnya: sesuaikan dengan beban psikologis dan dinamika relasi yang mereka alami sehari-hari.
+   - DILARANG KERAS memaksakan template "budaya hustle kota besar" jika audiens atau isu yang dibahas bukan tentang itu!
    - Gunakan rasa bahasa Indonesia yang bernapas, alami, mengalir, dan menyentuh sisi manusiawi.
 ` : `
    - Gunakan bahasa Indonesia komunikatif yang mudah dipahami.
 `}
 
-7. NASKAH NARASI PANJANG SEBAB-AKIBAT & RISET MENDALAM (STANDAR PENULIS PROFESIONAL):
+7. STANDAR PENULIS PROFESIONAL & PEMBUKA NARASI ANTI-KLISE (BAGIAN I):
    - Wajib menyusun esai narasi panjang yang komprehensif, terstruktur, sistematis, dan mengalir ritmis (minimal 500-800 kata).
-   - Membedah secara tuntas alur Sebab-Akibat (etiologi, pemicu lingkungan, proses psikologis internal, dampak emosional jangka panjang, lingkaran setan jika dibiarkan, serta rekonstruksi pola pikir adaptif).
-   - Dilarang keras menggunakan tanda baca emdash (— atau --).
+   - DILARANG KERAS MEMULAI PARAGRAF PERTAMA DENGAN KALIMAT KLISE / GENERIK SEPERTI:
+     * ❌ "Di kota besar Indonesia..."
+     * ❌ "Pekerja muda seringkali terjebak dalam budaya hustle..."
+     * ❌ "Di era serba cepat / modern ini..."
+     * ❌ "Dalam masyarakat kita hari ini..."
+     * ❌ "Banyak orang yang..."
+     * ❌ "Ketika beban kerja menumpuk,..."
+     Pembuka seperti itu sangat kaku, klise, membosankan, dan terkesan robotik!
+   - CARA MEMBUKA PARAGRAF (BAGIAN I) SECARA ORGANIK & BERESONANSI:
+     Mulailah secara intim dan hidup dari sudut pandang target audiens: "${audience}":
+     * Buka dengan momen indrawi konkret (micro-moment): suasana ruangan, tatapan mata pada layar ponsel/laptop di tengah malam, helaan napas di ujung hari, atau momen hening yang memicu kecemasan.
+     * Atau buka dengan monolog batin yang jujur: kalimat terpendam yang dirasakan audiens namun jarang diakui terang-terangan.
+     * Atau buka dengan kontradiksi emosional: bagaimana keinginan untuk tenang bertabrakan dengan rasa bersalah yang tak beralasan.
+   - Membedah secara tuntas alur Sebab-Akibat (etiologi pemicu lingkungan, proses psikologis internal, dampak emosional jangka panjang, lingkaran setan jika dibiarkan, serta rekonstruksi pola pikir adaptif).
+   - Dilarang keras menggunakan tanda baca emdash (— atau --). Gunakan koma, titik, atau tanda kurung alami.
 
 FORMAT OUTPUT WAJIB (Gunakan tag berikut secara presisi):
 [CONTENT_ANGLE]
@@ -2746,17 +2807,17 @@ SLIDE 7 (Gentle Closing & Batas Etis):
 `}
 
 [LONG_NARRATIVE_SCRIPT]
-JUDUL: (Judul Esai Narasi Panjang yang Menggugah & Empatis)
+JUDUL: (Judul Esai Narasi Panjang yang Menggugah, Empatis & Terfokus untuk ${audience})
 ESTIMASI: (~850 Kata • 4 Menit Baca • Konteks Budaya Indonesia)
 
-I. PEMBUKA NARATIF & REALITAS SOSIAL DI INDONESIA:
-(Paragraf naratif pembuka yang menggambarkan fenomena nyata yang dirasakan audiens di Indonesia...)
+I. PEMBUKA NARATIF & REALITAS EMOSIONAL:
+(Buka langsung dengan momen konkret, suasana intim, atau monolog batin spesifik dari target audiens: "${audience}". DILARANG MEMULAI dengan kata "Di kota besar Indonesia..." atau "Di era modern...". Buat pembaca langsung merasa dipahami dan tersentuh sejak kalimat pertama...)
 
 II. ANATOMI SEBAB-AKIBAT & DINAMIKA PSIKOLOGIS:
-(Analisis mendalam mengenai akar penyebab/etiologi, trigger internal maupun eksternal, dan bagaimana proses psikologis ini terjadi...)
+(Analisis mendalam mengenai akar penyebab/etiologi, trigger internal maupun eksternal, dan bagaimana proses psikologis ini terjadi pada audiens ini...)
 
 III. TELAAH RISET ILMIAH TERADAPTASI (BEBAS LOST IN TRANSLATION):
-(Ulasan studi empiris atau jurnal internasional yang disajikan dengan rasa bahasa Indonesia yang luwes, tanpa istilah kaku, dan dikaitkan dengan konteks budaya lokal...)
+(Ulasan studi empiris atau jurnal internasional yang disajikan dengan rasa bahasa Indonesia yang luwes, tanpa istilah kaku, dan dikaitkan dengan konteks budaya lokal audiens...)
 
 IV. LINGKARAN SETAN (THE VICIOUS CYCLE) & DAMPAK EMOSIONAL:
 (Penjelasan bagaimana kebiasaan/respons lama justru menjebak audiens dalam kelelahan yang berulang...)
