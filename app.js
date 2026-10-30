@@ -2910,30 +2910,17 @@ ${state.isLocalizationActive ? `
    - Gunakan bahasa Indonesia komunikatif yang mudah dipahami.
 `}
 
-7. STANDAR PENULIS MANUSIA RUANG KALEM (100% BEBAS DARI KESAN ROBOT, NOVEL HOROR, ATAU CERAMAH KAKU):
-   - NADA SUARA WAJIB RUANG KALEM:
-     * Hangat, tulus, menatap mata pembaca, seperti mengobrol santai dari hati ke hati dengan teman dekat yang sangat memahami lelahmu ("kamu" / "kita").
-     * BUKAN gaya dongeng/novel fiksi picisan (DILARANG KERAS menggunakan kalimat klise seperti: "Pada sore yang sepi...", "Di kamar kecil yang temaram...", "Lampu meja menyala...", "Malam itu hening...", "Tatkala rembulan..."). Tulisan kesehatan jiwa BUKAN fiksi sastra lama!
-     * BUKAN ceramah kuliah psikologi atau diagnosis klinis menakut-nakuti (DILARANG KERAS menggunakan kalimat sok tahu seperti: "Ini bukan sekadar stress semata, ini adalah pergeseran batin yang tiba-tiba disebut krisis psikologis"). Modul Ruang Kalem Bab 2 MELARANG menakut-nakuti pembaca dengan istilah klinis berat!
-     * DILARANG KERAS menerjemahkan idiom bahasa Inggris secara harfiah yang menghasilkan frasa aneh/mengerikan (misalnya: "matamu mulai mengelupas", "menatap ke jurang batin", dll). Gunakan bahasa Indonesia sehari-hari yang wajar, luwes, dan bernyawa!
-
-   - CONTOH NYATA CARA PENULIS MANUSIA RUANG KALEM MEMBUKA NASKAH (BAGIAN I):
-     * [Jika Isu Skripsi/Tugas Akhir/Mahasiswa]:
-       "Pernah nggak, kamu lagi duduk diam di depan laptop, tugas akhir belum juga selesai, tapi energimu mendadak habis tak bersisa? Ada rasa cemas yang merayap pelan. Bukan karena kamu malas, tapi karena kepalamu sudah terlalu penuh memikirkan ekspektasi yang harus kamu pikul sendirian."
-     * [Jika Isu People Pleasing / Sungkan]:
-       "Pesan masuk berdering di ponsel. Jemarimu otomatis mengetik 'Iya boleh, gampang', padahal di dalam hati kamu sedang berteriak lelah. Rasa sungkan dan takut dicap mengecewakan orang lain sering kali membuat kita lupa bahwa diri kita juga butuh diselamatkan."
-     * [Jika Isu Burnout / Pekerja Muda]:
-       "Ada rasa bersalah yang aneh saat kamu membiarkan alarm mati di akhir pekan tanpa rencana produktif apa pun. Di kepala rasanya terus berputar suara yang menuntutmu untuk tidak boleh tertinggal, padahal tubuhmu sudah lama memberi sinyal darurat."
-     * [Jika Isu Generasi Sandwich]:
-       "Ketika saldo rekening harus dibagi dua antara kebutuhan sendiri dan transferan bulanan keluarga, ada helaan napas panjang yang selalu kamu tahan sendirian. Bukan karena tidak ikhlas, tapi kamu juga manusia yang kadang ingin ditanya: 'Kamu sendiri sudah makan?'"
-
-   - ATURAN TATA BAHASA & RITME KALIMAT:
-     * Wajib menyusun esai narasi panjang yang komprehensif, terstruktur, sistematis, dan mengalir ritmis (minimal 500-800 kata).
-     * Membedah secara tuntas alur Sebab-Akibat (etiologi pemicu lingkungan, proses psikologis internal, dampak emosional jangka panjang, lingkaran setan jika dibiarkan, serta rekonstruksi pola pikir adaptif).
-     * Gunakan kalimat pendek hingga sedang yang mengalir wajar saat dibaca bersuara (read aloud test).
-     * Dilarang menggunakan titik koma (;) yang kaku.
-     * Dilarang menggunakan kata kuno seperti "semata", "tatkala", "manakala", "alkisah".
-     * Dilarang keras menggunakan tanda baca emdash (— atau --). Gunakan koma, titik, atau tanda kurung santun.
+7. STANDAR PENULIS MANUSIA RUANG KALEM (STRUKTUR 3 BAGIAN: OPENING, MAIN, CONCLUSION):
+   - Wajib menyusun esai narasi panjang yang komprehensif, terstruktur rapi ke dalam 3 bagian tegas:
+     1. OPENING (150-250 kata): Pembuka naratif yang intim, hangat, menatap mata pembaca, dan menangkap keresahan nyata dari sudut pandang target audiens ("${audience}"). Dilarang gaya fiksi dongeng kuno ("Pada sore yang sepi...") dan dilarang ceramah kaku ("Ini bukan sekadar stress semata...").
+     2. MAIN (550-800 kata): Isi utama narasi yang mengalir utuh dan alami. Membedah tuntas dinamika Sebab-Akibat (etiologi, pemicu lingkungan, proses psikologis internal, lingkaran beban emosional) yang dipadukan secara luwes dengan wawasan riset ilmiah teradaptasi budaya Indonesia (Bebas Lost in Translation). Tulis sebagai narasi bercerita yang utuh tanpa sub-judul kaku.
+     3. CONCLUSION (150-250 kata): Penutup hangat, langkah mikrokoping terjangkau hari ini, rekonstruksi cara pandang yang membebaskan, dan penegasan batas etis bahwa konten edukasi ini bukan pengganti terapi profesional serta rujukan Hotline Kemenkes 119 ext 8.
+   - TOTAL TARGET PANJANG KATA: 800 - 1.200 kata (Komprehensif & mendalam sesuai standar penulis profesional).
+   - Memisahkan antar paragraf dengan jeda baris yang jelas (double newline).
+   - Gunakan kalimat pendek hingga sedang yang mengalir wajar saat dibaca bersuara (read aloud test).
+   - Dilarang menggunakan titik koma (;) yang kaku.
+   - Dilarang menggunakan kata kuno seperti "semata", "tatkala", "manakala", "alkisah".
+   - Dilarang keras menggunakan tanda baca emdash (— atau --). Gunakan koma, titik, atau tanda kurung santun.
 
 FORMAT OUTPUT WAJIB (Gunakan tag berikut secara presisi):
 [CONTENT_ANGLE]
@@ -3009,30 +2996,20 @@ SLIDE 7 (Gentle Closing & Batas Etis):
 (Penutup hangat, ajakan simpan, batasan etis: bukan pengganti profesional, dan info hotline 119 ext 8)
 `}
 
-[LONG_NARRATIVE_SCRIPT]
-JUDUL: (Judul Esai Narasi Panjang yang Menggugah, Empatis & Terfokus untuk ${audience})
-ESTIMASI: (~850 Kata • 4 Menit Baca • Konteks Budaya Indonesia)
+[NARRATIVE_TITLE]
+(Judul Esai Narasi Panjang yang Menggugah, Empatis & Spesifik untuk ${audience})
 
-I. PEMBUKA NARATIF & REALITAS EMOSIONAL:
-(Wajib ditulis seperti manusia sejati yang mengobrol empati berdua dengan ${audience}. Buka langsung dari keresahan nyata atau dialog batin. DILARANG menggunakan gaya fiksi dongeng "Pada sore yang sepi...", DILARANG memakai metafora aneh seperti "matamu mengelupas", dan DILARANG memakai ceramah kaku "Ini bukan sekadar stress semata...". Tulis dengan kehangatan khas Ruang Kalem...)
+[NARRATIVE_OPENING]
+(Teks Bagian 1 - Opening: 150-250 kata. Buka langsung dari keresahan intim dan realitas emosional pembaca. Tulis dalam 2-3 paragraf mengalir dengan jeda baris bersih. Dilarang gaya fiksi kuno, dilarang metafora aneh...)
 
-II. ANATOMI SEBAB-AKIBAT & DINAMIKA PSIKOLOGIS:
-(Analisis mendalam mengenai akar penyebab/etiologi, trigger internal maupun eksternal, dan bagaimana proses psikologis ini terjadi pada audiens ini...)
+[NARRATIVE_MAIN]
+(Teks Bagian 2 - Main: 550-800 kata. Isi utama yang mengalir utuh membedah anatomi sebab-akibat, pemicu lingkungan, proses psikologis internal, dan wawasan riset ilmiah teradaptasi budaya Indonesia. Tulis dalam 4-6 paragraf bercerita yang mendalam dengan jeda baris bersih...)
 
-III. TELAAH RISET ILMIAH TERADAPTASI (BEBAS LOST IN TRANSLATION):
-(Ulasan studi empiris atau jurnal internasional yang disajikan dengan rasa bahasa Indonesia yang luwes, tanpa istilah kaku, dan dikaitkan dengan konteks budaya lokal audiens...)
-
-IV. LINGKARAN SETAN (THE VICIOUS CYCLE) & DAMPAK EMOSIONAL:
-(Penjelasan bagaimana kebiasaan/respons lama justru menjebak audiens dalam kelelahan yang berulang...)
-
-V. JALAN KELUAR ADAPTIF & REKONSTRUKSI KOGNITIF:
-(Langkah-langkah mikrokoping praktis, pembingkaian ulang cara pandang, dan batasan sehat yang terjangkau...)
-
-VI. PENUTUP HANGAT & PENEGASAN BATAS ETIS:
-(Penutup yang menenangkan, penegasan batas etis bahwa konten edukasi ini bukan pengganti terapi profesional, serta info kontak bantuan Hotline Kemenkes 119 ext 8...)
+[NARRATIVE_CONCLUSION]
+(Teks Bagian 3 - Conclusion: 150-250 kata. Penutup hangat yang menenangkan, mikrokoping terjangkau hari ini, pesan harapan realistis, batas etis bukan pengganti terapi klinis, dan info bantuan Hotline Kemenkes 119 ext 8...)
 
 [STUDIO_TRANSFER_TEXT]
-(Teks naskah lengkap yang sudah siap ditransfer ke form Studio penulisan untuk dipoles lebih lanjut)
+(Teks naskah gabungan Opening, Main, dan Conclusion yang sudah siap dipindahkan ke Studio)
 `;
 
       const execution = await executeWithAutoFallback(researchPrompt, null, (msg) => {
@@ -3057,10 +3034,53 @@ VI. PENUTUP HANGAT & PENEGASAN BATAS ETIS:
       const feasMatch = rawResponse.match(/\[FEASIBILITY_5\]([\s\S]*?)(?=\[SENSITIVE_AUDIT\]|\[STIGMA_FREE_TABLE\]|$)/i);
       const sensitiveMatch = rawResponse.match(/\[SENSITIVE_AUDIT\]([\s\S]*?)(?=\[STIGMA_FREE_TABLE\]|\[SOURCES_CRAAP\]|$)/i);
       const stigmaMatch = rawResponse.match(/\[STIGMA_FREE_TABLE\]([\s\S]*?)(?=\[SOURCES_CRAAP\]|\[RESONANT_SCRIPT\]|$)/i);
-      const sourcesMatch = rawResponse.match(/\[SOURCES_CRAAP\]([\s\S]*?)(?=\[RESONANT_SCRIPT\]|\[LONG_NARRATIVE_SCRIPT\]|\[STUDIO_TRANSFER_TEXT\]|$)/i);
-      const scriptMatch = rawResponse.match(/\[RESONANT_SCRIPT\]([\s\S]*?)(?=\[LONG_NARRATIVE_SCRIPT\]|\[STUDIO_TRANSFER_TEXT\]|$)/i);
-      const longNarrativeMatch = rawResponse.match(/\[LONG_NARRATIVE_SCRIPT\]([\s\S]*?)(?=\[STUDIO_TRANSFER_TEXT\]|$)/i);
+      const sourcesMatch = rawResponse.match(/\[SOURCES_CRAAP\]([\s\S]*?)(?=\[RESONANT_SCRIPT\]|\[NARRATIVE_TITLE\]|\[NARRATIVE_OPENING\]|\[LONG_NARRATIVE_SCRIPT\]|\[STUDIO_TRANSFER_TEXT\]|$)/i);
+      const scriptMatch = rawResponse.match(/\[RESONANT_SCRIPT\]([\s\S]*?)(?=\[NARRATIVE_TITLE\]|\[NARRATIVE_OPENING\]|\[LONG_NARRATIVE_SCRIPT\]|\[STUDIO_TRANSFER_TEXT\]|$)/i);
+
+      // Parse 3 Parts of Long Narrative
+      const titleMatch = rawResponse.match(/\[NARRATIVE_TITLE\]([\s\S]*?)(?=\[NARRATIVE_OPENING\]|\[NARRATIVE_MAIN\]|$)/i);
+      const openingMatch = rawResponse.match(/\[NARRATIVE_OPENING\]([\s\S]*?)(?=\[NARRATIVE_MAIN\]|\[NARRATIVE_CONCLUSION\]|\[STUDIO_TRANSFER_TEXT\]|$)/i);
+      const mainMatch = rawResponse.match(/\[NARRATIVE_MAIN\]([\s\S]*?)(?=\[NARRATIVE_CONCLUSION\]|\[STUDIO_TRANSFER_TEXT\]|$)/i);
+      const conclusionMatch = rawResponse.match(/\[NARRATIVE_CONCLUSION\]([\s\S]*?)(?=\[STUDIO_TRANSFER_TEXT\]|$)/i);
       const transferMatch = rawResponse.match(/\[STUDIO_TRANSFER_TEXT\]([\s\S]*?)$/i);
+
+      let narrativeTitle = (titleMatch ? titleMatch[1] : "").replace(/^judul:?/i, "").replace(/["']/g, "").trim();
+      let openingText = (openingMatch ? openingMatch[1] : "").trim();
+      let mainText = (mainMatch ? mainMatch[1] : "").trim();
+      let conclusionText = (conclusionMatch ? conclusionMatch[1] : "").trim();
+
+      // Bulletproof Fallbacks
+      if (!openingText || !mainText) {
+        const legacyMatch = rawResponse.match(/\[LONG_NARRATIVE_SCRIPT\]([\s\S]*?)(?=\[STUDIO_TRANSFER_TEXT\]|$)/i);
+        const legacy = (legacyMatch ? legacyMatch[1] : "").trim();
+        if (legacy) {
+          const parts = legacy.split(/(?:I|II|III|IV|V|VI)\.\s+[^\n:]+[:\n]/i).filter(p => p && p.trim().length > 10);
+          if (parts.length >= 3) {
+            openingText = parts[0].trim();
+            mainText = parts.slice(1, -1).join("\n\n").trim() || parts[1].trim();
+            conclusionText = parts[parts.length - 1].trim();
+          } else {
+            const pars = legacy.split(/\n\s*\n/).filter(p => p.trim().length > 0);
+            if (pars.length >= 3) {
+              openingText = pars[0].trim();
+              mainText = pars.slice(1, -1).join("\n\n").trim();
+              conclusionText = pars[pars.length - 1].trim();
+            } else {
+              openingText = legacy;
+              mainText = "";
+              conclusionText = "";
+            }
+          }
+        }
+      }
+
+      // Unified 3-part long narrative text
+      const full3PartNarrative = [
+        narrativeTitle ? `### ${narrativeTitle}` : "",
+        openingText ? `**1. OPENING**\n${openingText}` : "",
+        mainText ? `**2. MAIN**\n${mainText}` : "",
+        conclusionText ? `**3. CONCLUSION**\n${conclusionText}` : ""
+      ].filter(Boolean).join("\n\n");
 
       const angleText = (angleMatch ? angleMatch[1] : "").trim();
       const feasText = (feasMatch ? feasMatch[1] : "").trim();
@@ -3068,11 +3088,10 @@ VI. PENUTUP HANGAT & PENEGASAN BATAS ETIS:
       const stigmaText = (stigmaMatch ? stigmaMatch[1] : "").trim();
       const sourcesText = (sourcesMatch ? sourcesMatch[1] : "").trim();
       const scriptText = (scriptMatch ? scriptMatch[1] : "").trim();
-      const longNarrativeText = (longNarrativeMatch ? longNarrativeMatch[1] : "").trim();
       let studioText = (transferMatch ? transferMatch[1] : "").trim();
 
       if (!studioText) {
-        studioText = formatKey === "long_narrative" ? longNarrativeText : (scriptText || longNarrativeText);
+        studioText = formatKey === "long_narrative" ? full3PartNarrative : (scriptText || full3PartNarrative);
       }
 
       // Render Angle Formula
@@ -3244,68 +3263,104 @@ VI. PENUTUP HANGAT & PENEGASAN BATAS ETIS:
         }
       }
 
-      // Render Card 6: Naskah Narasi Panjang (Sebab-Akibat & Riset Mendalam)
-      if (containerLongNarrativeBody && cardLongNarrative) {
-        if (longNarrativeText) {
-          cardLongNarrative.classList.remove("hidden");
-          const wordCount = longNarrativeText.split(/\s+/).filter(Boolean).length;
-          const readTime = Math.max(1, Math.round(wordCount / 180));
-          if (badgeLongNarrativeStats) {
-            badgeLongNarrativeStats.textContent = `~${wordCount} Kata • ⏱️ ${readTime} Menit Baca • 🇮🇩 Teradaptasi`;
-          }
-
-          // Split by Roman Numerals or main section headers
-          const rawSections = longNarrativeText.split(/(?=(?:^|\n)(?:I|II|III|IV|V|VI)\.\s+[^\n]+)/g).filter(s => s && s.trim().length > 10);
-          
-          containerLongNarrativeBody.innerHTML = "";
-          
-          if (rawSections.length > 0) {
-            rawSections.forEach((sec) => {
-              const lines = sec.trim().split("\n");
-              const secHeader = lines[0].trim();
-              const secBody = lines.slice(1).join("\n").trim();
-              
-              const isEtiology = /sebab|akibat|anatomi|etiologi/i.test(secHeader);
-              const isLocalized = /riset|ilmiah|jurnal|lost in translation|adaptasi|telaah/i.test(secHeader);
-              const isClosing = /penutup|batas etis|hotline/i.test(secHeader);
-              
-              const secCard = document.createElement("div");
-              secCard.className = `p-4 sm:p-5 rounded-2xl ${
-                isEtiology 
-                  ? 'bg-amber-50/50 dark:bg-amber-950/20 border border-amber-300/60 dark:border-amber-800/40' 
-                  : isLocalized 
-                    ? 'bg-sky-50/50 dark:bg-sky-950/20 border border-sky-300/60 dark:border-sky-800/40' 
-                    : isClosing
-                      ? 'bg-emerald-50/40 dark:bg-emerald-950/15 border border-emerald-300/50 dark:border-emerald-800/40'
-                      : 'bg-neutral-50/80 dark:bg-[#111115] border border-black/[0.06] dark:border-white/[0.08]'
-              } space-y-2.5`;
-              
-              secCard.innerHTML = `
-                <div class="flex items-center justify-between pb-1.5 border-b border-black/[0.05] dark:border-white/[0.06] flex-wrap gap-1.5">
-                  <span class="font-bold text-xs sm:text-sm text-[#111] dark:text-white flex items-center gap-2">
-                    <span>${isEtiology ? '🎯' : isLocalized ? '🇮🇩' : isClosing ? '🛡️' : '📌'}</span>
-                    <span>${escapeHtml(secHeader)}</span>
-                  </span>
-                  ${isEtiology ? '<span class="px-2 py-0.5 rounded-full bg-amber-200/80 dark:bg-amber-900 text-amber-800 dark:text-amber-200 text-[10px] font-extrabold uppercase">Sebab - Akibat</span>' : ''}
-                  ${isLocalized ? '<span class="px-2 py-0.5 rounded-full bg-sky-200/80 dark:bg-sky-900 text-sky-800 dark:text-sky-200 text-[10px] font-extrabold uppercase">Bebas Lost In Translation</span>' : ''}
-                </div>
-                <div class="text-xs sm:text-sm text-neutral-800 dark:text-neutral-200 leading-relaxed font-normal whitespace-pre-line">
-                  ${escapeHtml(secBody || sec)}
-                </div>
-              `;
-              containerLongNarrativeBody.appendChild(secCard);
-            });
-          } else {
-            containerLongNarrativeBody.innerHTML = `
-              <div class="p-4 rounded-2xl bg-neutral-50 dark:bg-[#111115] text-xs sm:text-sm leading-relaxed whitespace-pre-line">
-                ${escapeHtml(longNarrativeText)}
-              </div>
-            `;
-          }
-        } else {
+      // Render Card 6: Naskah Narasi Panjang 3-Bagian (Opening, Main, Conclusion)
+      function render3PartLongNarrative(title, opening, main, conclusion) {
+        if (!containerLongNarrativeBody || !cardLongNarrative) return;
+        if (!opening && !main && !conclusion) {
           cardLongNarrative.classList.add("hidden");
+          return;
         }
+
+        cardLongNarrative.classList.remove("hidden");
+        const fullCombined = `${title ? `${title}\n\n` : ""}${opening}\n\n${main}\n\n${conclusion}`;
+        const totalWords = fullCombined.split(/\s+/).filter(Boolean).length;
+        const readTime = Math.max(1, Math.round(totalWords / 180));
+
+        if (titleLongNarrative) {
+          titleLongNarrative.textContent = title ? `Naskah Narasi: "${title}"` : "Naskah Narasi Panjang 3-Bagian (Opening, Main, Conclusion)";
+        }
+        if (badgeLongNarrativeStats) {
+          badgeLongNarrativeStats.textContent = `~${totalWords} Kata • ⏱️ ${readTime} Menit Baca • 🇮🇩 3 Bagian Rapi`;
+        }
+
+        containerLongNarrativeBody.innerHTML = `
+          <!-- Card 1: OPENING -->
+          <div class="p-5 sm:p-6 rounded-3xl bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-300/80 dark:border-emerald-800/60 space-y-3 shadow-xs">
+            <div class="flex items-center justify-between pb-2.5 border-b border-emerald-200/70 dark:border-emerald-800/50 flex-wrap gap-2">
+              <div class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-xs font-bold shadow-xs">1</span>
+                <div>
+                  <span class="font-extrabold text-xs sm:text-sm text-emerald-950 dark:text-emerald-200 uppercase tracking-wide flex items-center gap-1.5">
+                    <span>🌱</span> OPENING: Pembuka Naratif & Resonansi
+                  </span>
+                  <span class="text-[10.5px] text-emerald-700 dark:text-emerald-400">Empathy Bridge • Menatap Mata Pembaca</span>
+                </div>
+              </div>
+              <button type="button" class="btn-copy-section-opening px-3 py-1 rounded-full bg-white dark:bg-[#111115] hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300/60 text-xs font-semibold transition-all shadow-xs flex items-center gap-1">
+                📋 Salin Opening
+              </button>
+            </div>
+            <div class="text-xs sm:text-sm text-neutral-800 dark:text-neutral-200 leading-relaxed font-normal whitespace-pre-line space-y-2">
+              ${escapeHtml(opening || "Pembuka narasi tidak tersedia.")}
+            </div>
+          </div>
+
+          <!-- Card 2: MAIN -->
+          <div class="p-5 sm:p-6 rounded-3xl bg-sky-50/70 dark:bg-sky-950/20 border border-sky-300/80 dark:border-sky-800/60 space-y-3 shadow-xs">
+            <div class="flex items-center justify-between pb-2.5 border-b border-sky-200/70 dark:border-sky-800/50 flex-wrap gap-2">
+              <div class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-xl bg-sky-600 text-white flex items-center justify-center text-xs font-bold shadow-xs">2</span>
+                <div>
+                  <span class="font-extrabold text-xs sm:text-sm text-sky-950 dark:text-sky-200 uppercase tracking-wide flex items-center gap-1.5">
+                    <span>🎯</span> MAIN: Isi Utama (Sebab-Akibat & Riset Teradaptasi)
+                  </span>
+                  <span class="text-[10.5px] text-sky-700 dark:text-sky-400">Dinamika Kognitif • Riset Empiris Bebas Lost in Translation</span>
+                </div>
+              </div>
+              <button type="button" class="btn-copy-section-main px-3 py-1 rounded-full bg-white dark:bg-[#111115] hover:bg-sky-100 dark:hover:bg-sky-900/60 text-sky-800 dark:text-sky-300 border border-sky-300/60 text-xs font-semibold transition-all shadow-xs flex items-center gap-1">
+                📋 Salin Main
+              </button>
+            </div>
+            <div class="text-xs sm:text-sm text-neutral-800 dark:text-neutral-200 leading-relaxed font-normal whitespace-pre-line space-y-2">
+              ${escapeHtml(main || "Isi utama narasi tidak tersedia.")}
+            </div>
+          </div>
+
+          <!-- Card 3: CONCLUSION -->
+          <div class="p-5 sm:p-6 rounded-3xl bg-teal-50/70 dark:bg-teal-950/20 border border-teal-300/80 dark:border-teal-800/60 space-y-3 shadow-xs">
+            <div class="flex items-center justify-between pb-2.5 border-b border-teal-200/70 dark:border-teal-800/50 flex-wrap gap-2">
+              <div class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-xl bg-teal-600 text-white flex items-center justify-center text-xs font-bold shadow-xs">3</span>
+                <div>
+                  <span class="font-extrabold text-xs sm:text-sm text-teal-950 dark:text-teal-200 uppercase tracking-wide flex items-center gap-1.5">
+                    <span>🌿</span> CONCLUSION: Penutup, Jalan Keluar & Batas Etis
+                  </span>
+                  <span class="text-[10.5px] text-teal-700 dark:text-teal-400">Mikrokoping Praktis • Batasan Etis Non-Klinis • Hotline 119</span>
+                </div>
+              </div>
+              <button type="button" class="btn-copy-section-conclusion px-3 py-1 rounded-full bg-white dark:bg-[#111115] hover:bg-teal-100 dark:hover:bg-teal-900/60 text-teal-800 dark:text-teal-300 border border-teal-300/60 text-xs font-semibold transition-all shadow-xs flex items-center gap-1">
+                📋 Salin Conclusion
+              </button>
+            </div>
+            <div class="text-xs sm:text-sm text-neutral-800 dark:text-neutral-200 leading-relaxed font-normal whitespace-pre-line space-y-2">
+              ${escapeHtml(conclusion || "Penutup narasi tidak tersedia.")}
+            </div>
+          </div>
+        `;
+
+        // Wire per-section copy buttons
+        containerLongNarrativeBody.querySelector(".btn-copy-section-opening")?.addEventListener("click", () => {
+          navigator.clipboard.writeText(opening).then(() => showToast("📋 Bagian Opening berhasil disalin!"));
+        });
+        containerLongNarrativeBody.querySelector(".btn-copy-section-main")?.addEventListener("click", () => {
+          navigator.clipboard.writeText(main).then(() => showToast("📋 Bagian Main berhasil disalin!"));
+        });
+        containerLongNarrativeBody.querySelector(".btn-copy-section-conclusion")?.addEventListener("click", () => {
+          navigator.clipboard.writeText(conclusion).then(() => showToast("📋 Bagian Conclusion berhasil disalin!"));
+        });
       }
+
+      render3PartLongNarrative(narrativeTitle, openingText, mainText, conclusionText);
 
       // Store in state
       state.currentNarrativeResult = {
@@ -3320,9 +3375,13 @@ VI. PENUTUP HANGAT & PENEGASAN BATAS ETIS:
         stigmaText,
         sourcesText,
         scriptText,
-        longNarrativeText,
+        narrativeTitle,
+        narrativeOpening: openingText,
+        narrativeMain: mainText,
+        narrativeConclusion: conclusionText,
+        longNarrativeText: full3PartNarrative,
         studioText,
-        fullMarkdown: `# Lembar Riset Narasi & Content Angle Ruang Kalem\n**Topik:** ${topic}\n**Pilar:** ${pillarTitles[pillarKey]}\n**Target Audiens:** ${audience}\n**Status Keamanan:** ${isSensitiveConfirmed ? "⚠️ BUTUH KURASI PSIKOLOG/FOUNDER" : "✅ AMAN"}\n\n## Content Angle\n${angleText}\n\n## 5 Uji Kelayakan\n${feasText}\n\n## Safe Messaging & Stigma Free\n${stigmaText}\n\n## Hierarki Sumber & CRAAP\n${sourcesText}\n\n## Naskah Ringkas (Carousel / Reels)\n${scriptText}\n\n## Naskah Narasi Panjang (Sebab-Akibat & Riset Mendalam)\n${longNarrativeText}`
+        fullMarkdown: `# Lembar Riset Narasi & Content Angle Ruang Kalem\n**Topik:** ${topic}\n**Pilar:** ${pillarTitles[pillarKey]}\n**Target Audiens:** ${audience}\n**Status Keamanan:** ${isSensitiveConfirmed ? "⚠️ BUTUH KURASI PSIKOLOG/FOUNDER" : "✅ AMAN"}\n\n## Content Angle\n${angleText}\n\n## 5 Uji Kelayakan\n${feasText}\n\n## Safe Messaging & Stigma Free\n${stigmaText}\n\n## Hierarki Sumber & CRAAP\n${sourcesText}\n\n## Naskah Ringkas (Carousel / Reels)\n${scriptText}\n\n## Naskah Narasi Panjang (3 Bagian: Opening, Main, Conclusion)\n${full3PartNarrative}`
       };
 
       containerNarrativeResult?.classList.remove("hidden");
@@ -3430,10 +3489,14 @@ VI. PENUTUP HANGAT & PENEGASAN BATAS ETIS:
         showToast("⚠️ Belum ada naskah riset untuk dibersihkan.", false);
         return;
       }
-      state.currentNarrativeResult.scriptText = sanitizeHumaniseText(state.currentNarrativeResult.scriptText);
-      state.currentNarrativeResult.longNarrativeText = sanitizeHumaniseText(state.currentNarrativeResult.longNarrativeText);
-      state.currentNarrativeResult.studioText = sanitizeHumaniseText(state.currentNarrativeResult.studioText);
-      state.currentNarrativeResult.fullMarkdown = sanitizeHumaniseText(state.currentNarrativeResult.fullMarkdown);
+      state.currentNarrativeResult.scriptText = sanitizeHumaniseText(state.currentNarrativeResult.scriptText || "");
+      state.currentNarrativeResult.narrativeTitle = sanitizeHumaniseText(state.currentNarrativeResult.narrativeTitle || "");
+      state.currentNarrativeResult.narrativeOpening = sanitizeHumaniseText(state.currentNarrativeResult.narrativeOpening || "");
+      state.currentNarrativeResult.narrativeMain = sanitizeHumaniseText(state.currentNarrativeResult.narrativeMain || "");
+      state.currentNarrativeResult.narrativeConclusion = sanitizeHumaniseText(state.currentNarrativeResult.narrativeConclusion || "");
+      state.currentNarrativeResult.longNarrativeText = sanitizeHumaniseText(state.currentNarrativeResult.longNarrativeText || "");
+      state.currentNarrativeResult.studioText = sanitizeHumaniseText(state.currentNarrativeResult.studioText || "");
+      state.currentNarrativeResult.fullMarkdown = sanitizeHumaniseText(state.currentNarrativeResult.fullMarkdown || "");
 
       if (containerResonantSlides) {
         const slideBlocks = state.currentNarrativeResult.scriptText.split(/(?=SLIDE\s*\d+|SCENE\s*\d+)/i).filter(b => b.trim().length > 5);
@@ -3462,42 +3525,12 @@ VI. PENUTUP HANGAT & PENEGASAN BATAS ETIS:
       }
 
       if (containerLongNarrativeBody && state.currentNarrativeResult.longNarrativeText) {
-        const rawSections = state.currentNarrativeResult.longNarrativeText.split(/(?=(?:^|\n)(?:I|II|III|IV|V|VI)\.\s+[^\n]+)/g).filter(s => s && s.trim().length > 10);
-        containerLongNarrativeBody.innerHTML = "";
-        rawSections.forEach((sec) => {
-          const lines = sec.trim().split("\n");
-          const secHeader = lines[0].trim();
-          const secBody = lines.slice(1).join("\n").trim();
-          const isEtiology = /sebab|akibat|anatomi|etiologi/i.test(secHeader);
-          const isLocalized = /riset|ilmiah|jurnal|lost in translation|adaptasi|telaah/i.test(secHeader);
-          const isClosing = /penutup|batas etis|hotline/i.test(secHeader);
-          
-          const secCard = document.createElement("div");
-          secCard.className = `p-4 sm:p-5 rounded-2xl ${
-            isEtiology 
-              ? 'bg-amber-50/50 dark:bg-amber-950/20 border border-amber-300/60 dark:border-amber-800/40' 
-              : isLocalized 
-                ? 'bg-sky-50/50 dark:bg-sky-950/20 border border-sky-300/60 dark:border-sky-800/40' 
-                : isClosing
-                  ? 'bg-emerald-50/40 dark:bg-emerald-950/15 border border-emerald-300/50 dark:border-emerald-800/40'
-                  : 'bg-neutral-50/80 dark:bg-[#111115] border border-black/[0.06] dark:border-white/[0.08]'
-          } space-y-2.5`;
-          
-          secCard.innerHTML = `
-            <div class="flex items-center justify-between pb-1.5 border-b border-black/[0.05] dark:border-white/[0.06] flex-wrap gap-1.5">
-              <span class="font-bold text-xs sm:text-sm text-[#111] dark:text-white flex items-center gap-2">
-                <span>${isEtiology ? '🎯' : isLocalized ? '🇮🇩' : isClosing ? '🛡️' : '📌'}</span>
-                <span>${escapeHtml(secHeader)}</span>
-              </span>
-              ${isEtiology ? '<span class="px-2 py-0.5 rounded-full bg-amber-200/80 dark:bg-amber-900 text-amber-800 dark:text-amber-200 text-[10px] font-extrabold uppercase">Sebab - Akibat</span>' : ''}
-              ${isLocalized ? '<span class="px-2 py-0.5 rounded-full bg-sky-200/80 dark:bg-sky-900 text-sky-800 dark:text-sky-200 text-[10px] font-extrabold uppercase">Bebas Lost In Translation</span>' : ''}
-            </div>
-            <div class="text-xs sm:text-sm text-neutral-800 dark:text-neutral-200 leading-relaxed font-normal whitespace-pre-line">
-              ${escapeHtml(secBody || sec)}
-            </div>
-          `;
-          containerLongNarrativeBody.appendChild(secCard);
-        });
+        render3PartLongNarrative(
+          state.currentNarrativeResult.narrativeTitle || "Naskah Narasi Panjang Ruang Kalem",
+          state.currentNarrativeResult.narrativeOpening,
+          state.currentNarrativeResult.narrativeMain,
+          state.currentNarrativeResult.narrativeConclusion
+        );
       }
 
       showToast("🧹 Seluruh naskah riset berhasil dibersihkan dari tanda emdash!");
