@@ -380,6 +380,28 @@ function initApp() {
   const btnClearAllHistory = document.getElementById("btnClearAllHistory");
   const btnGoToStudioFromHistory = document.getElementById("btnGoToStudioFromHistory");
 
+  // Full Draft Modal Elements
+  const modalViewFullDraft = document.getElementById("modalViewFullDraft");
+  const btnCloseFullDraftModal = document.getElementById("btnCloseFullDraftModal");
+  const btnCloseFullDraftModalBottom = document.getElementById("btnCloseFullDraftModalBottom");
+  const fullDraftMetaBadges = document.getElementById("fullDraftMetaBadges");
+  const fullDraftModalTitle = document.getElementById("fullDraftModalTitle");
+  const fullDraftModalDate = document.getElementById("fullDraftModalDate");
+  const fullDraftCharCount = document.getElementById("fullDraftCharCount");
+  const btnTabFullDraftFormatted = document.getElementById("btnTabFullDraftFormatted");
+  const btnTabFullDraftMarkdown = document.getElementById("btnTabFullDraftMarkdown");
+  const fullDraftFormattedContent = document.getElementById("fullDraftFormattedContent");
+  const fullDraftHookText = document.getElementById("fullDraftHookText");
+  const fullDraftBodyText = document.getElementById("fullDraftBodyText");
+  const fullDraftCtaBox = document.getElementById("fullDraftCtaBox");
+  const fullDraftCtaText = document.getElementById("fullDraftCtaText");
+  const fullDraftHashtagsBox = document.getElementById("fullDraftHashtagsBox");
+  const fullDraftHashtagsText = document.getElementById("fullDraftHashtagsText");
+  const fullDraftMarkdownContent = document.getElementById("fullDraftMarkdownContent");
+  const fullDraftRawMarkdownCode = document.getElementById("fullDraftRawMarkdownCode");
+  const btnCopyFromFullDraftModal = document.getElementById("btnCopyFromFullDraftModal");
+  const btnLoadFromFullDraftModal = document.getElementById("btnLoadFromFullDraftModal");
+
   // Analytics & Trend Elements
   const inputTrendQuery = document.getElementById("inputTrendQuery");
   const btnAnalyzeTrend = document.getElementById("btnAnalyzeTrend");
@@ -921,18 +943,30 @@ function initApp() {
     if (!text) return text;
     let cleaned = String(text);
 
-    // 1. Ganti semua variasi emdash (—, –, --, \u2014, \u2013) dengan tanda baca alami
-    cleaned = cleaned.replace(/(\S)\s*[—–]\s*(\S)/g, "$1, $2");
-    cleaned = cleaned.replace(/[\s\u2013\u2014]*[—–][\s\u2013\u2014]*/g, ", ");
+    // 0. Normalisasi tanda hubung non-breaking & variasi unicode dash
+    cleaned = cleaned.replace(/\u2011/g, "-");
+
+    // 1. Ganti semua variasi emdash (—, –, --, \u2014, \u2013, \u2015) dengan jeda tanda baca alami
+    cleaned = cleaned.replace(/(\S)\s*[—–\u2014\u2013\u2015]\s*(\S)/g, "$1, $2");
+    cleaned = cleaned.replace(/[\s\u2013\u2014\u2015]*[—–\u2014\u2013\u2015][\s\u2013\u2014\u2015]*/g, ", ");
     cleaned = cleaned.replace(/(\S)\s*--\s*(\S)/g, "$1, $2");
     cleaned = cleaned.replace(/\s*--\s*/g, ", ");
+
+    // Ganti titik koma kaku khas mesin terjemahan dengan koma alami
+    cleaned = cleaned.replace(/;\s*/g, ", ");
+
+    // Ganti halusinasi terjemahan harfiah aneh
+    cleaned = cleaned.replace(/matamu (mulai )?mengelupas/gi, "matamu terasa berat");
+    cleaned = cleaned.replace(/kelopak matamu mengelupas/gi, "kelopak matamu terasa lelah");
+    cleaned = cleaned.replace(/pergeseran batin yang tiba[‑-]tiba/gi, "rasa kewalahan yang mendadak");
+    cleaned = cleaned.replace(/krisis psikologis/gi, "kelelahan emosional");
 
     // 2. Normalisasi tanda baca & koma berlebih
     cleaned = cleaned.replace(/,\s*,+/g, ", ");
     cleaned = cleaned.replace(/([.!?])\s*,\s*/g, "$1 ");
     cleaned = cleaned.replace(/\s+,/g, ",");
 
-    // 3. Bersihkan frasa klise robotik khas AI
+    // 3. Bersihkan frasa klise robotik & gaya novel fiksi kaku khas AI
     const roboticCliches = [
       /di era (serba cepat|digital|modern|yang serba cepat)( ini)?,?\s*/gi,
       /dalam lanskap (kehidupan|modern|digital)( yang [^,.\n]+)?,?\s*/gi,
@@ -944,16 +978,28 @@ function initApp() {
       /di kota(-kota)? besar (di )?indonesia,?\s*(pekerja muda seringkali terjebak dalam budaya ["“']?hustle["”']?( yang menuntut mereka bekerja lebih lama demi reputasi)?[,.]?\s*)?/gi,
       /pekerja muda seringkali terjebak dalam budaya ["“']?hustle["”']?( yang menuntut mereka bekerja lebih lama demi reputasi)?[,.]?\s*/gi,
       /ketika beban kerja menumpuk,?\s*(\?\s*hasilnya\.\.?)?\s*/gi,
-      /dalam masyarakat kita (hari|saat) ini,?\s*/gi
+      /dalam masyarakat kita (hari|saat) ini,?\s*/gi,
+      /pada (suatu )?(pagi|siang|sore|malam) yang (sepi|sunyi|kelam|temaram),?\s*/gi,
+      /ketika lampu meja menyala di kamar kecil,?\s*/gi,
+      /(ini )?bukan sekadar ["“']?stress["”']? semata[;,]?\s*(ini adalah )?/gi,
+      /(ini )?bukan sekadar [^,.\n]+ semata[;,]?\s*(ini adalah )?/gi,
+      /tatkala [^,.\n]+,?\s*/gi,
+      /manakala [^,.\n]+,?\s*/gi
     ];
     roboticCliches.forEach(regex => {
       cleaned = cleaned.replace(regex, "");
     });
 
-    cleaned = cleaned.trim();
+    // 4. Bersihkan kata ganda & rapikan kalimat
+    cleaned = cleaned.replace(/\b(ini|itu|yang|dan|kamu|kita)\s+\1\b/gi, "$1");
+    cleaned = cleaned.replace(/,\s*,+/g, ", ");
+    cleaned = cleaned.replace(/\s+/g, " ").trim();
+
+    // 5. Kapitalisasi awal kalimat
     if (cleaned.length > 0) {
       cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
     }
+    cleaned = cleaned.replace(/([.!?]\s+)([a-z])/g, (_, p1, p2) => p1 + p2.toUpperCase());
     return cleaned;
   }
 
@@ -2318,6 +2364,142 @@ ${state.attachedFile?.textContent ? `\n\nISI LAMPIRAN DOKUMEN:\n${state.attached
     saveDraftsHistory(currentDrafts);
   }
 
+  let activeDraftForModal = null;
+
+  function openFullDraftModal(draft) {
+    if (!draft || !modalViewFullDraft) return;
+    activeDraftForModal = draft;
+
+    const dateFormatted = new Date(draft.timestamp).toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+
+    if (fullDraftModalDate) fullDraftModalDate.textContent = `Disimpan: ${dateFormatted}`;
+
+    if (fullDraftMetaBadges) {
+      fullDraftMetaBadges.innerHTML = `
+        <span class="px-2.5 py-0.5 rounded-full bg-appleBlue/10 text-appleBlue font-bold text-[10.5px]">
+          ${escapeHtml(draft.modeLabel || (draft.mode === "human" ? "Mode B (Humanis)" : "Mode A (Strategis)"))}
+        </span>
+        <span class="px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-[#111] dark:text-neutral-300 font-semibold text-[10.5px]">
+          ${escapeHtml(draft.platformName || "Instagram")}
+        </span>
+        <span class="px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-900/40 text-sky-800 dark:text-sky-300 font-semibold text-[10.5px]">
+          ${escapeHtml(draft.frameworkName || "Formula Resonant")}
+        </span>
+        ${draft.provider ? `<span class="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 font-semibold text-[10.5px] border border-amber-500/20">${escapeHtml(draft.provider)}</span>` : ""}
+        ${draft.audienceName ? `<span class="px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-semibold text-[10.5px]">🎯 ${escapeHtml(draft.audienceName)}</span>` : ""}
+      `;
+    }
+
+    if (fullDraftHookText) fullDraftHookText.textContent = draft.hook || "Tanpa hook khusus.";
+    if (fullDraftBodyText) fullDraftBodyText.textContent = draft.body || draft.rawIdea || "Tanpa isi narasi.";
+
+    if (fullDraftCtaBox && fullDraftCtaText) {
+      if (draft.cta && draft.cta.trim()) {
+        fullDraftCtaBox.classList.remove("hidden");
+        fullDraftCtaText.textContent = draft.cta;
+      } else {
+        fullDraftCtaBox.classList.add("hidden");
+      }
+    }
+
+    if (fullDraftHashtagsBox && fullDraftHashtagsText) {
+      const tags = draft.hashtags || draft.seoKeywords || "";
+      if (tags && tags.trim()) {
+        fullDraftHashtagsBox.classList.remove("hidden");
+        fullDraftHashtagsText.textContent = tags;
+      } else {
+        fullDraftHashtagsBox.classList.add("hidden");
+      }
+    }
+
+    const fullMarkdownText = draft.rawMarkdown || `${draft.hook ? `### ${draft.hook}\n\n` : ""}${draft.body || ""}${draft.cta ? `\n\n**Call to Action:**\n${draft.cta}` : ""}${draft.hashtags ? `\n\n${draft.hashtags}` : ""}`;
+    if (fullDraftRawMarkdownCode) fullDraftRawMarkdownCode.textContent = fullMarkdownText;
+
+    if (fullDraftCharCount) {
+      fullDraftCharCount.textContent = `${fullMarkdownText.length.toLocaleString("id-ID")} karakter`;
+    }
+
+    switchFullDraftModalTab("formatted");
+    modalViewFullDraft.classList.remove("hidden");
+    document.body.classList.add("overflow-hidden");
+  }
+
+  function closeFullDraftModal() {
+    if (!modalViewFullDraft) return;
+    modalViewFullDraft.classList.add("hidden");
+    document.body.classList.remove("overflow-hidden");
+    activeDraftForModal = null;
+  }
+
+  function switchFullDraftModalTab(tabKey) {
+    if (!btnTabFullDraftFormatted || !btnTabFullDraftMarkdown || !fullDraftFormattedContent || !fullDraftMarkdownContent) return;
+    if (tabKey === "markdown") {
+      btnTabFullDraftMarkdown.classList.add("bg-white", "dark:bg-[#111115]", "text-[#111]", "dark:text-white", "shadow-xs");
+      btnTabFullDraftMarkdown.classList.remove("text-neutral-500", "dark:text-neutral-400");
+      btnTabFullDraftFormatted.classList.remove("bg-white", "dark:bg-[#111115]", "text-[#111]", "dark:text-white", "shadow-xs");
+      btnTabFullDraftFormatted.classList.add("text-neutral-500", "dark:text-neutral-400");
+
+      fullDraftFormattedContent.classList.add("hidden");
+      fullDraftMarkdownContent.classList.remove("hidden");
+    } else {
+      btnTabFullDraftFormatted.classList.add("bg-white", "dark:bg-[#111115]", "text-[#111]", "dark:text-white", "shadow-xs");
+      btnTabFullDraftFormatted.classList.remove("text-neutral-500", "dark:text-neutral-400");
+      btnTabFullDraftMarkdown.classList.remove("bg-white", "dark:bg-[#111115]", "text-[#111]", "dark:text-white", "shadow-xs");
+      btnTabFullDraftMarkdown.classList.add("text-neutral-500", "dark:text-neutral-400");
+
+      fullDraftFormattedContent.classList.remove("hidden");
+      fullDraftMarkdownContent.classList.add("hidden");
+    }
+  }
+
+  if (btnCloseFullDraftModal) btnCloseFullDraftModal.addEventListener("click", closeFullDraftModal);
+  if (btnCloseFullDraftModalBottom) btnCloseFullDraftModalBottom.addEventListener("click", closeFullDraftModal);
+  if (modalViewFullDraft) {
+    modalViewFullDraft.addEventListener("click", (e) => {
+      if (e.target === modalViewFullDraft) closeFullDraftModal();
+    });
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !modalViewFullDraft.classList.contains("hidden")) {
+        closeFullDraftModal();
+      }
+    });
+  }
+  if (btnTabFullDraftFormatted) btnTabFullDraftFormatted.addEventListener("click", () => switchFullDraftModalTab("formatted"));
+  if (btnTabFullDraftMarkdown) btnTabFullDraftMarkdown.addEventListener("click", () => switchFullDraftModalTab("markdown"));
+
+  if (btnCopyFromFullDraftModal) {
+    btnCopyFromFullDraftModal.addEventListener("click", () => {
+      if (!activeDraftForModal) return;
+      const text = activeDraftForModal.rawMarkdown || `${activeDraftForModal.hook ? `${activeDraftForModal.hook}\n\n` : ""}${activeDraftForModal.body || ""}${activeDraftForModal.cta ? `\n\n${activeDraftForModal.cta}` : ""}${activeDraftForModal.hashtags ? `\n\n${activeDraftForModal.hashtags}` : ""}`;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast("📋 Seluruh naskah draft disalin ke clipboard!");
+      });
+    });
+  }
+
+  if (btnLoadFromFullDraftModal) {
+    btnLoadFromFullDraftModal.addEventListener("click", () => {
+      if (!activeDraftForModal) return;
+      inputRawCaption.value = activeDraftForModal.rawIdea || activeDraftForModal.hook || activeDraftForModal.body;
+      if (labelCharCounter) labelCharCounter.textContent = `${inputRawCaption.value.length.toLocaleString("id-ID")} karakter`;
+      if (activeDraftForModal.mode) setWorkingMode(activeDraftForModal.mode);
+      if (activeDraftForModal.frameworkName) {
+        state.frameworkName = activeDraftForModal.frameworkName;
+        if (labelFrameworkText) labelFrameworkText.textContent = activeDraftForModal.frameworkName;
+      }
+      closeFullDraftModal();
+      switchView("studio");
+      inputRawCaption.scrollIntoView({ behavior: "smooth", block: "center" });
+      showToast("🚀 Draft berhasil dimuat kembali ke editor Studio!");
+    });
+  }
+
   function renderDraftsHistory() {
     if (!historyDraftsContainer || !emptyHistoryState) return;
     historyDraftsContainer.innerHTML = "";
@@ -2358,6 +2540,9 @@ ${state.attachedFile?.textContent ? `\n\nISI LAMPIRAN DOKUMEN:\n${state.attached
           </div>
 
           <div class="flex items-center gap-1.5">
+            <button class="btn-view-draft px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700/60 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-xs font-semibold transition-all flex items-center gap-1 shadow-xs" data-id="${draft.id}" title="Lihat pratinjau lengkap naskah">
+              <span>👁️ Lihat Lengkap</span>
+            </button>
             <button class="btn-load-draft px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 text-xs font-semibold transition-all" data-id="${draft.id}">
               Muat ke Studio
             </button>
@@ -2370,8 +2555,11 @@ ${state.attachedFile?.textContent ? `\n\nISI LAMPIRAN DOKUMEN:\n${state.attached
           </div>
         </div>
 
-        <div class="space-y-1">
-          <strong class="block text-sm text-[#111] dark:text-white font-bold leading-snug">${escapeHtml(draft.hook)}</strong>
+        <div class="draft-card-body-preview space-y-1 cursor-pointer group p-1 -m-1 rounded-xl hover:bg-neutral-50/80 dark:hover:bg-neutral-800/40 transition-all" title="Klik untuk membuka pratinjau naskah lengkap">
+          <div class="flex items-center justify-between">
+            <strong class="block text-sm text-[#111] dark:text-white font-bold leading-snug group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">${escapeHtml(draft.hook)}</strong>
+            <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-2">Baca Lengkap ➔</span>
+          </div>
           <p class="text-xs text-neutral-600 dark:text-neutral-400 line-clamp-2 leading-relaxed whitespace-pre-wrap">${escapeHtml(draft.body)}</p>
         </div>
 
@@ -2380,6 +2568,14 @@ ${state.attachedFile?.textContent ? `\n\nISI LAMPIRAN DOKUMEN:\n${state.attached
           <span class="text-purple-600 dark:text-purple-400 truncate max-w-xs">${escapeHtml(draft.hashtags || "")}</span>
         </div>
       `;
+
+      // View full draft modal
+      card.querySelector(".btn-view-draft")?.addEventListener("click", () => {
+        openFullDraftModal(draft);
+      });
+      card.querySelector(".draft-card-body-preview")?.addEventListener("click", () => {
+        openFullDraftModal(draft);
+      });
 
       // Copy draft
       card.querySelector(".btn-copy-draft")?.addEventListener("click", () => {
@@ -2714,23 +2910,30 @@ ${state.isLocalizationActive ? `
    - Gunakan bahasa Indonesia komunikatif yang mudah dipahami.
 `}
 
-7. STANDAR PENULIS PROFESIONAL & PEMBUKA NARASI ANTI-KLISE (BAGIAN I):
-   - Wajib menyusun esai narasi panjang yang komprehensif, terstruktur, sistematis, dan mengalir ritmis (minimal 500-800 kata).
-   - DILARANG KERAS MEMULAI PARAGRAF PERTAMA DENGAN KALIMAT KLISE / GENERIK SEPERTI:
-     * ❌ "Di kota besar Indonesia..."
-     * ❌ "Pekerja muda seringkali terjebak dalam budaya hustle..."
-     * ❌ "Di era serba cepat / modern ini..."
-     * ❌ "Dalam masyarakat kita hari ini..."
-     * ❌ "Banyak orang yang..."
-     * ❌ "Ketika beban kerja menumpuk,..."
-     Pembuka seperti itu sangat kaku, klise, membosankan, dan terkesan robotik!
-   - CARA MEMBUKA PARAGRAF (BAGIAN I) SECARA ORGANIK & BERESONANSI:
-     Mulailah secara intim dan hidup dari sudut pandang target audiens: "${audience}":
-     * Buka dengan momen indrawi konkret (micro-moment): suasana ruangan, tatapan mata pada layar ponsel/laptop di tengah malam, helaan napas di ujung hari, atau momen hening yang memicu kecemasan.
-     * Atau buka dengan monolog batin yang jujur: kalimat terpendam yang dirasakan audiens namun jarang diakui terang-terangan.
-     * Atau buka dengan kontradiksi emosional: bagaimana keinginan untuk tenang bertabrakan dengan rasa bersalah yang tak beralasan.
-   - Membedah secara tuntas alur Sebab-Akibat (etiologi pemicu lingkungan, proses psikologis internal, dampak emosional jangka panjang, lingkaran setan jika dibiarkan, serta rekonstruksi pola pikir adaptif).
-   - Dilarang keras menggunakan tanda baca emdash (— atau --). Gunakan koma, titik, atau tanda kurung alami.
+7. STANDAR PENULIS MANUSIA RUANG KALEM (100% BEBAS DARI KESAN ROBOT, NOVEL HOROR, ATAU CERAMAH KAKU):
+   - NADA SUARA WAJIB RUANG KALEM:
+     * Hangat, tulus, menatap mata pembaca, seperti mengobrol santai dari hati ke hati dengan teman dekat yang sangat memahami lelahmu ("kamu" / "kita").
+     * BUKAN gaya dongeng/novel fiksi picisan (DILARANG KERAS menggunakan kalimat klise seperti: "Pada sore yang sepi...", "Di kamar kecil yang temaram...", "Lampu meja menyala...", "Malam itu hening...", "Tatkala rembulan..."). Tulisan kesehatan jiwa BUKAN fiksi sastra lama!
+     * BUKAN ceramah kuliah psikologi atau diagnosis klinis menakut-nakuti (DILARANG KERAS menggunakan kalimat sok tahu seperti: "Ini bukan sekadar stress semata, ini adalah pergeseran batin yang tiba-tiba disebut krisis psikologis"). Modul Ruang Kalem Bab 2 MELARANG menakut-nakuti pembaca dengan istilah klinis berat!
+     * DILARANG KERAS menerjemahkan idiom bahasa Inggris secara harfiah yang menghasilkan frasa aneh/mengerikan (misalnya: "matamu mulai mengelupas", "menatap ke jurang batin", dll). Gunakan bahasa Indonesia sehari-hari yang wajar, luwes, dan bernyawa!
+
+   - CONTOH NYATA CARA PENULIS MANUSIA RUANG KALEM MEMBUKA NASKAH (BAGIAN I):
+     * [Jika Isu Skripsi/Tugas Akhir/Mahasiswa]:
+       "Pernah nggak, kamu lagi duduk diam di depan laptop, tugas akhir belum juga selesai, tapi energimu mendadak habis tak bersisa? Ada rasa cemas yang merayap pelan. Bukan karena kamu malas, tapi karena kepalamu sudah terlalu penuh memikirkan ekspektasi yang harus kamu pikul sendirian."
+     * [Jika Isu People Pleasing / Sungkan]:
+       "Pesan masuk berdering di ponsel. Jemarimu otomatis mengetik 'Iya boleh, gampang', padahal di dalam hati kamu sedang berteriak lelah. Rasa sungkan dan takut dicap mengecewakan orang lain sering kali membuat kita lupa bahwa diri kita juga butuh diselamatkan."
+     * [Jika Isu Burnout / Pekerja Muda]:
+       "Ada rasa bersalah yang aneh saat kamu membiarkan alarm mati di akhir pekan tanpa rencana produktif apa pun. Di kepala rasanya terus berputar suara yang menuntutmu untuk tidak boleh tertinggal, padahal tubuhmu sudah lama memberi sinyal darurat."
+     * [Jika Isu Generasi Sandwich]:
+       "Ketika saldo rekening harus dibagi dua antara kebutuhan sendiri dan transferan bulanan keluarga, ada helaan napas panjang yang selalu kamu tahan sendirian. Bukan karena tidak ikhlas, tapi kamu juga manusia yang kadang ingin ditanya: 'Kamu sendiri sudah makan?'"
+
+   - ATURAN TATA BAHASA & RITME KALIMAT:
+     * Wajib menyusun esai narasi panjang yang komprehensif, terstruktur, sistematis, dan mengalir ritmis (minimal 500-800 kata).
+     * Membedah secara tuntas alur Sebab-Akibat (etiologi pemicu lingkungan, proses psikologis internal, dampak emosional jangka panjang, lingkaran setan jika dibiarkan, serta rekonstruksi pola pikir adaptif).
+     * Gunakan kalimat pendek hingga sedang yang mengalir wajar saat dibaca bersuara (read aloud test).
+     * Dilarang menggunakan titik koma (;) yang kaku.
+     * Dilarang menggunakan kata kuno seperti "semata", "tatkala", "manakala", "alkisah".
+     * Dilarang keras menggunakan tanda baca emdash (— atau --). Gunakan koma, titik, atau tanda kurung santun.
 
 FORMAT OUTPUT WAJIB (Gunakan tag berikut secara presisi):
 [CONTENT_ANGLE]
@@ -2811,7 +3014,7 @@ JUDUL: (Judul Esai Narasi Panjang yang Menggugah, Empatis & Terfokus untuk ${aud
 ESTIMASI: (~850 Kata • 4 Menit Baca • Konteks Budaya Indonesia)
 
 I. PEMBUKA NARATIF & REALITAS EMOSIONAL:
-(Buka langsung dengan momen konkret, suasana intim, atau monolog batin spesifik dari target audiens: "${audience}". DILARANG MEMULAI dengan kata "Di kota besar Indonesia..." atau "Di era modern...". Buat pembaca langsung merasa dipahami dan tersentuh sejak kalimat pertama...)
+(Wajib ditulis seperti manusia sejati yang mengobrol empati berdua dengan ${audience}. Buka langsung dari keresahan nyata atau dialog batin. DILARANG menggunakan gaya fiksi dongeng "Pada sore yang sepi...", DILARANG memakai metafora aneh seperti "matamu mengelupas", dan DILARANG memakai ceramah kaku "Ini bukan sekadar stress semata...". Tulis dengan kehangatan khas Ruang Kalem...)
 
 II. ANATOMI SEBAB-AKIBAT & DINAMIKA PSIKOLOGIS:
 (Analisis mendalam mengenai akar penyebab/etiologi, trigger internal maupun eksternal, dan bagaimana proses psikologis ini terjadi pada audiens ini...)
