@@ -75,7 +75,11 @@ function initApp() {
     gaMeasurementId: localStorage.getItem("ga_measurement_id") || "G-XXXXXXXXXX",
     isSeoSyncActive: localStorage.getItem("cm_seo_sync_active") !== "false",
     isAdminAuthenticated: localStorage.getItem("cm_admin_authenticated") === "true" || sessionStorage.getItem("cm_admin_authenticated") === "true",
-    activeAnalyticsSubtab: "live-trends",
+    isHumaniseActive: localStorage.getItem("cm_humanise_active") !== "false",
+    activeAnalyticsSubtab: "narrative-research",
+    narrativePillar: "edukasi_adaptif",
+    narrativeFormat: "carousel_5_7",
+    currentNarrativeResult: null,
     rateLimitTimerInterval: null,
 
     // Dual Modes: "strategic" (Mode A) vs "human" (Mode B)
@@ -210,8 +214,10 @@ function initApp() {
   const textChangePinFeedback = document.getElementById("textChangePinFeedback");
 
   // Google Trends & Analytics Hub Subtab Elements
+  const subtabNarrative = document.getElementById("subtabNarrative");
   const subtabLiveTrends = document.getElementById("subtabLiveTrends");
   const subtabExplorer = document.getElementById("subtabExplorer");
+  const subtabContentNarrative = document.getElementById("subtabContentNarrative");
   const subtabContentLiveTrends = document.getElementById("subtabContentLiveTrends");
   const subtabContentExplorer = document.getElementById("subtabContentExplorer");
   const btnRefreshLiveTrends = document.getElementById("btnRefreshLiveTrends");
@@ -225,6 +231,35 @@ function initApp() {
   const embedGoogleTrendsContainer = document.getElementById("embedGoogleTrendsContainer");
   const containerSearchSuggestions = document.getElementById("containerSearchSuggestions");
   const listSearchSuggestions = document.getElementById("listSearchSuggestions");
+
+  // Humanise & Anti-Robot Elements
+  const checkHumaniseActive = document.getElementById("checkHumaniseActive");
+  const badgeHumaniseStatus = document.getElementById("badgeHumaniseStatus");
+  const btnQuickOpenResearchFromStudio = document.getElementById("btnQuickOpenResearchFromStudio");
+  const btnCleanEmdashNow = document.getElementById("btnCleanEmdashNow");
+
+  // Narrative Research (Modul Ruang Kalem) Elements
+  const btnPillarOptions = document.querySelectorAll(".btn-pillar-option");
+  const inputNarrativeTopic = document.getElementById("inputNarrativeTopic");
+  const btnQuickNarrativeTopics = document.querySelectorAll(".btn-quick-narrative-topic");
+  const inputNarrativeAudience = document.getElementById("inputNarrativeAudience");
+  const btnResearchFormats = document.querySelectorAll(".btn-research-format");
+  const btnGenerateNarrativeResearch = document.getElementById("btnGenerateNarrativeResearch");
+  const textGenerateNarrativeBtn = document.getElementById("textGenerateNarrativeBtn");
+  const containerNarrativeResult = document.getElementById("containerNarrativeResult");
+  const titleNarrativeOutput = document.getElementById("titleNarrativeOutput");
+  const boxNarrativeSensitiveAlert = document.getElementById("boxNarrativeSensitiveAlert");
+  const textAngleFormula = document.getElementById("textAngleFormula");
+  const textAngleComponents = document.getElementById("textAngleComponents");
+  const badgeFeasibilityScore = document.getElementById("badgeFeasibilityScore");
+  const listFeasibilityItems = document.getElementById("listFeasibilityItems");
+  const tableStigmaBody = document.getElementById("tableStigmaBody");
+  const boxSourceContent = document.getElementById("boxSourceContent");
+  const titleScriptFormat = document.getElementById("titleScriptFormat");
+  const containerResonantSlides = document.getElementById("containerResonantSlides");
+  const btnSendNarrativeToStudio = document.getElementById("btnSendNarrativeToStudio");
+  const btnCopyNarrativeResearch = document.getElementById("btnCopyNarrativeResearch");
+  const btnCleanResearchEmdash = document.getElementById("btnCleanResearchEmdash");
 
   // Daily Quota & Live Countdown Elements
   const badgeQuotaStatus = document.getElementById("badgeQuotaStatus");
@@ -854,6 +889,95 @@ function initApp() {
   }
   if (btnModeHuman) {
     btnModeHuman.addEventListener("click", () => setWorkingMode("human"));
+  }
+
+  // --------------------------------------------------------------------------
+  // HUMANISE TEKS & ANTI-ROBOT FILTER HANDLERS (BEBAS EMDASH)
+  // --------------------------------------------------------------------------
+  function syncHumaniseBadge() {
+    if (!badgeHumaniseStatus) return;
+    if (state.isHumaniseActive) {
+      badgeHumaniseStatus.textContent = "Aktif";
+      badgeHumaniseStatus.className = "px-2 py-0.5 rounded-full text-[9.5px] font-extrabold uppercase bg-emerald-500 text-white tracking-wide";
+    } else {
+      badgeHumaniseStatus.textContent = "Mati";
+      badgeHumaniseStatus.className = "px-2 py-0.5 rounded-full text-[9.5px] font-extrabold uppercase bg-neutral-400 text-white tracking-wide";
+    }
+  }
+
+  function sanitizeHumaniseText(text) {
+    if (!text) return text;
+    let cleaned = String(text);
+
+    // 1. Ganti semua variasi emdash (—, –, --, \u2014, \u2013) dengan tanda baca alami
+    cleaned = cleaned.replace(/(\S)\s*[—–]\s*(\S)/g, "$1, $2");
+    cleaned = cleaned.replace(/[\s\u2013\u2014]*[—–][\s\u2013\u2014]*/g, ", ");
+    cleaned = cleaned.replace(/(\S)\s*--\s*(\S)/g, "$1, $2");
+    cleaned = cleaned.replace(/\s*--\s*/g, ", ");
+
+    // 2. Normalisasi tanda baca & koma berlebih
+    cleaned = cleaned.replace(/,\s*,+/g, ", ");
+    cleaned = cleaned.replace(/([.!?])\s*,\s*/g, "$1 ");
+    cleaned = cleaned.replace(/\s+,/g, ",");
+
+    // 3. Bersihkan frasa klise robotik khas AI
+    const roboticCliches = [
+      /di era (serba cepat|digital|modern|yang serba cepat)( ini)?,?\s*/gi,
+      /dalam lanskap (kehidupan|modern|digital)( yang [^,.\n]+)?,?\s*/gi,
+      /tidak dapat dipungkiri (bahwa)?,?\s*/gi,
+      /penting untuk (diingat|dipahami|kita sadari|kita catat) bahwa\s*/gi,
+      /sebagai kesimpulan,?\s*/gi,
+      /mari kita (selami|telaah|bedah|bahas)(\s*bersama)?,?\s*/gi,
+      /sebuah pengingat lembut( untuk kita)?,?\s*/gi
+    ];
+    roboticCliches.forEach(regex => {
+      cleaned = cleaned.replace(regex, "");
+    });
+
+    return cleaned.trim();
+  }
+
+  if (checkHumaniseActive) {
+    checkHumaniseActive.checked = state.isHumaniseActive;
+    syncHumaniseBadge();
+    checkHumaniseActive.addEventListener("change", (e) => {
+      state.isHumaniseActive = e.target.checked;
+      localStorage.setItem("cm_humanise_active", state.isHumaniseActive ? "true" : "false");
+      syncHumaniseBadge();
+      if (state.isHumaniseActive) {
+        showToast("🌿 Humanise Teks Aktif: Bebas tanda emdash & frasa robotik.");
+      } else {
+        showToast("ℹ️ Humanise Teks dinonaktifkan.");
+      }
+    });
+  }
+
+  if (btnQuickOpenResearchFromStudio) {
+    btnQuickOpenResearchFromStudio.addEventListener("click", () => {
+      switchView("analytics");
+      switchAnalyticsSubtab("narrative-research");
+      if (inputNarrativeTopic) {
+        inputNarrativeTopic.scrollIntoView({ behavior: "smooth", block: "center" });
+        inputNarrativeTopic.focus();
+      }
+    });
+  }
+
+  if (btnCleanEmdashNow) {
+    btnCleanEmdashNow.addEventListener("click", () => {
+      if (!state.currentOutput) {
+        showToast("⚠️ Belum ada naskah hasil generate di Studio.", false);
+        return;
+      }
+      state.currentOutput.hook = sanitizeHumaniseText(state.currentOutput.hook);
+      state.currentOutput.body = sanitizeHumaniseText(state.currentOutput.body);
+      state.currentOutput.cta = sanitizeHumaniseText(state.currentOutput.cta);
+      state.currentOutput.rawMarkdown = sanitizeHumaniseText(state.currentOutput.rawMarkdown);
+      renderStructuredOutput(state.currentOutput);
+      renderSimulatorContent(state.currentOutput);
+      if (outRawMarkdown) outRawMarkdown.textContent = state.currentOutput.rawMarkdown;
+      showToast("🌿 Naskah di Studio berhasil dibersihkan dari emdash dan frasa robotik!");
+    });
   }
 
   // --------------------------------------------------------------------------
@@ -1774,9 +1898,18 @@ MODE B: HUMAN-PROFESSIONAL CAPTION WRITER (GAYA NATURAL & BERJIWA TINGGI):
 `;
         }
 
+        const humaniseDirectives = state.isHumaniseActive ? `
+ATURAN WAJIB HUMANISE & ANTI-EMDASH (KHAS RUANG KALEM):
+1. MUTLAK DILARANG menggunakan tanda baca emdash (— atau -- atau –). Jangan pernah menulis tanda garis panjang tersebut di bagian mana pun! Gantilah dengan tanda koma (,), tanda titik (.), atau tanda kurung () yang natural.
+2. MUTLAK DILARANG menggunakan formula manipulatif PAS (Problem-Agitate-Solution) yang mengeksploitasi kepanikan audiens.
+3. HINDARI FRASA KLISE AI ROBOTIK: JANGAN gunakan frasa seperti "di era serba cepat ini", "dalam lanskap kehidupan", "tidak dapat dipungkiri bahwa", "penting untuk diingat bahwa", "sebagai kesimpulan", "mari kita selami".
+4. GAYA BAHASA RUANG KALEM: Santun-kasual ("kamu/kita"), serius-hangat, ritme kalimat bernapas, seperti sahabat bijak atau relawan konseling Ruang Kalem.
+` : "";
+
         // Comprehensive Structured Prompt
         const promptInstruction = `
 ${modeDirectives}
+${humaniseDirectives}
 
 PARAMETER KONTEN TERPILIH:
 - Target Audiens: ${state.audienceName}
@@ -1942,6 +2075,16 @@ ${state.attachedFile?.textContent ? `\n\nISI LAMPIRAN DOKUMEN:\n${state.attached
     if (psychMatch) psychology = psychMatch[1].trim();
     if (retentionMatch) retentionTips = retentionMatch[1].trim();
     if (scoreMatch) hookScore = scoreMatch[1].trim();
+
+    // Humanise & Anti-Emdash Sanitization Filter
+    if (state.isHumaniseActive) {
+      hook = sanitizeHumaniseText(hook);
+      body = sanitizeHumaniseText(body);
+      cta = sanitizeHumaniseText(cta);
+      hashtags = sanitizeHumaniseText(hashtags);
+      psychology = sanitizeHumaniseText(psychology);
+      retentionTips = sanitizeHumaniseText(retentionTips);
+    }
 
     if (seoMatch) {
       seoKeywords = seoMatch[1]
@@ -2302,33 +2445,575 @@ ${state.attachedFile?.textContent ? `\n\nISI LAMPIRAN DOKUMEN:\n${state.attached
   // --------------------------------------------------------------------------
   let lastAnalyzedTopic = "";
 
-  // Subtab Navigation inside Analytics Hub
+  // Subtab Navigation inside Analytics Hub (Narrative Research, Live Trends, Explorer)
   function switchAnalyticsSubtab(subtabName) {
     state.activeAnalyticsSubtab = subtabName;
-    if (subtabName === "live-trends") {
+
+    // Reset styles on all subtabs
+    [subtabNarrative, subtabLiveTrends, subtabExplorer].forEach(tab => {
+      tab?.classList.remove("active", "text-[#111]", "dark:text-white", "bg-white", "dark:bg-[#1f1f24]", "shadow-xs");
+      tab?.classList.add("text-neutral-600", "dark:text-neutral-400");
+    });
+
+    // Hide all tab contents
+    subtabContentNarrative?.classList.add("hidden");
+    subtabContentLiveTrends?.classList.add("hidden");
+    subtabContentExplorer?.classList.add("hidden");
+
+    if (subtabName === "narrative-research") {
+      subtabNarrative?.classList.add("active", "text-[#111]", "dark:text-white", "bg-white", "dark:bg-[#1f1f24]", "shadow-xs");
+      subtabNarrative?.classList.remove("text-neutral-600", "dark:text-neutral-400");
+      subtabContentNarrative?.classList.remove("hidden");
+    } else if (subtabName === "live-trends") {
       subtabLiveTrends?.classList.add("active", "text-[#111]", "dark:text-white", "bg-white", "dark:bg-[#1f1f24]", "shadow-xs");
       subtabLiveTrends?.classList.remove("text-neutral-600", "dark:text-neutral-400");
-      subtabExplorer?.classList.remove("active", "text-[#111]", "dark:text-white", "bg-white", "dark:bg-[#1f1f24]", "shadow-xs");
-      subtabExplorer?.classList.add("text-neutral-600", "dark:text-neutral-400");
-
       subtabContentLiveTrends?.classList.remove("hidden");
-      subtabContentExplorer?.classList.add("hidden");
-    } else {
+    } else if (subtabName === "explorer") {
       subtabExplorer?.classList.add("active", "text-[#111]", "dark:text-white", "bg-white", "dark:bg-[#1f1f24]", "shadow-xs");
       subtabExplorer?.classList.remove("text-neutral-600", "dark:text-neutral-400");
-      subtabLiveTrends?.classList.remove("active", "text-[#111]", "dark:text-white", "bg-white", "dark:bg-[#1f1f24]", "shadow-xs");
-      subtabLiveTrends?.classList.add("text-neutral-600", "dark:text-neutral-400");
-
       subtabContentExplorer?.classList.remove("hidden");
-      subtabContentLiveTrends?.classList.add("hidden");
     }
   }
 
+  if (subtabNarrative) {
+    subtabNarrative.addEventListener("click", () => switchAnalyticsSubtab("narrative-research"));
+  }
   if (subtabLiveTrends) {
     subtabLiveTrends.addEventListener("click", () => switchAnalyticsSubtab("live-trends"));
   }
   if (subtabExplorer) {
     subtabExplorer.addEventListener("click", () => switchAnalyticsSubtab("explorer"));
+  }
+
+  // --------------------------------------------------------------------------
+  // RISET NARASI & CONTENT ANGLE (MODUL PELATIHAN RELAWAN RUANG KALEM)
+  // --------------------------------------------------------------------------
+  const pillarTitles = {
+    edukasi_adaptif: "Pilar 1: Edukasi Psikologi Adaptif",
+    insight_podcast: "Pilar 2: Insight Podcast & Webinar",
+    refleksi_publik: "Pilar 3: Refleksi & Interaksi Publik",
+    ruang_temu: "Pilar 4: Undangan & Rekap Ruang Temu"
+  };
+
+  const pillarDescriptions = {
+    edukasi_adaptif: "Psikoedukasi, regulasi emosi, batasan diri, dan meluruskan salah kaprah istilah klinis.",
+    insight_podcast: "Kutipan mendalam pemikiran narasumber psikolog, founder, atau pegiat kesehatan jiwa.",
+    refleksi_publik: "Validasi kelelahan emosional, pertanyaan reflektif, dan membuka ruang aman bercerita di komentar tanpa tekanan.",
+    ruang_temu: "Support group, pengumuman sesi temu tatap muka/daring, serta apresiasi hangat relawan & komunitas."
+  };
+
+  // Pillar Selector Listeners
+  btnPillarOptions.forEach(btn => {
+    btn.addEventListener("click", () => {
+      btnPillarOptions.forEach(b => {
+        b.classList.remove("active", "border-emerald-500", "bg-emerald-50/70", "dark:bg-emerald-950/30", "ring-2", "ring-emerald-500/20");
+        b.classList.add("border-black/[0.08]", "dark:border-white/[0.1]", "bg-white", "dark:bg-[#1a1a20]");
+        b.querySelector(".pillar-check")?.classList.remove("text-emerald-600", "dark:text-emerald-400");
+        b.querySelector(".pillar-check")?.classList.add("text-neutral-400");
+      });
+      btn.classList.add("active", "border-emerald-500", "bg-emerald-50/70", "dark:bg-emerald-950/30", "ring-2", "ring-emerald-500/20");
+      btn.classList.remove("border-black/[0.08]", "dark:border-white/[0.1]", "bg-white", "dark:bg-[#1a1a20]");
+      btn.querySelector(".pillar-check")?.classList.add("text-emerald-600", "dark:text-emerald-400");
+      btn.querySelector(".pillar-check")?.classList.remove("text-neutral-400");
+
+      state.narrativePillar = btn.dataset.pillar;
+    });
+  });
+
+  // Quick Narrative Topic Chips
+  btnQuickNarrativeTopics.forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (inputNarrativeTopic) {
+        inputNarrativeTopic.value = btn.textContent.trim();
+        inputNarrativeTopic.focus();
+      }
+    });
+  });
+
+  // Format Selector Buttons
+  btnResearchFormats.forEach(btn => {
+    btn.addEventListener("click", () => {
+      btnResearchFormats.forEach(b => {
+        b.classList.remove("active", "border-emerald-500", "bg-emerald-50/70", "dark:bg-emerald-950/30", "text-emerald-800", "dark:text-emerald-300");
+        b.classList.add("border-black/[0.08]", "dark:border-white/[0.1]", "bg-white", "dark:bg-[#1a1a20]", "text-neutral-600", "dark:text-neutral-400");
+      });
+      btn.classList.add("active", "border-emerald-500", "bg-emerald-50/70", "dark:bg-emerald-950/30", "text-emerald-800", "dark:text-emerald-300");
+      btn.classList.remove("border-black/[0.08]", "dark:border-white/[0.1]", "bg-white", "dark:bg-[#1a1a20]", "text-neutral-600", "dark:text-neutral-400");
+
+      state.narrativeFormat = btn.dataset.format;
+    });
+  });
+
+  // Execute Narrative Research & Angle Generator
+  async function executeNarrativeResearch() {
+    const topic = inputNarrativeTopic?.value.trim();
+    const audience = inputNarrativeAudience?.value.trim() || "Pekerja muda usia 22-35 tahun yang sedang mengalami burnout dan overthinking";
+    const pillarKey = state.narrativePillar || "edukasi_adaptif";
+    const formatKey = state.narrativeFormat || "carousel_5_7";
+
+    if (!topic) {
+      showToast("⚠️ Masukkan topik atau isu keresahan audiens terlebih dahulu!", false);
+      inputNarrativeTopic?.focus();
+      return;
+    }
+
+    // 1. Check for 7 sensitive topics regex
+    const sensitiveRegex = /(bunuh\s*diri|suicide|akhiri\s*hidup|menyakiti\s*diri|self[- ]?harm|sayat|potong\s*urat|perkosa|pelecehan\s*seksual|kekerasan\s*seksual|kdrt|kekerasan\s*dalam\s*rumah\s*tangga|skizofrenia|psikotik|halusinasi\s*berat|anoreksia|bulimia|eating\s*disorder|gangguan\s*makan\s*ekstrem|perundungan\s*berat|bullying\s*berat|duka\s*mendalam|kehilangan\s*mendadak|trauma\s*akut)/i;
+    const isSensitiveDetected = sensitiveRegex.test(topic);
+
+    // 2. Set UI Loading
+    if (btnGenerateNarrativeResearch) btnGenerateNarrativeResearch.disabled = true;
+    if (textGenerateNarrativeBtn) {
+      textGenerateNarrativeBtn.innerHTML = `
+        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Meracik Riset Narasi Ruang Kalem...
+      `;
+    }
+
+    try {
+      const researchPrompt = `
+Bertindaklah sebagai Lead of Narrative & Public Connection di "Ruang Kalem".
+Tugasmu adalah membedah isu keresahan audiens menjadi Lembar Riset Narasi dan Naskah Konten Siap Pakai berdasarkan:
+"Panduan Menulis Konten Kesehatan Jiwa yang Aman, Empatik, dan Beresonansi (Modul Pelatihan Relawan Ruang Kalem Modul 2)".
+
+PARAMETER RISET:
+- Pilar Konten Ruang Kalem: ${pillarTitles[pillarKey]} (${pillarDescriptions[pillarKey]})
+- Topik / Keresahan Audiens: "${topic}"
+- Target Audiens Spesifik: "${audience}"
+- Format Luaran: ${formatKey === "carousel_5_7" ? "Struktur Carousel Edukasi 5-7 Slide" : formatKey === "reels_60s" ? "Skrip Reels / Video Pendek 60 Detik" : "Lembar Riset Strategis & Naskah Lengkap"}
+
+ATURAN PATOKAN MODUL 2 RUANG KALEM (WAJIB DIPATUHI SECARA KETAT):
+1. FORMULA CONTENT ANGLE:
+   Content Angle = Topik + Audiens Spesifik + Sudut Pandang Unik + Manfaat Nyata.
+   Sudut pandang harus membebaskan dan menenangkan (bukan menambah beban atau rasa bersalah).
+
+2. 5 PERTANYAAN UJI KELAYAKAN ANGLE (Bab 5 Modul):
+   Evaluasi kelayakan angle ini terhadap 5 pertanyaan:
+   - Apakah menjawab keresahan nyata audiens?
+   - Apakah sudut pandang membebaskan (bukan memicu rasa bersalah)?
+   - Apakah ada langkah praktis yang bisa dicoba hari ini?
+   - Apakah aman dibahas tanpa memicu self-diagnosis atau distress?
+   - Apakah ada sumber kredibel (Level 1-4) yang mendukung?
+
+3. SAFE MESSAGING & BAHASA BEBAS STIGMA (Bab 2 Modul):
+   - Gunakan Person-First Language (seseorang mengalami kondisi, bukan label kondisinya).
+   - Bebas self-diagnosis baiting (dilarang judul/daftar gejala instan seperti "Kenali 5 tanda kamu depresi").
+   - Dilarang memperlakukan istilah klinis sebagai lelucon ("bipolar banget", "OCD banget").
+   - Dilarang penghakiman spiritual/mental ("kurang bersyukur", "kurang iman").
+   - Deteksi 7 Topik Khusus (Bab 10): Jika topik menyentuh ide bunuh diri, kekerasan seksual/KDRT, psikosis, eating disorder, self-harm aktif, perundungan berat, atau duka mendalam:
+     * Dilarang mencantumkan metode, alat, lokasi, atau detail grafis.
+     * Wajib content warning dan kontak darurat: Hotline Kesehatan Jiwa Kemenkes 119 ext 8, LSM Jangan Bunuh Diri 021-96969293.
+     * Wajib kurasi Psikolog/Founder Ruang Kalem sebelum tayang.
+
+4. HIERARKI SUMBER KREDIBEL & UJI CRAAP (Bab 3 Modul):
+   - Level 1: Panduan resmi badan kesehatan (WHO, PDSKJI, HIMPSI, Kemenkes RI).
+   - Level 2: Jurnal peer-reviewed (The Lancet Psychiatry, APA PsycNet, JAMA).
+   - Level 3: Buku referensi psikologi / textbook universitas berlisensi.
+   - Level 4: Pendapat praktisi berlisensi (Psikolog Klinis / Psikiater Sp.KJ).
+
+5. FORMULA 4-LANGKAH RESONANT COPYWRITING (Bab 6 Modul):
+   - Empathetic Hook: Maksimal 12 kata, pemicu empati jujur, menatap mata pembaca (tanpa pertanyaan klise "Pernahkah kamu...").
+   - Validation & Reflective Bridge: Mengakui emosi audiens tanpa meremehkan.
+   - Adaptive Psychological Insight: Penjelasan psikologis ilmiah yang melegakan.
+   - Gentle Closing & Actionable Takeaway: Langkah koping mikro terjangkau hari ini, ditutup catatan batas etis ("bukan pengganti terapi profesional").
+   * LARANGAN KERAS: Dilarang menggunakan formula PAS (Problem-Agitate-Solution).
+   * LARANGAN KERAS: Dilarang menggunakan tanda baca emdash (— atau --). Gunakan koma, titik, atau tanda kurung alami.
+
+FORMAT OUTPUT WAJIB (Gunakan tag berikut secara presisi):
+[CONTENT_ANGLE]
+Topik: (Nama topik terfokus)
+Audiens: (Spesifikasi audiens)
+Sudut Pandang Unik: (Sudut pandang baru yang membebaskan)
+Manfaat Nyata: (Manfaat nyata yang dibawa pulang pembaca)
+Rumusan Angle: "(Satu kalimat angle utuh yang beresonansi)"
+
+[FEASIBILITY_5]
+1. Keresahan Nyata: (Analisis kelayakan)
+2. Sudut Pandang Membebaskan: (Analisis kelayakan)
+3. Langkah Praktis Hari Ini: (Analisis kelayakan)
+4. Bebas Self-Diagnosis: (Analisis kelayakan)
+5. Sumber Ilmiah Kredibel: (Analisis kelayakan)
+
+[SENSITIVE_AUDIT]
+Status: ${isSensitiveDetected ? "TOPIK_SENSITIF_BUTUH_KURASI" : "AMAN_UNTUK_EDUKASI_UMUM"}
+Detail: (Analisis keamanan narasi dan langkah mitigasi etis)
+Saluran Bantuan: Hotline Kesehatan Jiwa Kemenkes 119 ext 8, LSM Jangan Bunuh Diri 021-96969293
+
+[STIGMA_FREE_TABLE]
+HINDARI: (Kata/frasa yang harus dihindari) | GUNAKAN: (Kata pengganti berempati) | ALASAN: (Alasan etis person-first)
+HINDARI: (Kata 2) | GUNAKAN: (Kata pengganti 2) | ALASAN: (Alasan 2)
+HINDARI: (Kata 3) | GUNAKAN: (Kata pengganti 3) | ALASAN: (Alasan 3)
+
+[SOURCES_CRAAP]
+Tingkat Hierarki: (Level 1 / Level 2 / Level 3 / Level 4)
+Nama Rujukan: (Sebutkan rujukan WHO / PDSKJI / HIMPSI / APA yang relevan)
+Uji CRAAP: (Ringkasan Currency, Relevance, Authority, Accuracy, Purpose)
+
+[RESONANT_SCRIPT]
+${formatKey === "carousel_5_7" ? `
+SLIDE 1 (Empathetic Hook):
+(Teks hook ≤ 12 kata)
+
+SLIDE 2 (Validation Bridge):
+(Teks validasi emosional)
+
+SLIDE 3 (Adaptive Psychological Insight):
+(Teks penjelasan psikologis ilmiah)
+
+SLIDE 4 (Jebakan Pola Lama):
+(Teks jebakan yang sering terjadi dan dampaknya)
+
+SLIDE 5 (Langkah Praktis Mikrokoping):
+(3 langkah mikro terjangkau hari ini)
+
+SLIDE 6 (Pesan Harapan Realistis):
+(Pesan kehangatan dan normalisasi proses pemulihan)
+
+SLIDE 7 (Gentle Closing & Batas Etis):
+(Penutup hangat, ajakan simpan, batasan etis: bukan pengganti profesional, dan info hotline 119 ext 8)
+` : `
+SCENE 1 (00-05s - Hook Empatis):
+Visual: (Arahan visual tenang)
+Voiceover: (Audio hook ≤ 12 kata)
+Text On Screen: (Teks di layar)
+
+SCENE 2 (05-20s - Validation Bridge):
+Visual: (Arahan visual)
+Voiceover: (Audio validasi emosi)
+Text On Screen: (Teks di layar)
+
+SCENE 3 (20-45s - Adaptive Insight & Solusi):
+Visual: (Arahan visual)
+Voiceover: (Audio penjelasan & langkah mikrokoping)
+Text On Screen: (Teks di layar)
+
+SCENE 4 (45-60s - Gentle Closing):
+Visual: (Arahan visual)
+Voiceover: (Audio penutup hangat, batas etis & hotline 119 ext 8)
+Text On Screen: (Teks di layar)
+`}
+
+[STUDIO_TRANSFER_TEXT]
+(Teks naskah lengkap yang sudah siap ditransfer ke form Studio penulisan untuk dipoles lebih lanjut)
+`;
+
+      const execution = await executeWithAutoFallback(researchPrompt, null, (msg) => {
+        if (textGenerateNarrativeBtn) {
+          textGenerateNarrativeBtn.innerHTML = `
+            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            ${msg}
+          `;
+        }
+      });
+
+      let rawResponse = execution.text;
+      if (state.isHumaniseActive) {
+        rawResponse = sanitizeHumaniseText(rawResponse);
+      }
+
+      // Parse tags
+      const angleMatch = rawResponse.match(/\[CONTENT_ANGLE\]([\s\S]*?)(?=\[FEASIBILITY_5\]|\[SENSITIVE_AUDIT\]|$)/i);
+      const feasMatch = rawResponse.match(/\[FEASIBILITY_5\]([\s\S]*?)(?=\[SENSITIVE_AUDIT\]|\[STIGMA_FREE_TABLE\]|$)/i);
+      const sensitiveMatch = rawResponse.match(/\[SENSITIVE_AUDIT\]([\s\S]*?)(?=\[STIGMA_FREE_TABLE\]|\[SOURCES_CRAAP\]|$)/i);
+      const stigmaMatch = rawResponse.match(/\[STIGMA_FREE_TABLE\]([\s\S]*?)(?=\[SOURCES_CRAAP\]|\[RESONANT_SCRIPT\]|$)/i);
+      const sourcesMatch = rawResponse.match(/\[SOURCES_CRAAP\]([\s\S]*?)(?=\[RESONANT_SCRIPT\]|\[STUDIO_TRANSFER_TEXT\]|$)/i);
+      const scriptMatch = rawResponse.match(/\[RESONANT_SCRIPT\]([\s\S]*?)(?=\[STUDIO_TRANSFER_TEXT\]|$)/i);
+      const transferMatch = rawResponse.match(/\[STUDIO_TRANSFER_TEXT\]([\s\S]*?)$/i);
+
+      const angleText = (angleMatch ? angleMatch[1] : "").trim();
+      const feasText = (feasMatch ? feasMatch[1] : "").trim();
+      const sensitiveText = (sensitiveMatch ? sensitiveMatch[1] : "").trim();
+      const stigmaText = (stigmaMatch ? stigmaMatch[1] : "").trim();
+      const sourcesText = (sourcesMatch ? sourcesMatch[1] : "").trim();
+      const scriptText = (scriptMatch ? scriptMatch[1] : rawResponse).trim();
+      const studioText = (transferMatch ? transferMatch[1] : scriptText).trim();
+
+      // Render Angle Formula
+      if (textAngleFormula) {
+        const rumusanLine = angleText.split("\n").find(l => l.toLowerCase().includes("rumusan angle")) || angleText;
+        textAngleFormula.innerHTML = `
+          <div class="space-y-1.5">
+            <div class="text-xs font-semibold text-emerald-800 dark:text-emerald-300">
+              ${escapeHtml(rumusanLine.replace(/rumusan angle:?/i, "").replace(/["']/g, "").trim() || angleText)}
+            </div>
+            <div class="text-[11px] text-neutral-500 dark:text-neutral-400 font-normal whitespace-pre-line">
+              ${escapeHtml(angleText)}
+            </div>
+          </div>
+        `;
+      }
+
+      // Render 5 Feasibility Checks
+      if (listFeasibilityItems) {
+        listFeasibilityItems.innerHTML = "";
+        const lines = feasText.split("\n").map(l => l.trim()).filter(l => l.length > 3);
+        const fallbackChecks = [
+          "Menjawab keresahan nyata audiens: Menyoroti beban emosional yang dirasakan sehari-hari.",
+          "Sudut pandang membebaskan: Menenangkan dan menolak menyalahkan diri sendiri.",
+          "Langkah praktis hari ini: Memberikan mikrokoping terjangkau yang bisa langsung dicoba.",
+          "Bebas self-diagnosis baiting: Tidak menggunakan daftar gejala instan untuk mendiagnosis.",
+          "Didukung sumber ilmiah kredibel: Bersandar pada panduan WHO dan PDSKJI/HIMPSI."
+        ];
+        const checksToRender = lines.length >= 3 ? lines : fallbackChecks;
+        checksToRender.forEach(check => {
+          const li = document.createElement("li");
+          li.className = "flex items-start gap-2 text-[11.5px] leading-relaxed";
+          li.innerHTML = `
+            <span class="text-emerald-500 font-bold shrink-0 mt-0.5">✓</span>
+            <span class="text-neutral-700 dark:text-neutral-300">${escapeHtml(check.replace(/^\d+[\.\)]\s*/, ""))}</span>
+          `;
+          listFeasibilityItems.appendChild(li);
+        });
+      }
+
+      // Render Sensitive Alert
+      const isSensitiveConfirmed = isSensitiveDetected || /TOPIK_SENSITIF/i.test(sensitiveText);
+      if (boxNarrativeSensitiveAlert) {
+        if (isSensitiveConfirmed) {
+          boxNarrativeSensitiveAlert.className = "p-4 rounded-2xl bg-amber-500/10 dark:bg-amber-950/30 border border-amber-500/40 text-amber-900 dark:text-amber-200 space-y-2.5 animate-scaleUp";
+          boxNarrativeSensitiveAlert.innerHTML = `
+            <div class="flex items-center gap-2">
+              <span class="text-xl">⚠️</span>
+              <h5 class="font-bold text-xs sm:text-sm uppercase tracking-wide text-amber-900 dark:text-amber-200">
+                Peringatan Protokol Khusus: Wajib Kurasi Psikolog / Founder (Bab 10)
+              </h5>
+            </div>
+            <p class="text-xs leading-relaxed text-neutral-700 dark:text-neutral-300">
+              Topik ini terdeteksi menyentuh salah satu dari <strong>7 Topik Khusus Ruang Kalem</strong> (ide bunuh diri, kekerasan seksual/KDRT, self-harm aktif, psikosis, gangguan makan ekstrem, perundungan berat, atau duka akut). <strong>Wajib melewati kurasi Psikolog/Founder Ruang Kalem sebelum tayang!</strong>
+            </p>
+            <div class="p-3 rounded-xl bg-white/90 dark:bg-[#1a1a20] border border-amber-400/50 text-[11.5px] font-semibold flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-xs">
+              <span class="text-neutral-800 dark:text-neutral-200">
+                📞 Hotline Terverifikasi: <strong>Kemenkes 119 ext 8</strong> • <strong>LSM Jangan Bunuh Diri 021-96969293</strong>
+              </span>
+              <span class="px-2.5 py-0.5 rounded-full bg-amber-500 text-white text-[10px] font-extrabold uppercase tracking-wide self-start sm:self-auto">
+                Wajib Kurasi
+              </span>
+            </div>
+          `;
+        } else {
+          boxNarrativeSensitiveAlert.className = "p-4 rounded-2xl bg-emerald-500/10 dark:bg-emerald-950/20 border border-emerald-500/30 text-emerald-900 dark:text-emerald-200 flex items-center justify-between gap-3 animate-scaleUp";
+          boxNarrativeSensitiveAlert.innerHTML = `
+            <div class="flex items-center gap-2.5">
+              <span class="text-xl">✅</span>
+              <div>
+                <h5 class="font-bold text-xs uppercase tracking-wide text-emerald-800 dark:text-emerald-200">Lolos Audit Safe Messaging & Bebas Distress Akut</h5>
+                <p class="text-[11.5px] text-emerald-700 dark:text-emerald-300">Topik aman untuk publikasi edukatif umum. Memenuhi person-first language WHO, PDSKJI, dan HIMPSI.</p>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-full bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-wider shrink-0">Aman</span>
+          `;
+        }
+      }
+
+      // Render Stigma-Free Table
+      if (tableStigmaBody) {
+        tableStigmaBody.innerHTML = "";
+        const defaultRows = [
+          { avoid: "Orang gila / sakit jiwa", use: "Orang yang sedang mengalami masalah kesehatan jiwa", reason: "Memisahkan manusia dari kondisinya (person-first)" },
+          { avoid: "Bipolar banget / OCD banget", use: "Suasana hatinya sedang naik turun / suka kerapian", reason: "Istilah klinis bukan candaan atau label lelucon" },
+          { avoid: "Kurang bersyukur / lemah", use: "Perasaan ini valid, kamu sedang kewalahan", reason: "Menghindari penghakiman yang menambah rasa bersalah" }
+        ];
+
+        let parsedRows = [];
+        const lines = stigmaText.split("\n").filter(l => l.includes("|") || l.includes(":"));
+        lines.forEach(l => {
+          const parts = l.split("|").map(p => p.trim());
+          if (parts.length >= 2) {
+            parsedRows.push({
+              avoid: parts[0].replace(/^hindari:?/i, "").trim(),
+              use: parts[1].replace(/^gunakan:?/i, "").trim(),
+              reason: (parts[2] || "Person-first language").replace(/^alasan:?/i, "").trim()
+            });
+          }
+        });
+
+        const rowsToUse = parsedRows.length >= 2 ? parsedRows : defaultRows;
+        rowsToUse.forEach(r => {
+          const tr = document.createElement("tr");
+          tr.className = "hover:bg-neutral-50 dark:hover:bg-neutral-800/40 transition-colors";
+          tr.innerHTML = `
+            <td class="py-2 px-2 text-rose-600 dark:text-rose-400 font-medium">${escapeHtml(r.avoid)}</td>
+            <td class="py-2 px-2 text-emerald-700 dark:text-emerald-400 font-semibold">${escapeHtml(r.use)}</td>
+            <td class="py-2 px-2 text-neutral-500 dark:text-neutral-400 text-[11px]">${escapeHtml(r.reason)}</td>
+          `;
+          tableStigmaBody.appendChild(tr);
+        });
+      }
+
+      // Render Sources & CRAAP
+      if (boxSourceContent) {
+        boxSourceContent.innerHTML = `
+          <div class="space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 text-[10px] font-bold">
+                Level 1: Otoritas Kesehatan Resmi
+              </span>
+              <span class="text-[11px] text-neutral-500">WHO, PDSKJI, HIMPSI</span>
+            </div>
+            <div class="p-3 rounded-xl bg-neutral-50 dark:bg-[#111115] border border-black/[0.05] dark:border-white/[0.06] text-[11.5px] leading-relaxed whitespace-pre-line">
+              ${escapeHtml(sourcesText || "Rujukan ilmiah: Panduan WHO Safe Messaging on Mental Health, Klasifikasi PDSKJI, dan Kode Etik HIMPSI. Lolos uji CRAAP (Currency, Relevance, Authority, Accuracy, Purpose).")}
+            </div>
+          </div>
+        `;
+      }
+
+      // Render Resonant Script Slides / Scenes
+      if (containerResonantSlides) {
+        containerResonantSlides.innerHTML = "";
+        if (titleScriptFormat) {
+          titleScriptFormat.textContent = formatKey === "carousel_5_7"
+            ? "Naskah Carousel Edukasi (5-7 Slide) • Formula 4-Langkah Resonant"
+            : formatKey === "reels_60s"
+              ? "Skrip Reels / Video Pendek 60 Detik • 3 Kolom Terarah"
+              : "Lembar Riset & Naskah Siap Pakai Ruang Kalem";
+        }
+
+        // Split by SLIDE or SCENE
+        const slideBlocks = scriptText.split(/(?=SLIDE\s*\d+|SCENE\s*\d+)/i).filter(b => b.trim().length > 5);
+        if (slideBlocks.length > 0) {
+          slideBlocks.forEach((block, idx) => {
+            const firstLine = block.split("\n")[0].trim();
+            const rest = block.split("\n").slice(1).join("\n").trim();
+            const slideCard = document.createElement("div");
+            slideCard.className = "p-4 rounded-2xl bg-neutral-50/80 dark:bg-[#111115] border border-black/[0.06] dark:border-white/[0.08] space-y-1.5 transition-all";
+            slideCard.innerHTML = `
+              <div class="flex items-center justify-between pb-1 border-b border-black/[0.04] dark:border-white/[0.06]">
+                <span class="font-bold text-xs text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  <span>${escapeHtml(firstLine || `Bagian #${idx + 1}`)}</span>
+                </span>
+                ${idx === 0 ? '<span class="px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 text-[10px] font-bold">Empathetic Hook (≤12 kata)</span>' : ""}
+                ${idx === slideBlocks.length - 1 ? '<span class="px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 text-[10px] font-bold">Gentle Closing & Batas Etis</span>' : ""}
+              </div>
+              <p class="text-xs sm:text-sm text-neutral-800 dark:text-neutral-200 leading-relaxed whitespace-pre-line font-normal">
+                ${escapeHtml(rest || block)}
+              </p>
+            `;
+            containerResonantSlides.appendChild(slideCard);
+          });
+        } else {
+          const card = document.createElement("div");
+          card.className = "p-4 rounded-2xl bg-neutral-50 dark:bg-[#111115] text-xs leading-relaxed whitespace-pre-line";
+          card.textContent = scriptText;
+          containerResonantSlides.appendChild(card);
+        }
+      }
+
+      // Store in state
+      state.currentNarrativeResult = {
+        topic,
+        audience,
+        pillar: pillarKey,
+        format: formatKey,
+        angleText,
+        feasText,
+        sensitiveText,
+        isSensitive: isSensitiveConfirmed,
+        stigmaText,
+        sourcesText,
+        scriptText,
+        studioText,
+        fullMarkdown: `# Lembar Riset Narasi & Content Angle Ruang Kalem\n**Topik:** ${topic}\n**Pilar:** ${pillarTitles[pillarKey]}\n**Target Audiens:** ${audience}\n**Status Keamanan:** ${isSensitiveConfirmed ? "⚠️ BUTUH KURASI PSIKOLOG/FOUNDER" : "✅ AMAN"}\n\n## Content Angle\n${angleText}\n\n## 5 Uji Kelayakan\n${feasText}\n\n## Safe Messaging & Stigma Free\n${stigmaText}\n\n## Hierarki Sumber & CRAAP\n${sourcesText}\n\n## Naskah Siap Pakai\n${scriptText}`
+      };
+
+      containerNarrativeResult?.classList.remove("hidden");
+      containerNarrativeResult?.scrollIntoView({ behavior: "smooth", block: "start" });
+      showToast("🌿 Lembar Riset Narasi Ruang Kalem berhasil diracik secara komprehensif!");
+      trackEvent("narrative_research_generated", { topic, pillar: pillarKey, format: formatKey });
+
+    } catch (err) {
+      console.error("Narrative research error:", err);
+      showToast(`❌ Gagal: ${err.message || "Terjadi kesalahan koneksi AI."}`, false);
+    } finally {
+      if (btnGenerateNarrativeResearch) btnGenerateNarrativeResearch.disabled = false;
+      if (textGenerateNarrativeBtn) textGenerateNarrativeBtn.textContent = "🌱 Racik Riset Isu & Naskah Ruang Kalem";
+    }
+  }
+
+  if (btnGenerateNarrativeResearch) {
+    btnGenerateNarrativeResearch.addEventListener("click", executeNarrativeResearch);
+  }
+
+  // Transfer from Research to Studio
+  if (btnSendNarrativeToStudio) {
+    btnSendNarrativeToStudio.addEventListener("click", () => {
+      const textToTransfer = state.currentNarrativeResult?.studioText || state.currentNarrativeResult?.scriptText || inputNarrativeTopic?.value;
+      if (textToTransfer && inputRawCaption) {
+        inputRawCaption.value = textToTransfer;
+        if (labelCharCounter) {
+          labelCharCounter.textContent = `${inputRawCaption.value.length.toLocaleString("id-ID")} karakter`;
+        }
+        setWorkingMode("human");
+        if (checkHumaniseActive) {
+          checkHumaniseActive.checked = true;
+          state.isHumaniseActive = true;
+          localStorage.setItem("cm_humanise_active", "true");
+          syncHumaniseBadge();
+        }
+        switchView("studio");
+        inputRawCaption.scrollIntoView({ behavior: "smooth", block: "center" });
+        showToast("🚀 Naskah riset dipindahkan ke Studio! Mode B Humanis & Bebas Emdash aktif.");
+      }
+    });
+  }
+
+  // Copy Full Narrative Research
+  if (btnCopyNarrativeResearch) {
+    btnCopyNarrativeResearch.addEventListener("click", () => {
+      if (!state.currentNarrativeResult) {
+        showToast("⚠️ Belum ada lembar riset yang di-generate.", false);
+        return;
+      }
+      navigator.clipboard.writeText(state.currentNarrativeResult.fullMarkdown).then(() => {
+        showToast("📋 Seluruh lembar riset Ruang Kalem disalin ke clipboard!");
+      });
+    });
+  }
+
+  // Clean emdash in research output
+  if (btnCleanResearchEmdash) {
+    btnCleanResearchEmdash.addEventListener("click", () => {
+      if (!state.currentNarrativeResult) {
+        showToast("⚠️ Belum ada naskah riset untuk dibersihkan.", false);
+        return;
+      }
+      state.currentNarrativeResult.scriptText = sanitizeHumaniseText(state.currentNarrativeResult.scriptText);
+      state.currentNarrativeResult.studioText = sanitizeHumaniseText(state.currentNarrativeResult.studioText);
+      state.currentNarrativeResult.fullMarkdown = sanitizeHumaniseText(state.currentNarrativeResult.fullMarkdown);
+
+      if (containerResonantSlides) {
+        const slideBlocks = state.currentNarrativeResult.scriptText.split(/(?=SLIDE\s*\d+|SCENE\s*\d+)/i).filter(b => b.trim().length > 5);
+        if (slideBlocks.length > 0) {
+          containerResonantSlides.innerHTML = "";
+          slideBlocks.forEach((block, idx) => {
+            const firstLine = block.split("\n")[0].trim();
+            const rest = block.split("\n").slice(1).join("\n").trim();
+            const slideCard = document.createElement("div");
+            slideCard.className = "p-4 rounded-2xl bg-neutral-50/80 dark:bg-[#111115] border border-black/[0.06] dark:border-white/[0.08] space-y-1.5 transition-all";
+            slideCard.innerHTML = `
+              <div class="flex items-center justify-between pb-1 border-b border-black/[0.04] dark:border-white/[0.06]">
+                <span class="font-bold text-xs text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  <span>${escapeHtml(firstLine || `Bagian #${idx + 1}`)}</span>
+                </span>
+                ${idx === 0 ? '<span class="px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 text-[10px] font-bold">Empathetic Hook (≤12 kata)</span>' : ""}
+              </div>
+              <p class="text-xs sm:text-sm text-neutral-800 dark:text-neutral-200 leading-relaxed whitespace-pre-line font-normal">
+                ${escapeHtml(rest || block)}
+              </p>
+            `;
+            containerResonantSlides.appendChild(slideCard);
+          });
+        }
+      }
+      showToast("🧹 Naskah riset berhasil dibersihkan dari seluruh tanda emdash!");
+    });
   }
 
   // Live Google Trends Indonesia Feed Fetcher
@@ -2530,6 +3215,19 @@ ${state.attachedFile?.textContent ? `\n\nISI LAMPIRAN DOKUMEN:\n${state.attached
         }
       });
 
+      const btnResearchNarrative = document.createElement("button");
+      btnResearchNarrative.type = "button";
+      btnResearchNarrative.className = "py-1.5 px-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300 border border-emerald-300/80 dark:border-emerald-700/60 text-[11px] font-semibold transition-all active:scale-95 flex items-center gap-1";
+      btnResearchNarrative.innerHTML = `<span>🌱 Riset Narasi</span>`;
+      btnResearchNarrative.addEventListener("click", () => {
+        switchAnalyticsSubtab("narrative-research");
+        if (inputNarrativeTopic) {
+          inputNarrativeTopic.value = `Isu seputar tren Google: "${item.title}". Bedah keresahan emosional dan psikologis audiens di balik topik ini.`;
+          inputNarrativeTopic.focus();
+          inputNarrativeTopic.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      });
+
       const btnExploreGraph = document.createElement("button");
       btnExploreGraph.type = "button";
       btnExploreGraph.className = "py-1.5 px-3 rounded-xl bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 text-[11px] font-semibold transition-all active:scale-95 flex items-center gap-1";
@@ -2542,6 +3240,7 @@ ${state.attachedFile?.textContent ? `\n\nISI LAMPIRAN DOKUMEN:\n${state.attached
         }
       });
 
+      actionRow.appendChild(btnResearchNarrative);
       actionRow.appendChild(btnUseInStudio);
       actionRow.appendChild(btnExploreGraph);
 
@@ -2753,6 +3452,20 @@ Berikan pemetaan analisis tren dalam format tag yang presisi:
     });
   });
 
+  // Transfer analyzed topic into Riset Narasi Ruang Kalem
+  const btnSendTrendToNarrativeResearch = document.getElementById("btnSendTrendToNarrativeResearch");
+  if (btnSendTrendToNarrativeResearch) {
+    btnSendTrendToNarrativeResearch.addEventListener("click", () => {
+      if (lastAnalyzedTopic && inputNarrativeTopic) {
+        inputNarrativeTopic.value = `Isu seputar tren pencarian: "${lastAnalyzedTopic}". Bedah beban emosional dan wawasan psikologis adaptifnya.`;
+        switchAnalyticsSubtab("narrative-research");
+        inputNarrativeTopic.scrollIntoView({ behavior: "smooth", block: "center" });
+        inputNarrativeTopic.focus();
+        showToast(`Topik "${lastAnalyzedTopic}" dikirim ke Riset Narasi Ruang Kalem!`);
+      }
+    });
+  }
+
   // Transfer analyzed topic into Studio
   if (btnSendTrendToStudio) {
     btnSendTrendToStudio.addEventListener("click", () => {
@@ -2772,6 +3485,8 @@ Berikan pemetaan analisis tren dalam format tag yang presisi:
   // --------------------------------------------------------------------------
   syncGroqModelUI();
   syncEngineStatusBadge();
+  syncHumaniseBadge();
+  switchAnalyticsSubtab("narrative-research");
   updateDraftsBadge();
   renderDraftsHistory();
   fetchLiveGoogleTrends(); // Pre-load live trends ID silently

@@ -159,7 +159,7 @@
             <span id="badgeHistoryCount" class="px-1.5 py-0.2 rounded-full bg-neutral-300 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 text-[10px] font-bold">0</span>
           </button>
           <button class="nav-tab-btn px-4 py-1.5 rounded-full text-xs font-semibold text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-all" data-view="analytics" id="navAnalytics">
-            📈 Google Trends & SEO
+            📖 Riset Narasi & Tren
           </button>
         </nav>
 
@@ -214,7 +214,7 @@
           <span id="badgeHistoryCountMobile" class="px-1.5 py-0.2 rounded-full bg-neutral-200 dark:bg-neutral-700 text-[10px] font-bold">0</span>
         </button>
         <button class="nav-tab-btn shrink-0 px-3 py-1 rounded-full text-xs font-semibold text-neutral-600 dark:text-neutral-400" data-view="analytics">
-          📈 Google Trends & SEO
+          📖 Riset & Tren
         </button>
       </div>
     </header>
@@ -546,6 +546,36 @@
           </div>
         </div>
 
+        <!-- 3B. HUMANISE TEKS & KONTROL ANTI-ROBOT (BEBAS EMDASH) -->
+        <div class="max-w-3xl mx-auto p-4 rounded-3xl bg-gradient-to-r from-emerald-50/80 via-teal-50/50 to-sky-50/60 dark:from-emerald-950/25 dark:via-teal-950/15 dark:to-sky-950/20 border border-emerald-500/25 dark:border-emerald-400/25 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-white dark:bg-[#1f1f24] border border-emerald-300 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl shrink-0 shadow-xs">
+              🌿
+            </div>
+            <div class="space-y-0.5">
+              <div class="flex items-center gap-2">
+                <span class="text-xs sm:text-sm font-bold text-[#111] dark:text-white">Humanise Teks (Bebas Emdash & Anti-Robot)</span>
+                <span id="badgeHumaniseStatus" class="px-2 py-0.5 rounded-full text-[9.5px] font-extrabold uppercase bg-emerald-500 text-white tracking-wide">Aktif</span>
+              </div>
+              <p class="text-[11.5px] text-neutral-600 dark:text-neutral-400 leading-snug">
+                Hilangkan tanda emdash (—), buang frasa klise robotik AI, dan gunakan gaya bertutur hangat khas Ruang Kalem.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2.5 self-end sm:self-center shrink-0">
+            <button type="button" id="btnQuickOpenResearchFromStudio" class="px-3 py-1.5 rounded-xl bg-white dark:bg-[#1a1a20] hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-emerald-300/80 dark:border-emerald-700/60 text-[11px] font-semibold text-emerald-800 dark:text-emerald-300 transition-all flex items-center gap-1.5 shadow-xs" title="Buka Modul Riset Narasi Ruang Kalem di Bagian Tiga">
+              <span>📖 Riset Isu & Angle</span>
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
+            </button>
+
+            <label class="relative inline-flex items-center cursor-pointer select-none" title="Aktifkan/Nonaktifkan Humanise Teks & Filter Emdash">
+              <input type="checkbox" id="checkHumaniseActive" class="sr-only peer" checked>
+              <div class="w-11 h-6 bg-neutral-300 dark:bg-neutral-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600 shadow-inner"></div>
+            </label>
+          </div>
+        </div>
+
         <!-- 4. INPUT AREA & DROPZONE -->
         <div class="max-w-3xl mx-auto bg-white dark:bg-[#16161a] border border-black/[0.09] dark:border-white/[0.1] rounded-3xl p-5 shadow-lg space-y-4">
           <div id="dropzoneArea" class="border-2 border-dashed border-sky-300/80 dark:border-sky-700/60 bg-sky-50/20 dark:bg-sky-950/20 rounded-2xl p-6 text-center transition-all hover:border-appleBlue/80">
@@ -626,10 +656,15 @@
               <button class="out-tab-btn px-3 py-1 rounded-full font-semibold text-neutral-600 dark:text-neutral-400" data-tab="markdown">Markdown Murni</button>
             </div>
             
-            <button id="btnCopyAllMarkdown" class="px-4 py-1.5 rounded-full bg-[#111] dark:bg-white text-white dark:text-[#111] hover:bg-neutral-800 dark:hover:bg-neutral-200 text-xs font-semibold flex items-center gap-1.5 transition-all">
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-              <span id="labelCopyBtn">Salin Markdown</span>
-            </button>
+            <div class="flex items-center gap-2">
+              <button id="btnCleanEmdashNow" class="px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700/60 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs" title="Bersihkan tanda emdash dan frasa robotik dari seluruh hasil">
+                <span>🧹 Humanise & Hapus Emdash</span>
+              </button>
+              <button id="btnCopyAllMarkdown" class="px-4 py-1.5 rounded-full bg-[#111] dark:bg-white text-white dark:text-[#111] hover:bg-neutral-800 dark:hover:bg-neutral-200 text-xs font-semibold flex items-center gap-1.5 transition-all">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                <span id="labelCopyBtn">Salin Markdown</span>
+              </button>
+            </div>
           </div>
 
           <!-- Mode Result Badge Indicator -->
@@ -804,31 +839,324 @@
             <div class="space-y-1">
               <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-teal-50 dark:bg-teal-950/50 border border-teal-200 dark:border-teal-800/40 text-[11px] font-semibold text-teal-800 dark:text-teal-300">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>Google Trends Intelligence by Ruang Kalem</span>
+                <span>Riset Narasi & Trends Hub by Ruang Kalem</span>
               </div>
               <h3 class="text-2xl sm:text-3xl font-extrabold text-[#111] dark:text-white tracking-tight">
-                Google Trends & Search Intent Intelligence.
+                Riset Narasi & Google Trends Intelligence.
               </h3>
               <p class="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400">
-                Pantau topik penelusuran yang sedang meledak di Google Indonesia secara <em>real-time</em>, teliti grafik minat pencarian resmi, dan ramu menjadi materi copywriting viral.
+                Bedah keresahan audiens berbasis <strong>Modul Pelatihan Relawan Ruang Kalem</strong> (Safe Messaging, 4 Pilar Konten & Formula 4-Langkah Resonant), dipadukan dengan tren pencarian resmi Google Indonesia.
               </p>
             </div>
 
             <!-- Subtab Switcher -->
-            <div class="inline-flex items-center bg-neutral-200/70 dark:bg-neutral-800/70 p-1 rounded-2xl border border-black/[0.04] dark:border-white/[0.06] self-start sm:self-center shrink-0">
-              <button type="button" class="analytics-subtab active px-3.5 py-1.5 rounded-xl text-xs font-semibold text-[#111] dark:text-white bg-white dark:bg-[#1f1f24] shadow-xs transition-all" data-subtab="live-trends" id="subtabLiveTrends">
-                🔥 Tren Google ID Hari Ini
+            <div class="inline-flex items-center bg-neutral-200/70 dark:bg-neutral-800/70 p-1 rounded-2xl border border-black/[0.04] dark:border-white/[0.06] self-start sm:self-center shrink-0 flex-wrap gap-1">
+              <button type="button" class="analytics-subtab active px-3.5 py-1.5 rounded-xl text-xs font-semibold text-[#111] dark:text-white bg-white dark:bg-[#1f1f24] shadow-xs transition-all flex items-center gap-1.5" data-subtab="narrative-research" id="subtabNarrative">
+                <span>📖 Riset Narasi Ruang Kalem</span>
               </button>
-              <button type="button" class="analytics-subtab px-3.5 py-1.5 rounded-xl text-xs font-semibold text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-all" data-subtab="explorer" id="subtabExplorer">
-                📊 Explorer & Grafik Minat
+              <button type="button" class="analytics-subtab px-3.5 py-1.5 rounded-xl text-xs font-semibold text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-all flex items-center gap-1.5" data-subtab="live-trends" id="subtabLiveTrends">
+                <span>🔥 Tren Google ID Hari Ini</span>
+              </button>
+              <button type="button" class="analytics-subtab px-3.5 py-1.5 rounded-xl text-xs font-semibold text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-all flex items-center gap-1.5" data-subtab="explorer" id="subtabExplorer">
+                <span>📊 Explorer & Grafik Minat</span>
               </button>
             </div>
           </div>
 
           <!-- =========================================================== -->
+          <!-- SUBTAB 0: RISET NARASI & CONTENT ANGLE RUANG KALEM          -->
+          <!-- =========================================================== -->
+          <div id="subtabContentNarrative" class="space-y-6">
+
+            <!-- Banner Pengantar Modul 2 Pelatihan Relawan Ruang Kalem -->
+            <div class="p-5 rounded-3xl bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-indigo-500/10 border border-emerald-500/20 dark:border-emerald-400/20 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
+              <div class="flex items-start gap-3.5">
+                <div class="w-11 h-11 rounded-2xl bg-white dark:bg-[#16161a] border border-emerald-300 dark:border-emerald-800 flex items-center justify-center text-2xl shadow-xs shrink-0">
+                  🌿
+                </div>
+                <div class="space-y-1">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <h4 class="text-sm sm:text-base font-bold text-[#111] dark:text-white">
+                      Riset Narasi, Content Angle & Safe Messaging
+                    </h4>
+                    <span class="px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[9.5px] font-extrabold uppercase tracking-wide">
+                      Modul 2 Ruang Kalem
+                    </span>
+                  </div>
+                  <p class="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed max-w-2xl">
+                    Berdasarkan <em>Panduan Menulis Konten Kesehatan Jiwa yang Aman, Empatik, dan Beresonansi</em>. Menggunakan <strong>Formula 4-Langkah</strong>, validasi ilmiah (WHO/PDSKJI/HIMPSI), dan <strong>secara mutlak melarang formula manipulatif PAS</strong> serta tanda emdash.
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2 self-start md:self-center shrink-0">
+                <span class="px-3 py-1.5 rounded-xl bg-white/80 dark:bg-[#1f1f24] border border-emerald-200 dark:border-emerald-800/50 text-[11px] font-semibold text-emerald-800 dark:text-emerald-300 shadow-2xs">
+                  🛡️ Safe Messaging Active
+                </span>
+              </div>
+            </div>
+
+            <!-- Box Input Riset Narasi Ruang Kalem -->
+            <div class="bg-white dark:bg-[#16161a] border border-black/[0.09] dark:border-white/[0.1] rounded-3xl p-6 shadow-md space-y-5">
+              
+              <!-- 1. Pilihan 4 Pilar Konten Ruang Kalem (Bab 4) -->
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider flex items-center justify-between">
+                  <span>1. Pilih Pilar Konten Ruang Kalem (Bab 4):</span>
+                  <span class="text-[10.5px] font-normal text-neutral-400">Pondasi Arah Narasi</span>
+                </label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5" id="gridNarrativePillars">
+                  
+                  <button type="button" class="btn-pillar-option active p-3 rounded-2xl border text-left transition-all relative border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/30 ring-2 ring-emerald-500/20" data-pillar="edukasi_adaptif">
+                    <div class="flex items-center justify-between mb-1">
+                      <span class="text-lg">🧩</span>
+                      <span class="pillar-check text-[10px] font-bold text-emerald-600 dark:text-emerald-400">Pilar 1</span>
+                    </div>
+                    <strong class="block text-xs font-bold text-[#111] dark:text-white mb-0.5">Edukasi Psikologi Adaptif</strong>
+                    <span class="text-[10.5px] text-neutral-500 dark:text-neutral-400 leading-tight block">Psikoedukasi, regulasi emosi, batasan diri, & luruskan istilah.</span>
+                  </button>
+
+                  <button type="button" class="btn-pillar-option p-3 rounded-2xl border text-left transition-all relative border-black/[0.08] dark:border-white/[0.1] bg-white dark:bg-[#1a1a20] hover:border-emerald-400" data-pillar="insight_podcast">
+                    <div class="flex items-center justify-between mb-1">
+                      <span class="text-lg">🎙️</span>
+                      <span class="pillar-check text-[10px] font-bold text-neutral-400">Pilar 2</span>
+                    </div>
+                    <strong class="block text-xs font-bold text-[#111] dark:text-white mb-0.5">Insight Podcast/Webinar</strong>
+                    <span class="text-[10.5px] text-neutral-500 dark:text-neutral-400 leading-tight block">Kutipan mendalam pemikiran narasumber psikolog / founder.</span>
+                  </button>
+
+                  <button type="button" class="btn-pillar-option p-3 rounded-2xl border text-left transition-all relative border-black/[0.08] dark:border-white/[0.1] bg-white dark:bg-[#1a1a20] hover:border-emerald-400" data-pillar="refleksi_publik">
+                    <div class="flex items-center justify-between mb-1">
+                      <span class="text-lg">🪞</span>
+                      <span class="pillar-check text-[10px] font-bold text-neutral-400">Pilar 3</span>
+                    </div>
+                    <strong class="block text-xs font-bold text-[#111] dark:text-white mb-0.5">Refleksi & Interaksi Publik</strong>
+                    <span class="text-[10.5px] text-neutral-500 dark:text-neutral-400 leading-tight block">Validasi lelah, ruang aman bercerita di komentar tanpa tekanan.</span>
+                  </button>
+
+                  <button type="button" class="btn-pillar-option p-3 rounded-2xl border text-left transition-all relative border-black/[0.08] dark:border-white/[0.1] bg-white dark:bg-[#1a1a20] hover:border-emerald-400" data-pillar="ruang_temu">
+                    <div class="flex items-center justify-between mb-1">
+                      <span class="text-lg">🤝</span>
+                      <span class="pillar-check text-[10px] font-bold text-neutral-400">Pilar 4</span>
+                    </div>
+                    <strong class="block text-xs font-bold text-[#111] dark:text-white mb-0.5">Undangan & Rekap Ruang Temu</strong>
+                    <span class="text-[10.5px] text-neutral-500 dark:text-neutral-400 leading-tight block">Support group, sesi temu tatap muka/daring, & apresiasi relawan.</span>
+                  </button>
+
+                </div>
+              </div>
+
+              <!-- 2. Masukkan Topik / Isu Keresahan Audiens -->
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider flex items-center justify-between">
+                  <span>2. Topik / Isu Keresahan Audiens yang Ingin Dibedah:</span>
+                  <span class="text-[10.5px] font-normal text-neutral-400">Fokus Keresahan Nyata</span>
+                </label>
+                <textarea id="inputNarrativeTopic" rows="3" class="w-full p-3.5 rounded-2xl border border-black/[0.12] dark:border-white/[0.12] bg-white dark:bg-[#111115] text-sm text-[#111] dark:text-white outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 transition-all leading-relaxed" placeholder="Contoh keresahan publik: Banyak pekerja muda merasa bersalah ketika mengambil cuti kerja karena takut dianggap malas atau tidak loyal, padahal tubuh dan pikirannya sudah di ambang burnout..."></textarea>
+                
+                <!-- Quick Topic Starter Pills -->
+                <div class="flex flex-wrap items-center gap-1.5 text-[11px] pt-1">
+                  <span class="text-neutral-400 dark:text-neutral-500 font-medium">Ide keresahan cepat:</span>
+                  <button type="button" class="btn-quick-narrative-topic px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-800 hover:bg-emerald-100 dark:hover:bg-emerald-950/40 text-neutral-700 dark:text-neutral-300 hover:text-emerald-700 transition-all">Lelah People Pleasing</button>
+                  <button type="button" class="btn-quick-narrative-topic px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-800 hover:bg-emerald-100 dark:hover:bg-emerald-950/40 text-neutral-700 dark:text-neutral-300 hover:text-emerald-700 transition-all">Burnout & Rasa Bersalah Cuti</button>
+                  <button type="button" class="btn-quick-narrative-topic px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-800 hover:bg-emerald-100 dark:hover:bg-emerald-950/40 text-neutral-700 dark:text-neutral-300 hover:text-emerald-700 transition-all">Quarter-Life Crisis & FOMO</button>
+                  <button type="button" class="btn-quick-narrative-topic px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-800 hover:bg-emerald-100 dark:hover:bg-emerald-950/40 text-neutral-700 dark:text-neutral-300 hover:text-emerald-700 transition-all">Overthinking Sebelum Tidur</button>
+                  <button type="button" class="btn-quick-narrative-topic px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-800 hover:bg-emerald-100 dark:hover:bg-emerald-950/40 text-neutral-700 dark:text-neutral-300 hover:text-emerald-700 transition-all">Sulit Bikin Boundaries</button>
+                </div>
+              </div>
+
+              <!-- 3. Target Audiens Spesifik & Format Luaran -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                <div class="space-y-1.5">
+                  <label class="text-xs font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider block">
+                    3. Target Audiens Spesifik:
+                  </label>
+                  <input type="text" id="inputNarrativeAudience" value="Pekerja muda usia 22-35 tahun yang sedang mengalami burnout dan overthinking" class="w-full p-3 rounded-xl border border-black/[0.12] dark:border-white/[0.12] bg-white dark:bg-[#111115] text-xs sm:text-sm text-[#111] dark:text-white outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 placeholder:text-neutral-400">
+                </div>
+
+                <div class="space-y-1.5">
+                  <label class="text-xs font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider block">
+                    4. Format Naskah Luaran (Bab 7):
+                  </label>
+                  <div class="grid grid-cols-3 gap-1.5" id="groupResearchFormats">
+                    <button type="button" class="btn-research-format active p-2.5 rounded-xl border text-center text-xs font-semibold border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 transition-all" data-format="carousel_5_7">
+                      📱 Carousel (5-7 Slide)
+                    </button>
+                    <button type="button" class="btn-research-format p-2.5 rounded-xl border text-center text-xs font-semibold border-black/[0.08] dark:border-white/[0.1] bg-white dark:bg-[#1a1a20] text-neutral-600 dark:text-neutral-400 hover:border-emerald-400 transition-all" data-format="reels_60s">
+                      🎬 Reels (60s Skrip)
+                    </button>
+                    <button type="button" class="btn-research-format p-2.5 rounded-xl border text-center text-xs font-semibold border-black/[0.08] dark:border-white/[0.1] bg-white dark:bg-[#1a1a20] text-neutral-600 dark:text-neutral-400 hover:border-emerald-400 transition-all" data-format="brief_lengkap">
+                      📑 Lembar Lengkap
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Button Generate Riset Narasi -->
+              <div class="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-center gap-2 text-[11px] text-neutral-500 dark:text-neutral-400">
+                  <span>✨ Formula: Topik + Audiens + Sudut Pandang Unik + Manfaat Nyata</span>
+                </div>
+                <button type="button" id="btnGenerateNarrativeResearch" class="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold transition-all active:scale-95 flex items-center justify-center gap-2 shadow-md">
+                  <span id="textGenerateNarrativeBtn">🌱 Racik Riset Isu & Naskah Ruang Kalem</span>
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
+                </button>
+              </div>
+
+            </div>
+
+            <!-- RESULT CONTAINER (HIDDEN UNTIL GENERATED) -->
+            <div id="containerNarrativeResult" class="hidden space-y-6 animate-scaleUp">
+              
+              <!-- Result Top Bar -->
+              <div class="p-4 rounded-3xl bg-white dark:bg-[#16161a] border border-black/[0.09] dark:border-white/[0.1] shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-xl">🌿</span>
+                  <div>
+                    <h4 class="font-bold text-sm text-[#111] dark:text-white" id="titleNarrativeOutput">
+                      Lembar Riset Narasi & Naskah Terkurasi Ruang Kalem
+                    </h4>
+                    <p class="text-[11px] text-neutral-400 dark:text-neutral-500">
+                      Formula 4-Langkah Resonant • Safe Messaging Validated • Bebas Emdash (Anti-Robot)
+                    </p>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2 self-end sm:self-center flex-wrap">
+                  <button type="button" id="btnCleanResearchEmdash" class="px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700/60 text-emerald-800 dark:text-emerald-300 text-xs font-semibold hover:bg-emerald-100 transition-all shadow-xs" title="Pastikan naskah 100% bebas dari tanda baca emdash">
+                    🧹 Bersihkan Emdash
+                  </button>
+                  <button type="button" id="btnCopyNarrativeResearch" class="px-3.5 py-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 text-xs font-semibold hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-all flex items-center gap-1.5 shadow-xs">
+                    📋 Salin Seluruh Lembar
+                  </button>
+                  <button type="button" id="btnSendNarrativeToStudio" class="px-4 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-95">
+                    <span>🚀 Kirim Naskah ke Studio</span>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Alert Box 7 Topik Sensitif (Bab 2, 3 & 10 Modul) -->
+              <div id="boxNarrativeSensitiveAlert" class="p-4 rounded-2xl border transition-all">
+                <!-- Dynamically populated (Green if safe, Red/Amber if sensitive topic) -->
+              </div>
+
+              <!-- Grid: Formula Content Angle & 5 Uji Kelayakan -->
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                
+                <!-- Card 1: Content Angle Formula -->
+                <div class="bg-white dark:bg-[#16161a] border border-black/[0.08] dark:border-white/[0.1] rounded-3xl p-5 shadow-sm space-y-3">
+                  <div class="flex items-center justify-between pb-2 border-b border-black/[0.05] dark:border-white/[0.06]">
+                    <span class="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider flex items-center gap-1.5">
+                      <span>🎯</span> Rumusan Content Angle (Bab 5):
+                    </span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-bold">Resonant Formula</span>
+                  </div>
+                  <div class="p-3.5 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-800/40 text-xs sm:text-sm text-neutral-800 dark:text-neutral-200 font-medium leading-relaxed" id="textAngleFormula">
+                    <!-- Dynamic -->
+                  </div>
+                  <div class="text-[11px] text-neutral-500 dark:text-neutral-400 space-y-1">
+                    <p><strong>Komponen:</strong> <span id="textAngleComponents">Topik + Audiens + Sudut Pandang Unik + Manfaat Nyata</span></p>
+                  </div>
+                </div>
+
+                <!-- Card 2: 5 Pertanyaan Uji Kelayakan Angle -->
+                <div class="bg-white dark:bg-[#16161a] border border-black/[0.08] dark:border-white/[0.1] rounded-3xl p-5 shadow-sm space-y-3">
+                  <div class="flex items-center justify-between pb-2 border-b border-black/[0.05] dark:border-white/[0.06]">
+                    <span class="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider flex items-center gap-1.5">
+                      <span>✅</span> 5 Uji Kelayakan Angle (Bab 5):
+                    </span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-bold" id="badgeFeasibilityScore">5/5 Lolos</span>
+                  </div>
+                  <ul class="text-xs space-y-2 text-neutral-700 dark:text-neutral-300" id="listFeasibilityItems">
+                    <!-- Dynamic check items -->
+                  </ul>
+                </div>
+
+              </div>
+
+              <!-- Grid: Transformasi Bahasa Bebas Stigma & Hierarki Sumber Ilmiah -->
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                
+                <!-- Card 3: Transformasi Bahasa Bebas Stigma (Bab 2) -->
+                <div class="bg-white dark:bg-[#16161a] border border-black/[0.08] dark:border-white/[0.1] rounded-3xl p-5 shadow-sm space-y-3">
+                  <div class="flex items-center justify-between pb-2 border-b border-black/[0.05] dark:border-white/[0.06]">
+                    <span class="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider flex items-center gap-1.5">
+                      <span>💬</span> Panduan Bahasa Bebas Stigma (Bab 2):
+                    </span>
+                    <span class="text-[10px] text-neutral-400">Person-First Language</span>
+                  </div>
+                  <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                      <thead>
+                        <tr class="border-b border-black/[0.06] dark:border-white/[0.08] text-[10.5px] uppercase text-neutral-400">
+                          <th class="py-1.5 px-2 font-bold text-rose-500">❌ Hindari</th>
+                          <th class="py-1.5 px-2 font-bold text-emerald-600">✅ Gunakan</th>
+                          <th class="py-1.5 px-2 font-bold text-neutral-500">Alasan Etis</th>
+                        </tr>
+                      </thead>
+                      <tbody id="tableStigmaBody" class="divide-y divide-black/[0.04] dark:divide-white/[0.04] text-neutral-700 dark:text-neutral-300">
+                        <!-- Dynamic rows -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- Card 4: Hierarki Sumber Ilmiah & Uji CRAAP (Bab 3) -->
+                <div class="bg-white dark:bg-[#16161a] border border-black/[0.08] dark:border-white/[0.1] rounded-3xl p-5 shadow-sm space-y-3">
+                  <div class="flex items-center justify-between pb-2 border-b border-black/[0.05] dark:border-white/[0.06]">
+                    <span class="text-xs font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider flex items-center gap-1.5">
+                      <span>📚</span> Hierarki Sumber & Uji CRAAP (Bab 3):
+                    </span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 font-bold">Tervalidasi</span>
+                  </div>
+                  <div class="space-y-2 text-xs text-neutral-700 dark:text-neutral-300" id="boxSourceContent">
+                    <!-- Dynamic sources -->
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Card 5: Naskah Resonant Siap Pakai (Formula 4-Langkah Ruang Kalem) -->
+              <div class="bg-white dark:bg-[#16161a] border border-black/[0.08] dark:border-white/[0.1] rounded-3xl p-6 shadow-lg space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-black/[0.06] dark:border-white/[0.08]">
+                  <div class="flex items-center gap-2">
+                    <span class="text-xl">✨</span>
+                    <div>
+                      <h4 class="font-bold text-sm text-[#111] dark:text-white" id="titleScriptFormat">
+                        Naskah Resonant Siap Publikasi (Bebas Emdash & Anti-Robot)
+                      </h4>
+                      <span class="text-[11px] text-neutral-400">Formula: Empathetic Hook (≤12 kata) ➔ Validation Bridge ➔ Adaptive Insight ➔ Gentle Closing</span>
+                    </div>
+                  </div>
+                  <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                    🌿 Zero PAS Manipulation
+                  </span>
+                </div>
+
+                <!-- Slide Cards or Script Container -->
+                <div id="containerResonantSlides" class="space-y-3">
+                  <!-- Dynamic slides or reels rows -->
+                </div>
+
+                <!-- Safe Hotline Footer Notice -->
+                <div class="p-3.5 rounded-2xl bg-neutral-100/70 dark:bg-neutral-800/60 border border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between text-xs text-neutral-600 dark:text-neutral-400">
+                  <div class="flex items-center gap-2">
+                    <span>🛡️</span>
+                    <span>Saluran Bantuan Terverifikasi: <strong>Hotline Kesehatan Jiwa Kemenkes 119 ext 8</strong> • <strong>LSM Jangan Bunuh Diri 021-96969293</strong></span>
+                  </div>
+                  <span class="font-semibold text-emerald-600 dark:text-emerald-400">Ruang Kalem Verified</span>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- =========================================================== -->
           <!-- SUBTAB 1: LIVE GOOGLE TRENDS INDONESIA (HARI INI)           -->
           <!-- =========================================================== -->
-          <div id="subtabContentLiveTrends" class="space-y-5">
+          <div id="subtabContentLiveTrends" class="hidden space-y-5">
             
             <!-- Live Feed Banner & Refresh Bar -->
             <div class="p-4 rounded-3xl bg-gradient-to-r from-teal-500/10 via-sky-500/10 to-indigo-500/10 border border-teal-500/20 dark:border-teal-400/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-xs">
@@ -954,14 +1282,19 @@
 
             <!-- AI Trend & Copywriting Strategy Results -->
             <div id="trendResultBox" class="hidden bg-white dark:bg-[#16161a] border border-black/[0.09] dark:border-white/[0.1] rounded-3xl p-6 shadow-lg space-y-5 animate-scaleUp">
-              <div class="flex items-center justify-between pb-3 border-b border-black/[0.06] dark:border-white/[0.08]">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-black/[0.06] dark:border-white/[0.08]">
                 <div class="flex items-center gap-2">
                   <span class="text-lg">🌿</span>
                   <h4 class="font-bold text-sm text-[#111] dark:text-white" id="trendResultTitle">Strategi Copywriting & Pembedahan Tren</h4>
                 </div>
-                <button id="btnSendTrendToStudio" class="px-3.5 py-1.5 rounded-full bg-teal-600 text-white hover:bg-teal-700 text-xs font-semibold transition-all shadow-sm">
-                  Pakai Topik & Strategi Ini di Studio ➔
-                </button>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <button id="btnSendTrendToNarrativeResearch" class="px-3.5 py-1.5 rounded-full bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-semibold transition-all shadow-sm flex items-center gap-1">
+                    <span>🌱 Bedah di Riset Narasi</span>
+                  </button>
+                  <button id="btnSendTrendToStudio" class="px-3.5 py-1.5 rounded-full bg-teal-600 text-white hover:bg-teal-700 text-xs font-semibold transition-all shadow-sm">
+                    Pakai di Studio ➔
+                  </button>
+                </div>
               </div>
 
               <!-- Grid Result Cards -->
