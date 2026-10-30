@@ -978,18 +978,43 @@
                   <label class="text-xs font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider block">
                     4. Format Naskah Luaran (Bab 7):
                   </label>
-                  <div class="grid grid-cols-3 gap-1.5" id="groupResearchFormats">
+                  <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5" id="groupResearchFormats">
                     <button type="button" class="btn-research-format active p-2.5 rounded-xl border text-center text-xs font-semibold border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 transition-all" data-format="carousel_5_7">
                       📱 Carousel (5-7 Slide)
                     </button>
                     <button type="button" class="btn-research-format p-2.5 rounded-xl border text-center text-xs font-semibold border-black/[0.08] dark:border-white/[0.1] bg-white dark:bg-[#1a1a20] text-neutral-600 dark:text-neutral-400 hover:border-emerald-400 transition-all" data-format="reels_60s">
                       🎬 Reels (60s Skrip)
                     </button>
+                    <button type="button" class="btn-research-format p-2.5 rounded-xl border text-center text-xs font-semibold border-black/[0.08] dark:border-white/[0.1] bg-white dark:bg-[#1a1a20] text-neutral-600 dark:text-neutral-400 hover:border-emerald-400 transition-all" data-format="long_narrative">
+                      📜 Narasi Panjang (Sebab-Akibat)
+                    </button>
                     <button type="button" class="btn-research-format p-2.5 rounded-xl border text-center text-xs font-semibold border-black/[0.08] dark:border-white/[0.1] bg-white dark:bg-[#1a1a20] text-neutral-600 dark:text-neutral-400 hover:border-emerald-400 transition-all" data-format="brief_lengkap">
                       📑 Lembar Lengkap
                     </button>
                   </div>
                 </div>
+              </div>
+
+              <!-- Opsi Lokalisasi Bahasa Indonesia (Anti Lost in Translation) -->
+              <div class="p-3 rounded-2xl bg-sky-50/60 dark:bg-sky-950/20 border border-sky-200/80 dark:border-sky-800/40 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-xl shrink-0">🇮🇩</span>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs font-bold text-sky-950 dark:text-sky-200">
+                        Lokalisasi Konteks Sosio-Budaya Indonesia (Bebas Lost in Translation)
+                      </span>
+                      <span id="badgeLocalizationState" class="px-1.5 py-0.2 rounded bg-sky-200/80 dark:bg-sky-900 text-sky-800 dark:text-sky-300 text-[9.5px] font-extrabold uppercase">Aktif</span>
+                    </div>
+                    <p class="text-[11px] text-neutral-600 dark:text-neutral-400 leading-tight">
+                      Rujukan jurnal atau literatur internasional (APA, The Lancet, WHO) otomatis diselaraskan dengan realitas sosial Indonesia (budaya sungkan, keluarga, pertemanan, beban kerja lokal) tanpa terjemahan kaku.
+                    </p>
+                  </div>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer select-none shrink-0" title="Aktifkan Penyesuaian Konteks Budaya Indonesia">
+                  <input type="checkbox" id="checkLocalizationActive" class="sr-only peer" checked>
+                  <div class="w-10 h-5.5 bg-neutral-300 dark:bg-neutral-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4.5 after:w-4.5 after:transition-all peer-checked:bg-sky-600 shadow-inner"></div>
+                </label>
               </div>
 
               <!-- Button Generate Riset Narasi -->
@@ -1146,6 +1171,41 @@
                     <span>Saluran Bantuan Terverifikasi: <strong>Hotline Kesehatan Jiwa Kemenkes 119 ext 8</strong> • <strong>LSM Jangan Bunuh Diri 021-96969293</strong></span>
                   </div>
                   <span class="font-semibold text-emerald-600 dark:text-emerald-400">Ruang Kalem Verified</span>
+                </div>
+              </div>
+
+              <!-- Card 6: Naskah Narasi Panjang Sebab-Akibat (Standar Penulis Profesional) -->
+              <div id="cardLongNarrative" class="bg-white dark:bg-[#16161a] border border-black/[0.08] dark:border-white/[0.1] rounded-3xl p-6 shadow-lg space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-black/[0.06] dark:border-white/[0.08]">
+                  <div class="flex items-center gap-2.5">
+                    <span class="text-2xl">📜</span>
+                    <div>
+                      <h4 class="font-bold text-sm sm:text-base text-[#111] dark:text-white" id="titleLongNarrative">
+                        Naskah Narasi Panjang (Esai Sebab-Akibat & Riset Mendalam)
+                      </h4>
+                      <p class="text-[11px] text-neutral-500 dark:text-neutral-400">
+                        Standar Penulis Profesional • Kajian Etiologi, Dinamika Kognitif & Lokalisasi Konteks Indonesia
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center gap-2 flex-wrap self-end sm:self-center">
+                    <span id="badgeLongNarrativeStats" class="px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700/60 text-emerald-800 dark:text-emerald-300 text-[11px] font-semibold">
+                      🇮🇩 Bebas Lost in Translation
+                    </span>
+                    <button type="button" id="btnCopyLongNarrative" class="px-3.5 py-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 text-xs font-semibold hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-all shadow-xs flex items-center gap-1.5">
+                      📋 Salin Narasi Panjang
+                    </button>
+                    <button type="button" id="btnSendLongNarrativeToStudio" class="px-4 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-95">
+                      <span>🚀 Kirim Narasi Ini ke Studio</span>
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Long Narrative Article Content Body -->
+                <div id="containerLongNarrativeBody" class="space-y-4 text-xs sm:text-sm text-neutral-800 dark:text-neutral-200 leading-relaxed font-normal">
+                  <!-- Dynamic article rendering -->
                 </div>
               </div>
 

@@ -76,6 +76,7 @@ function initApp() {
     isSeoSyncActive: localStorage.getItem("cm_seo_sync_active") !== "false",
     isAdminAuthenticated: localStorage.getItem("cm_admin_authenticated") === "true" || sessionStorage.getItem("cm_admin_authenticated") === "true",
     isHumaniseActive: localStorage.getItem("cm_humanise_active") !== "false",
+    isLocalizationActive: localStorage.getItem("cm_localization_active") !== "false",
     activeAnalyticsSubtab: "narrative-research",
     narrativePillar: "edukasi_adaptif",
     narrativeFormat: "carousel_5_7",
@@ -260,6 +261,16 @@ function initApp() {
   const btnSendNarrativeToStudio = document.getElementById("btnSendNarrativeToStudio");
   const btnCopyNarrativeResearch = document.getElementById("btnCopyNarrativeResearch");
   const btnCleanResearchEmdash = document.getElementById("btnCleanResearchEmdash");
+
+  // Long Narrative & Indonesian Localization Elements
+  const checkLocalizationActive = document.getElementById("checkLocalizationActive");
+  const badgeLocalizationState = document.getElementById("badgeLocalizationState");
+  const cardLongNarrative = document.getElementById("cardLongNarrative");
+  const titleLongNarrative = document.getElementById("titleLongNarrative");
+  const badgeLongNarrativeStats = document.getElementById("badgeLongNarrativeStats");
+  const btnCopyLongNarrative = document.getElementById("btnCopyLongNarrative");
+  const btnSendLongNarrativeToStudio = document.getElementById("btnSendLongNarrativeToStudio");
+  const containerLongNarrativeBody = document.getElementById("containerLongNarrativeBody");
 
   // Daily Quota & Live Countdown Elements
   const badgeQuotaStatus = document.getElementById("badgeQuotaStatus");
@@ -2544,6 +2555,28 @@ ${state.attachedFile?.textContent ? `\n\nISI LAMPIRAN DOKUMEN:\n${state.attached
     });
   });
 
+  // Localization Checkbox Listener
+  if (checkLocalizationActive) {
+    checkLocalizationActive.checked = state.isLocalizationActive;
+    if (badgeLocalizationState) {
+      badgeLocalizationState.textContent = state.isLocalizationActive ? "Aktif" : "Nonaktif";
+      badgeLocalizationState.className = state.isLocalizationActive
+        ? "px-1.5 py-0.2 rounded bg-sky-200/80 dark:bg-sky-900 text-sky-800 dark:text-sky-300 text-[9.5px] font-extrabold uppercase"
+        : "px-1.5 py-0.2 rounded bg-neutral-200 dark:bg-neutral-800 text-neutral-500 text-[9.5px] font-extrabold uppercase";
+    }
+    checkLocalizationActive.addEventListener("change", (e) => {
+      state.isLocalizationActive = e.target.checked;
+      localStorage.setItem("cm_localization_active", state.isLocalizationActive ? "true" : "false");
+      if (badgeLocalizationState) {
+        badgeLocalizationState.textContent = state.isLocalizationActive ? "Aktif" : "Nonaktif";
+        badgeLocalizationState.className = state.isLocalizationActive
+          ? "px-1.5 py-0.2 rounded bg-sky-200/80 dark:bg-sky-900 text-sky-800 dark:text-sky-300 text-[9.5px] font-extrabold uppercase"
+          : "px-1.5 py-0.2 rounded bg-neutral-200 dark:bg-neutral-800 text-neutral-500 text-[9.5px] font-extrabold uppercase";
+      }
+      showToast(state.isLocalizationActive ? "🇮🇩 Lokalisasi Konteks Budaya Indonesia Diaktifkan!" : "ℹ️ Lokalisasi konteks budaya dinonaktifkan.");
+    });
+  }
+
   // Execute Narrative Research & Angle Generator
   async function executeNarrativeResearch() {
     const topic = inputNarrativeTopic?.value.trim();
@@ -2576,14 +2609,15 @@ ${state.attachedFile?.textContent ? `\n\nISI LAMPIRAN DOKUMEN:\n${state.attached
     try {
       const researchPrompt = `
 Bertindaklah sebagai Lead of Narrative & Public Connection di "Ruang Kalem".
-Tugasmu adalah membedah isu keresahan audiens menjadi Lembar Riset Narasi dan Naskah Konten Siap Pakai berdasarkan:
+Tugasmu adalah membedah isu keresahan audiens menjadi Lembar Riset Narasi, Esai Panjang Sebab-Akibat Komprehensif, dan Naskah Konten Siap Pakai berdasarkan:
 "Panduan Menulis Konten Kesehatan Jiwa yang Aman, Empatik, dan Beresonansi (Modul Pelatihan Relawan Ruang Kalem Modul 2)".
 
 PARAMETER RISET:
 - Pilar Konten Ruang Kalem: ${pillarTitles[pillarKey]} (${pillarDescriptions[pillarKey]})
 - Topik / Keresahan Audiens: "${topic}"
 - Target Audiens Spesifik: "${audience}"
-- Format Luaran: ${formatKey === "carousel_5_7" ? "Struktur Carousel Edukasi 5-7 Slide" : formatKey === "reels_60s" ? "Skrip Reels / Video Pendek 60 Detik" : "Lembar Riset Strategis & Naskah Lengkap"}
+- Format Luaran Utama: ${formatKey === "carousel_5_7" ? "Struktur Carousel Edukasi 5-7 Slide" : formatKey === "reels_60s" ? "Skrip Reels / Video Pendek 60 Detik" : formatKey === "long_narrative" ? "Naskah Narasi Panjang Sebab-Akibat Komprehensif" : "Lembar Riset Strategis & Semua Format"}
+- Lokalisasi Budaya Indonesia: ${state.isLocalizationActive ? "WAJIB AKTIF (Bebas Lost in Translation)" : "Standar"}
 
 ATURAN PATOKAN MODUL 2 RUANG KALEM (WAJIB DIPATUHI SECARA KETAT):
 1. FORMULA CONTENT ANGLE:
@@ -2622,6 +2656,21 @@ ATURAN PATOKAN MODUL 2 RUANG KALEM (WAJIB DIPATUHI SECARA KETAT):
    * LARANGAN KERAS: Dilarang menggunakan formula PAS (Problem-Agitate-Solution).
    * LARANGAN KERAS: Dilarang menggunakan tanda baca emdash (— atau --). Gunakan koma, titik, atau tanda kurung alami.
 
+6. PRINSIP LOKALISASI KONTEKS SOSIO-BUDAYA INDONESIA (BEBAS LOST IN TRANSLATION):
+${state.isLocalizationActive ? `
+   - WAJIB LOKALISASI PENUH: Jika teori, studi empiris, atau jurnal psikologi yang Anda rujuk berasal dari literatur internasional berbahasa Inggris (seperti riset APA, The Lancet Psychiatry, Harvard Health, WHO Global Report), Anda WAJIB menerjemahkan dan mengontekstualisasikannya secara luwes ke dalam dinamika sosial budaya Indonesia.
+   - DILARANG menggunakan terjemahan harfiah kata-per-kata yang kaku atau terasa seperti teks mesin asing.
+   - Kaitkan dengan konteks nyata masyarakat Indonesia: rasa sungkan, budaya ewuh pakewuh, ekspektasi keluarga besar/orang tua, beban sandwich generation, dinamika pertemanan/tongkrongan, dan budaya kerja keras (hustle culture kota besar lokal).
+   - Gunakan rasa bahasa Indonesia yang bernapas, alami, mengalir, dan menyentuh sisi manusiawi.
+` : `
+   - Gunakan bahasa Indonesia komunikatif yang mudah dipahami.
+`}
+
+7. NASKAH NARASI PANJANG SEBAB-AKIBAT & RISET MENDALAM (STANDAR PENULIS PROFESIONAL):
+   - Wajib menyusun esai narasi panjang yang komprehensif, terstruktur, sistematis, dan mengalir ritmis (minimal 500-800 kata).
+   - Membedah secara tuntas alur Sebab-Akibat (etiologi, pemicu lingkungan, proses psikologis internal, dampak emosional jangka panjang, lingkaran setan jika dibiarkan, serta rekonstruksi pola pikir adaptif).
+   - Dilarang keras menggunakan tanda baca emdash (— atau --).
+
 FORMAT OUTPUT WAJIB (Gunakan tag berikut secara presisi):
 [CONTENT_ANGLE]
 Topik: (Nama topik terfokus)
@@ -2653,7 +2702,27 @@ Nama Rujukan: (Sebutkan rujukan WHO / PDSKJI / HIMPSI / APA yang relevan)
 Uji CRAAP: (Ringkasan Currency, Relevance, Authority, Accuracy, Purpose)
 
 [RESONANT_SCRIPT]
-${formatKey === "carousel_5_7" ? `
+${formatKey === "reels_60s" ? `
+SCENE 1 (00-05s - Hook Empatis):
+Visual: (Arahan visual tenang)
+Voiceover: (Audio hook ≤ 12 kata)
+Text On Screen: (Teks di layar)
+
+SCENE 2 (05-20s - Validation Bridge):
+Visual: (Arahan visual)
+Voiceover: (Audio validasi emosi)
+Text On Screen: (Teks di layar)
+
+SCENE 3 (20-45s - Adaptive Insight & Solusi):
+Visual: (Arahan visual)
+Voiceover: (Audio penjelasan & langkah mikrokoping)
+Text On Screen: (Teks di layar)
+
+SCENE 4 (45-60s - Gentle Closing):
+Visual: (Arahan visual)
+Voiceover: (Audio penutup hangat, batas etis & hotline 119 ext 8)
+Text On Screen: (Teks di layar)
+` : `
 SLIDE 1 (Empathetic Hook):
 (Teks hook ≤ 12 kata)
 
@@ -2674,27 +2743,29 @@ SLIDE 6 (Pesan Harapan Realistis):
 
 SLIDE 7 (Gentle Closing & Batas Etis):
 (Penutup hangat, ajakan simpan, batasan etis: bukan pengganti profesional, dan info hotline 119 ext 8)
-` : `
-SCENE 1 (00-05s - Hook Empatis):
-Visual: (Arahan visual tenang)
-Voiceover: (Audio hook ≤ 12 kata)
-Text On Screen: (Teks di layar)
-
-SCENE 2 (05-20s - Validation Bridge):
-Visual: (Arahan visual)
-Voiceover: (Audio validasi emosi)
-Text On Screen: (Teks di layar)
-
-SCENE 3 (20-45s - Adaptive Insight & Solusi):
-Visual: (Arahan visual)
-Voiceover: (Audio penjelasan & langkah mikrokoping)
-Text On Screen: (Teks di layar)
-
-SCENE 4 (45-60s - Gentle Closing):
-Visual: (Arahan visual)
-Voiceover: (Audio penutup hangat, batas etis & hotline 119 ext 8)
-Text On Screen: (Teks di layar)
 `}
+
+[LONG_NARRATIVE_SCRIPT]
+JUDUL: (Judul Esai Narasi Panjang yang Menggugah & Empatis)
+ESTIMASI: (~850 Kata • 4 Menit Baca • Konteks Budaya Indonesia)
+
+I. PEMBUKA NARATIF & REALITAS SOSIAL DI INDONESIA:
+(Paragraf naratif pembuka yang menggambarkan fenomena nyata yang dirasakan audiens di Indonesia...)
+
+II. ANATOMI SEBAB-AKIBAT & DINAMIKA PSIKOLOGIS:
+(Analisis mendalam mengenai akar penyebab/etiologi, trigger internal maupun eksternal, dan bagaimana proses psikologis ini terjadi...)
+
+III. TELAAH RISET ILMIAH TERADAPTASI (BEBAS LOST IN TRANSLATION):
+(Ulasan studi empiris atau jurnal internasional yang disajikan dengan rasa bahasa Indonesia yang luwes, tanpa istilah kaku, dan dikaitkan dengan konteks budaya lokal...)
+
+IV. LINGKARAN SETAN (THE VICIOUS CYCLE) & DAMPAK EMOSIONAL:
+(Penjelasan bagaimana kebiasaan/respons lama justru menjebak audiens dalam kelelahan yang berulang...)
+
+V. JALAN KELUAR ADAPTIF & REKONSTRUKSI KOGNITIF:
+(Langkah-langkah mikrokoping praktis, pembingkaian ulang cara pandang, dan batasan sehat yang terjangkau...)
+
+VI. PENUTUP HANGAT & PENEGASAN BATAS ETIS:
+(Penutup yang menenangkan, penegasan batas etis bahwa konten edukasi ini bukan pengganti terapi profesional, serta info kontak bantuan Hotline Kemenkes 119 ext 8...)
 
 [STUDIO_TRANSFER_TEXT]
 (Teks naskah lengkap yang sudah siap ditransfer ke form Studio penulisan untuk dipoles lebih lanjut)
@@ -2722,8 +2793,9 @@ Text On Screen: (Teks di layar)
       const feasMatch = rawResponse.match(/\[FEASIBILITY_5\]([\s\S]*?)(?=\[SENSITIVE_AUDIT\]|\[STIGMA_FREE_TABLE\]|$)/i);
       const sensitiveMatch = rawResponse.match(/\[SENSITIVE_AUDIT\]([\s\S]*?)(?=\[STIGMA_FREE_TABLE\]|\[SOURCES_CRAAP\]|$)/i);
       const stigmaMatch = rawResponse.match(/\[STIGMA_FREE_TABLE\]([\s\S]*?)(?=\[SOURCES_CRAAP\]|\[RESONANT_SCRIPT\]|$)/i);
-      const sourcesMatch = rawResponse.match(/\[SOURCES_CRAAP\]([\s\S]*?)(?=\[RESONANT_SCRIPT\]|\[STUDIO_TRANSFER_TEXT\]|$)/i);
-      const scriptMatch = rawResponse.match(/\[RESONANT_SCRIPT\]([\s\S]*?)(?=\[STUDIO_TRANSFER_TEXT\]|$)/i);
+      const sourcesMatch = rawResponse.match(/\[SOURCES_CRAAP\]([\s\S]*?)(?=\[RESONANT_SCRIPT\]|\[LONG_NARRATIVE_SCRIPT\]|\[STUDIO_TRANSFER_TEXT\]|$)/i);
+      const scriptMatch = rawResponse.match(/\[RESONANT_SCRIPT\]([\s\S]*?)(?=\[LONG_NARRATIVE_SCRIPT\]|\[STUDIO_TRANSFER_TEXT\]|$)/i);
+      const longNarrativeMatch = rawResponse.match(/\[LONG_NARRATIVE_SCRIPT\]([\s\S]*?)(?=\[STUDIO_TRANSFER_TEXT\]|$)/i);
       const transferMatch = rawResponse.match(/\[STUDIO_TRANSFER_TEXT\]([\s\S]*?)$/i);
 
       const angleText = (angleMatch ? angleMatch[1] : "").trim();
@@ -2731,8 +2803,13 @@ Text On Screen: (Teks di layar)
       const sensitiveText = (sensitiveMatch ? sensitiveMatch[1] : "").trim();
       const stigmaText = (stigmaMatch ? stigmaMatch[1] : "").trim();
       const sourcesText = (sourcesMatch ? sourcesMatch[1] : "").trim();
-      const scriptText = (scriptMatch ? scriptMatch[1] : rawResponse).trim();
-      const studioText = (transferMatch ? transferMatch[1] : scriptText).trim();
+      const scriptText = (scriptMatch ? scriptMatch[1] : "").trim();
+      const longNarrativeText = (longNarrativeMatch ? longNarrativeMatch[1] : "").trim();
+      let studioText = (transferMatch ? transferMatch[1] : "").trim();
+
+      if (!studioText) {
+        studioText = formatKey === "long_narrative" ? longNarrativeText : (scriptText || longNarrativeText);
+      }
 
       // Render Angle Formula
       if (textAngleFormula) {
@@ -2867,11 +2944,9 @@ Text On Screen: (Teks di layar)
       if (containerResonantSlides) {
         containerResonantSlides.innerHTML = "";
         if (titleScriptFormat) {
-          titleScriptFormat.textContent = formatKey === "carousel_5_7"
-            ? "Naskah Carousel Edukasi (5-7 Slide) • Formula 4-Langkah Resonant"
-            : formatKey === "reels_60s"
-              ? "Skrip Reels / Video Pendek 60 Detik • 3 Kolom Terarah"
-              : "Lembar Riset & Naskah Siap Pakai Ruang Kalem";
+          titleScriptFormat.textContent = formatKey === "reels_60s"
+            ? "Skrip Reels / Video Pendek 60 Detik • 3 Kolom Terarah"
+            : "Naskah Carousel Edukasi (5-7 Slide) • Formula 4-Langkah Resonant";
         }
 
         // Split by SLIDE or SCENE
@@ -2897,11 +2972,74 @@ Text On Screen: (Teks di layar)
             `;
             containerResonantSlides.appendChild(slideCard);
           });
-        } else {
+        } else if (scriptText) {
           const card = document.createElement("div");
           card.className = "p-4 rounded-2xl bg-neutral-50 dark:bg-[#111115] text-xs leading-relaxed whitespace-pre-line";
           card.textContent = scriptText;
           containerResonantSlides.appendChild(card);
+        }
+      }
+
+      // Render Card 6: Naskah Narasi Panjang (Sebab-Akibat & Riset Mendalam)
+      if (containerLongNarrativeBody && cardLongNarrative) {
+        if (longNarrativeText) {
+          cardLongNarrative.classList.remove("hidden");
+          const wordCount = longNarrativeText.split(/\s+/).filter(Boolean).length;
+          const readTime = Math.max(1, Math.round(wordCount / 180));
+          if (badgeLongNarrativeStats) {
+            badgeLongNarrativeStats.textContent = `~${wordCount} Kata • ⏱️ ${readTime} Menit Baca • 🇮🇩 Teradaptasi`;
+          }
+
+          // Split by Roman Numerals or main section headers
+          const rawSections = longNarrativeText.split(/(?=(?:^|\n)(?:I|II|III|IV|V|VI)\.\s+[^\n]+)/g).filter(s => s && s.trim().length > 10);
+          
+          containerLongNarrativeBody.innerHTML = "";
+          
+          if (rawSections.length > 0) {
+            rawSections.forEach((sec) => {
+              const lines = sec.trim().split("\n");
+              const secHeader = lines[0].trim();
+              const secBody = lines.slice(1).join("\n").trim();
+              
+              const isEtiology = /sebab|akibat|anatomi|etiologi/i.test(secHeader);
+              const isLocalized = /riset|ilmiah|jurnal|lost in translation|adaptasi|telaah/i.test(secHeader);
+              const isClosing = /penutup|batas etis|hotline/i.test(secHeader);
+              
+              const secCard = document.createElement("div");
+              secCard.className = `p-4 sm:p-5 rounded-2xl ${
+                isEtiology 
+                  ? 'bg-amber-50/50 dark:bg-amber-950/20 border border-amber-300/60 dark:border-amber-800/40' 
+                  : isLocalized 
+                    ? 'bg-sky-50/50 dark:bg-sky-950/20 border border-sky-300/60 dark:border-sky-800/40' 
+                    : isClosing
+                      ? 'bg-emerald-50/40 dark:bg-emerald-950/15 border border-emerald-300/50 dark:border-emerald-800/40'
+                      : 'bg-neutral-50/80 dark:bg-[#111115] border border-black/[0.06] dark:border-white/[0.08]'
+              } space-y-2.5`;
+              
+              secCard.innerHTML = `
+                <div class="flex items-center justify-between pb-1.5 border-b border-black/[0.05] dark:border-white/[0.06] flex-wrap gap-1.5">
+                  <span class="font-bold text-xs sm:text-sm text-[#111] dark:text-white flex items-center gap-2">
+                    <span>${isEtiology ? '🎯' : isLocalized ? '🇮🇩' : isClosing ? '🛡️' : '📌'}</span>
+                    <span>${escapeHtml(secHeader)}</span>
+                  </span>
+                  ${isEtiology ? '<span class="px-2 py-0.5 rounded-full bg-amber-200/80 dark:bg-amber-900 text-amber-800 dark:text-amber-200 text-[10px] font-extrabold uppercase">Sebab - Akibat</span>' : ''}
+                  ${isLocalized ? '<span class="px-2 py-0.5 rounded-full bg-sky-200/80 dark:bg-sky-900 text-sky-800 dark:text-sky-200 text-[10px] font-extrabold uppercase">Bebas Lost In Translation</span>' : ''}
+                </div>
+                <div class="text-xs sm:text-sm text-neutral-800 dark:text-neutral-200 leading-relaxed font-normal whitespace-pre-line">
+                  ${escapeHtml(secBody || sec)}
+                </div>
+              `;
+              containerLongNarrativeBody.appendChild(secCard);
+            });
+          } else {
+            containerLongNarrativeBody.innerHTML = `
+              <div class="p-4 rounded-2xl bg-neutral-50 dark:bg-[#111115] text-xs sm:text-sm leading-relaxed whitespace-pre-line">
+                ${escapeHtml(longNarrativeText)}
+              </div>
+            `;
+          }
+        } else {
+          cardLongNarrative.classList.add("hidden");
         }
       }
 
@@ -2918,13 +3056,21 @@ Text On Screen: (Teks di layar)
         stigmaText,
         sourcesText,
         scriptText,
+        longNarrativeText,
         studioText,
-        fullMarkdown: `# Lembar Riset Narasi & Content Angle Ruang Kalem\n**Topik:** ${topic}\n**Pilar:** ${pillarTitles[pillarKey]}\n**Target Audiens:** ${audience}\n**Status Keamanan:** ${isSensitiveConfirmed ? "⚠️ BUTUH KURASI PSIKOLOG/FOUNDER" : "✅ AMAN"}\n\n## Content Angle\n${angleText}\n\n## 5 Uji Kelayakan\n${feasText}\n\n## Safe Messaging & Stigma Free\n${stigmaText}\n\n## Hierarki Sumber & CRAAP\n${sourcesText}\n\n## Naskah Siap Pakai\n${scriptText}`
+        fullMarkdown: `# Lembar Riset Narasi & Content Angle Ruang Kalem\n**Topik:** ${topic}\n**Pilar:** ${pillarTitles[pillarKey]}\n**Target Audiens:** ${audience}\n**Status Keamanan:** ${isSensitiveConfirmed ? "⚠️ BUTUH KURASI PSIKOLOG/FOUNDER" : "✅ AMAN"}\n\n## Content Angle\n${angleText}\n\n## 5 Uji Kelayakan\n${feasText}\n\n## Safe Messaging & Stigma Free\n${stigmaText}\n\n## Hierarki Sumber & CRAAP\n${sourcesText}\n\n## Naskah Ringkas (Carousel / Reels)\n${scriptText}\n\n## Naskah Narasi Panjang (Sebab-Akibat & Riset Mendalam)\n${longNarrativeText}`
       };
 
       containerNarrativeResult?.classList.remove("hidden");
-      containerNarrativeResult?.scrollIntoView({ behavior: "smooth", block: "start" });
-      showToast("🌿 Lembar Riset Narasi Ruang Kalem berhasil diracik secara komprehensif!");
+      
+      // Auto-scroll target based on chosen format
+      if (formatKey === "long_narrative" && cardLongNarrative) {
+        cardLongNarrative.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else {
+        containerNarrativeResult?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+      
+      showToast("🌿 Lembar Riset & Esai Narasi Panjang Ruang Kalem berhasil diracik!");
       trackEvent("narrative_research_generated", { topic, pillar: pillarKey, format: formatKey });
 
     } catch (err) {
@@ -2940,10 +3086,10 @@ Text On Screen: (Teks di layar)
     btnGenerateNarrativeResearch.addEventListener("click", executeNarrativeResearch);
   }
 
-  // Transfer from Research to Studio
+  // Transfer Short Script to Studio
   if (btnSendNarrativeToStudio) {
     btnSendNarrativeToStudio.addEventListener("click", () => {
-      const textToTransfer = state.currentNarrativeResult?.studioText || state.currentNarrativeResult?.scriptText || inputNarrativeTopic?.value;
+      const textToTransfer = state.currentNarrativeResult?.studioText || state.currentNarrativeResult?.scriptText || state.currentNarrativeResult?.longNarrativeText || inputNarrativeTopic?.value;
       if (textToTransfer && inputRawCaption) {
         inputRawCaption.value = textToTransfer;
         if (labelCharCounter) {
@@ -2960,6 +3106,43 @@ Text On Screen: (Teks di layar)
         inputRawCaption.scrollIntoView({ behavior: "smooth", block: "center" });
         showToast("🚀 Naskah riset dipindahkan ke Studio! Mode B Humanis & Bebas Emdash aktif.");
       }
+    });
+  }
+
+  // Transfer Long Narrative Essay to Studio
+  if (btnSendLongNarrativeToStudio) {
+    btnSendLongNarrativeToStudio.addEventListener("click", () => {
+      const textToTransfer = state.currentNarrativeResult?.longNarrativeText || state.currentNarrativeResult?.studioText;
+      if (textToTransfer && inputRawCaption) {
+        inputRawCaption.value = textToTransfer;
+        if (labelCharCounter) {
+          labelCharCounter.textContent = `${inputRawCaption.value.length.toLocaleString("id-ID")} karakter`;
+        }
+        setWorkingMode("human");
+        if (checkHumaniseActive) {
+          checkHumaniseActive.checked = true;
+          state.isHumaniseActive = true;
+          localStorage.setItem("cm_humanise_active", "true");
+          syncHumaniseBadge();
+        }
+        switchView("studio");
+        inputRawCaption.scrollIntoView({ behavior: "smooth", block: "center" });
+        showToast("🚀 Esai narasi panjang dipindahkan ke Studio! Mode B Humanis & Bebas Emdash aktif.");
+      }
+    });
+  }
+
+  // Copy Long Narrative Essay
+  if (btnCopyLongNarrative) {
+    btnCopyLongNarrative.addEventListener("click", () => {
+      const text = state.currentNarrativeResult?.longNarrativeText;
+      if (!text) {
+        showToast("⚠️ Belum ada naskah narasi panjang yang di-generate.", false);
+        return;
+      }
+      navigator.clipboard.writeText(text).then(() => {
+        showToast("📋 Naskah narasi panjang berhasil disalin ke clipboard!");
+      });
     });
   }
 
@@ -2984,6 +3167,7 @@ Text On Screen: (Teks di layar)
         return;
       }
       state.currentNarrativeResult.scriptText = sanitizeHumaniseText(state.currentNarrativeResult.scriptText);
+      state.currentNarrativeResult.longNarrativeText = sanitizeHumaniseText(state.currentNarrativeResult.longNarrativeText);
       state.currentNarrativeResult.studioText = sanitizeHumaniseText(state.currentNarrativeResult.studioText);
       state.currentNarrativeResult.fullMarkdown = sanitizeHumaniseText(state.currentNarrativeResult.fullMarkdown);
 
@@ -3012,7 +3196,47 @@ Text On Screen: (Teks di layar)
           });
         }
       }
-      showToast("🧹 Naskah riset berhasil dibersihkan dari seluruh tanda emdash!");
+
+      if (containerLongNarrativeBody && state.currentNarrativeResult.longNarrativeText) {
+        const rawSections = state.currentNarrativeResult.longNarrativeText.split(/(?=(?:^|\n)(?:I|II|III|IV|V|VI)\.\s+[^\n]+)/g).filter(s => s && s.trim().length > 10);
+        containerLongNarrativeBody.innerHTML = "";
+        rawSections.forEach((sec) => {
+          const lines = sec.trim().split("\n");
+          const secHeader = lines[0].trim();
+          const secBody = lines.slice(1).join("\n").trim();
+          const isEtiology = /sebab|akibat|anatomi|etiologi/i.test(secHeader);
+          const isLocalized = /riset|ilmiah|jurnal|lost in translation|adaptasi|telaah/i.test(secHeader);
+          const isClosing = /penutup|batas etis|hotline/i.test(secHeader);
+          
+          const secCard = document.createElement("div");
+          secCard.className = `p-4 sm:p-5 rounded-2xl ${
+            isEtiology 
+              ? 'bg-amber-50/50 dark:bg-amber-950/20 border border-amber-300/60 dark:border-amber-800/40' 
+              : isLocalized 
+                ? 'bg-sky-50/50 dark:bg-sky-950/20 border border-sky-300/60 dark:border-sky-800/40' 
+                : isClosing
+                  ? 'bg-emerald-50/40 dark:bg-emerald-950/15 border border-emerald-300/50 dark:border-emerald-800/40'
+                  : 'bg-neutral-50/80 dark:bg-[#111115] border border-black/[0.06] dark:border-white/[0.08]'
+          } space-y-2.5`;
+          
+          secCard.innerHTML = `
+            <div class="flex items-center justify-between pb-1.5 border-b border-black/[0.05] dark:border-white/[0.06] flex-wrap gap-1.5">
+              <span class="font-bold text-xs sm:text-sm text-[#111] dark:text-white flex items-center gap-2">
+                <span>${isEtiology ? '🎯' : isLocalized ? '🇮🇩' : isClosing ? '🛡️' : '📌'}</span>
+                <span>${escapeHtml(secHeader)}</span>
+              </span>
+              ${isEtiology ? '<span class="px-2 py-0.5 rounded-full bg-amber-200/80 dark:bg-amber-900 text-amber-800 dark:text-amber-200 text-[10px] font-extrabold uppercase">Sebab - Akibat</span>' : ''}
+              ${isLocalized ? '<span class="px-2 py-0.5 rounded-full bg-sky-200/80 dark:bg-sky-900 text-sky-800 dark:text-sky-200 text-[10px] font-extrabold uppercase">Bebas Lost In Translation</span>' : ''}
+            </div>
+            <div class="text-xs sm:text-sm text-neutral-800 dark:text-neutral-200 leading-relaxed font-normal whitespace-pre-line">
+              ${escapeHtml(secBody || sec)}
+            </div>
+          `;
+          containerLongNarrativeBody.appendChild(secCard);
+        });
+      }
+
+      showToast("🧹 Seluruh naskah riset berhasil dibersihkan dari tanda emdash!");
     });
   }
 
